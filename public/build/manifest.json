@@ -1,0 +1,50 @@
+{
+  "resources/css/app.css": {
+    "file": "assets/app-RUO6lxUG.css",
+    "src": "resources/css/app.css",
+    "isEntry": true,
+    "name": "app",
+    "names": [
+      "app.css"
+    ]
+  },
+  "resources/css/website-mobile.css": {
+    "file": "assets/website-mobile-CRRUqZMd.css",
+    "src": "resources/css/website-mobile.css",
+    "isEntry": true,
+    "name": "website-mobile",
+    "names": [
+      "website-mobile.css"
+    ]
+  },
+  "resources/css/website-theme.css": {
+    "file": "assets/website-theme-DRg-Tdrt.css",
+    "src": "resources/css/website-theme.css",
+    "isEntry": true,
+    "name": "website-theme",
+    "names": [
+      "website-theme.css"
+    ]
+  },
+  "resources/css/website.css": {
+    "file": "assets/website-BwHi1ca8.css",
+    "src": "resources/css/website.css",
+    "isEntry": true,
+    "name": "website",
+    "names": [
+      "website.css"
+    ]
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-pZqFNkiu.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true
+  },
+  "resources/js/website-lottie.js": {
+    "file": "assets/website-lottie-DUWMZ_d-.js",
+    "name": "website-lottie",
+    "src": "resources/js/website-lottie.js",
+    "isEntry": true
+  }
+}
