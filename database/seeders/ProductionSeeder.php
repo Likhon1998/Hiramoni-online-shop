@@ -17,7 +17,7 @@ class ProductionSeeder extends Seeder
         $this->call(RolesAndPermissionsSeeder::class);
 
         $shop = Shop::query()->orderBy('id')->first() ?? Shop::create([
-            'name' => env('SHOP_NAME', 'Bynnas Social'),
+            'name' => env('SHOP_NAME', 'Hira Moni'),
             'email' => AdminUserSeeder::EMAIL,
             'phone' => null,
             'address' => null,
@@ -30,7 +30,7 @@ class ProductionSeeder extends Seeder
         $settings = SiteSetting::query()->first() ?? new SiteSetting;
         $settings->fill([
             'default_shop_id' => $shop->id,
-            'store_name' => env('SHOP_NAME', 'Bynnas Social'),
+            'store_name' => env('SHOP_NAME', 'Hira Moni'),
             'currency_code' => 'BDT',
             'currency_symbol' => '৳',
             'special_offer_text' => null,

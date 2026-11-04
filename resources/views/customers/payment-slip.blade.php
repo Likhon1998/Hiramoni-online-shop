@@ -9,7 +9,7 @@
         $paidAt = $entry->created_at?->copy()->timezone($tz);
         $printedAt = now()->timezone($tz);
         $shop = $entry->shop ?? Auth::user()->shop ?? null;
-        $shopName = $shop->name ?? config('app.name', 'Bynnas Social');
+        $shopName = $shop->name ?? config('app.name', 'Hira Moni');
         $paidAmount = abs((float) $entry->amount);
         $method = strtoupper(str_replace('_', ' ', (string) ($entry->method ?? 'cash')));
         $cashier = $entry->user->name ?? '—';

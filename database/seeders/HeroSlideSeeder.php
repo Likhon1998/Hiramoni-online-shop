@@ -22,7 +22,7 @@ class HeroSlideSeeder extends Seeder
         $banners = [
             [
                 'title' => 'Style That Gets Shared',
-                'badge_text' => 'BYNNAS SOCIAL',
+                'badge_text' => 'Hira Moni',
                 'description' => 'Trending fashion, beauty and home picks. Order in one tap, pay on delivery.',
                 'price_from' => null,
                 'button_text' => 'Shop Now',
@@ -138,7 +138,7 @@ class HeroSlideSeeder extends Seeder
         if ($remoteUrl) {
             try {
                 $response = Http::timeout(30)
-                    ->withHeaders(['User-Agent' => 'BynnasSocialHeroSlideSeeder/1.0'])
+                    ->withHeaders(['User-Agent' => 'HiraMoniHeroSlideSeeder/1.0'])
                     ->get($remoteUrl);
 
                 if ($response->successful() && strlen($response->body()) > 500) {

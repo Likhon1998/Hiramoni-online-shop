@@ -1,4 +1,4 @@
-# Bynnas Social — Phase 3 Review Pack
+# Hira Moni — Phase 3 Review Pack
 
 Hand this whole file to the reviewing AI. Part A is the prompt, Part B is the implementation report it must verify.
 
@@ -6,9 +6,9 @@ Hand this whole file to the reviewing AI. Part A is the prompt, Part B is the im
 
 ## PART A — PROMPT FOR THE REVIEWING AI
 
-You are a senior Laravel reviewer. You have read access to the repository at `C:\xampp\htdocs\Bynnas Social` (Laravel 12, PHP 8.2, MySQL, Blade + Alpine.js + Tailwind, Vite, spatie/laravel-permission).
+You are a senior Laravel reviewer. You have read access to the repository at `C:\xampp\htdocs\Hira Moni` (Laravel 12, PHP 8.2, MySQL, Blade + Alpine.js + Tailwind, Vite, spatie/laravel-permission).
 
-The project is **Bynnas Social**, an online-first social-commerce platform being converted from an older retail/POS system in phases. Phases 1–2 (audit, isolating retail/POS behind `RETAIL_MODULE_ENABLED=false`) are done. **Phase 3 — Generic Product Architecture** has just been implemented. Part B below is the developer's report.
+The project is **Hira Moni**, an online-first social-commerce platform being converted from an older retail/POS system in phases. Phases 1–2 (audit, isolating retail/POS behind `RETAIL_MODULE_ENABLED=false`) are done. **Phase 3 — Generic Product Architecture** has just been implemented. Part B below is the developer's report.
 
 ### Your job
 
@@ -62,7 +62,7 @@ The project is **Bynnas Social**, an online-first social-commerce platform being
 | R6 | Legacy compatibility | Legacy `products.color`, `color_hex`, `storage` and `ram` columns are **kept** and mirrored from attribute values (`ProductVariantService::mirrorLegacyColumns`), so POS, receipts, IMEI and reports keep working. The migration backfills attribute values from these columns. Storage/RAM use a compact canonical form (`256GB`). Old storefront links `storage[]=` / `ram[]=` still filter. |
 | R7 | SEO / Open Graph fields | Products gained `slug`, `description`, `seo_title`, `meta_description`, `og_title`, `og_description` and `og_image`. Slug is auto-generated and unique per shop (`Product::booted`, `uniqueSlug`). `Product::seoTitle()` and `seoDescription()` have fallbacks. The product page uses them in `<title>`, meta and `og:` tags. `/product/{slug}` works and numeric `/product/{id}` still works (`resolveRouteBinding`). |
 | R8 | Storefront shows generic variants | `ProductVariantService::storefrontOptions()` builds a picker grouped by attribute, with availability (sold-out options marked). Generic attribute filters on `/shop` and category pages: `?attr[color][]=black&attr[size][]=m` (OR within an attribute, AND across). Code: `WebsiteService::selectedAttributeFilters`, `applyAttributeFilters`, `attributeFacets`; `WebsiteController`; `resources/views/website/partials/shop-sidebar.blade.php`. Category filter config supports type `attribute` (`CategoryFilterConfig`, `categories/partials/filter-options.blade.php`). |
-| R9 | CSV import is generic | `ProductController::importStore` requires only `name`, `cost_price` and `selling_price`. A blank barcode gets an auto code. Supports `color`, `color_hex`, `size`, `storage`, `ram`, `material`, `weight`, `attr_<name>` / `attribute:<name>` (auto-creates the attribute), description, SEO and OG columns. Template renamed `bynnas-social-products-template.csv` with generic examples (T-shirt, lipstick, mug). View: `resources/views/products/import.blade.php`. |
+| R9 | CSV import is generic | `ProductController::importStore` requires only `name`, `cost_price` and `selling_price`. A blank barcode gets an auto code. Supports `color`, `color_hex`, `size`, `storage`, `ram`, `material`, `weight`, `attr_<name>` / `attribute:<name>` (auto-creates the attribute), description, SEO and OG columns. Template renamed `hira-moni-products-template.csv` with generic examples (T-shirt, lipstick, mug). View: `resources/views/products/import.blade.php`. |
 | R10 | Replace phone demo data with general catalog | New `GeneralCatalogSeeder`: 7 categories (Fashion, Cosmetics & Beauty, Toys & Kids, Baby Care, Home & Kitchen, Electronics, Accessories), 8 brands, 20 families / 45 variants. `DemoSeeder` now calls it instead of `GadgetCatalogSeeder` (old seeder kept, not deleted). Hero slides, mid-promo banners, deal promos, brands, reviews, FAQ and footer links rewritten to be generic. |
 | R11 | Permissions enforced server-side | New admin routes sit inside the existing `can:manage inventory` route group in `routes/web.php`. Controllers additionally check `shop_id` ownership. |
 
@@ -120,7 +120,7 @@ The navigation (`resources/views/layouts/navigation.blade.php`) adds Variants an
 - Assets: `resources/css/website.css` (swatch/chip filter styles; `npm run build` done)
 - Routes: `routes/web.php`
 
-Note: the git working tree also contains earlier uncommitted work (rebrand to "Bynnas Social", retail isolation), so not every modified file belongs to Phase 3.
+Note: the git working tree also contains earlier uncommitted work (rebrand to "Hira Moni", retail isolation), so not every modified file belongs to Phase 3.
 
 ### B5. Tests added (`tests/Feature/ProductVariantCatalogTest.php`, 11 tests, 81 assertions, all passing)
 

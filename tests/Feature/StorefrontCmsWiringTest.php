@@ -117,7 +117,7 @@ class StorefrontCmsWiringTest extends TestCase
         $this->get('/')->assertOk()
             ->assertSee('https://tiktok.com/@nest', false)
             ->assertSee('https://wa.me/8801711000000', false);
-        $this->get(route('website.contact'))->assertOk()->assertSee('aria-label="TikTok"', false)->assertDontSee('support@bynnas.com');
+        $this->get(route('website.contact'))->assertOk()->assertSee('aria-label="TikTok"', false)->assertDontSee('support@hiramoni.com');
     }
 
     public function test_confirmation_charge_needs_instructions_and_a_transaction_id(): void

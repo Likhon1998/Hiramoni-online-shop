@@ -39,7 +39,7 @@ class GeneralCatalogSeeder extends Seeder
         if ($settings) {
             $settings->fill([
                 'default_shop_id' => $settings->default_shop_id ?: $shop->id,
-                'store_name' => $settings->store_name ?: 'Bynnas Social',
+                'store_name' => $settings->store_name ?: 'Hira Moni',
                 'trusted_by_text' => 'Trusted by shoppers across Bangladesh',
             ])->save();
         }
@@ -92,7 +92,7 @@ class GeneralCatalogSeeder extends Seeder
     private function seedBrands(int $shopId): array
     {
         $defs = [
-            'Bynnas Basics' => '#0f172a',
+            'Hira Basics' => '#0f172a',
             'Urban Thread' => '#1e3a8a',
             'Glow Lab' => '#be185d',
             'PlayNest' => '#ea580c',
@@ -191,7 +191,7 @@ SVG);
                         'availability' => 'in_stock',
                         'short_description' => $family['summary'],
                         'description' => $family['description'],
-                        'seo_title' => $family['name'].' | Bynnas Social',
+                        'seo_title' => $family['name'].' | Hira Moni',
                         'meta_description' => Str::limit($family['summary'].' Cash on delivery across Bangladesh.', 155, ''),
                         'image' => $images[0] ?? null,
                         'image_2' => $images[1] ?? null,
@@ -306,7 +306,7 @@ SVG);
             }
 
             $response = Http::timeout(25)
-                ->withHeaders(['User-Agent' => 'BynnasSocialCatalogSeeder/1.0'])
+                ->withHeaders(['User-Agent' => 'HiraMoniCatalogSeeder/1.0'])
                 ->get($url);
 
             if (! $response->successful() || strlen($response->body()) < 500) {
@@ -330,7 +330,7 @@ SVG);
     {
         return [
             [
-                'name' => 'Classic Cotton T-Shirt', 'category' => 'Fashion', 'brand' => 'Bynnas Basics',
+                'name' => 'Classic Cotton T-Shirt', 'category' => 'Fashion', 'brand' => 'Hira Basics',
                 'cost' => 320, 'price' => 650, 'original' => 790,
                 'axes' => ['color' => ['Black' => '#111827', 'White' => '#f8fafc', 'Navy' => '#1e3a8a'], 'size' => ['M', 'L', 'XL']],
                 'price_add' => ['size' => ['XL' => 50]],

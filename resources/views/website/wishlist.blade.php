@@ -1,5 +1,5 @@
 @extends('website.layout')
-@section('title', 'Wishlist — '.($settings->store_name ?? config('app.name', 'Bynnas Social')))
+@section('title', 'Wishlist — '.($settings->store_name ?? config('app.name', 'Hira Moni')))
 @section('content')
 <div class="max-w-7xl mx-auto px-4 py-10">
     <div class="flex flex-wrap items-end justify-between gap-3 mb-8">

@@ -9,7 +9,7 @@
         'slate' => 'text-slate-600 bg-slate-100',
     ];
 @endphp
-@section('title', $blog->title.' — '.($settings->store_name ?? config('app.name', 'Bynnas Social')))
+@section('title', $blog->title.' — '.($settings->store_name ?? config('app.name', 'Hira Moni')))
 @section('meta_description', $blog->excerpt ?: \Illuminate\Support\Str::limit(strip_tags((string) $blog->body), 160))
 @section('og_type', 'article')
 @if($blog->cover_image)

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Sign In · {{ data_get($settings ?? null, 'store_name') ?: config('app.name', 'Bynnas Social') }}</title>
+    <title>Sign In · {{ data_get($settings ?? null, 'store_name') ?: config('app.name', 'Hira Moni') }}</title>
     @include('partials.favicon', ['settings' => $settings ?? null])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

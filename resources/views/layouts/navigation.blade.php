@@ -12,7 +12,7 @@
         @php
             $navSettings = \App\Models\SiteSetting::current();
             $navName = $navSettings->store_name
-                ?: (Auth::user()->shop->name ?? config('app.name', 'Bynnas Social'));
+                ?: (Auth::user()->shop->name ?? config('app.name', 'Hira Moni'));
             $navIcon = $navSettings->favicon_path
                 ? public_storage_url($navSettings->favicon_path)
                 : ($navSettings->logo_path ? public_storage_url($navSettings->logo_path) : null);

@@ -112,7 +112,7 @@ class BlogController extends Controller
         if (!$settings) {
             $settings = new SiteSetting();
             $settings->default_shop_id = $this->shopId();
-            $settings->store_name = config('app.name', 'Bynnas Social');
+            $settings->store_name = config('app.name', 'Hira Moni');
             $settings->currency_code = 'BDT';
             $settings->currency_symbol = 'Tk';
         }

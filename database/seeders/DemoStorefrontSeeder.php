@@ -144,8 +144,8 @@ class DemoStorefrontSeeder extends Seeder
             [
                 'title' => 'About Us',
                 'slug' => 'about-us',
-                'excerpt' => 'Bynnas Social brings trending, authentic products to shoppers across Bangladesh.',
-                'body' => "Bynnas Social is a Dhaka-based online store focused on authentic products, fair pricing, and reliable customer support.\n\nWe bring you the products you discover on Facebook, Instagram and TikTok — from brands people trust — with clear details on every product page.\n\nWhether you order from our website, a campaign page, or a social post with cash on delivery, our goal is simple: help you buy with confidence.",
+                'excerpt' => 'Hira Moni brings trending, authentic products to shoppers across Bangladesh.',
+                'body' => "Hira Moni is a Dhaka-based online store focused on authentic products, fair pricing, and reliable customer support.\n\nWe bring you the products you discover on Facebook, Instagram and TikTok — from brands people trust — with clear details on every product page.\n\nWhether you order from our website, a campaign page, or a social post with cash on delivery, our goal is simple: help you buy with confidence.",
                 'sort_order' => 1,
             ],
             [
@@ -165,15 +165,15 @@ class DemoStorefrontSeeder extends Seeder
             [
                 'title' => 'Privacy Policy',
                 'slug' => 'privacy-policy',
-                'excerpt' => 'How Bynnas Social collects and protects your information.',
-                'body' => "We collect only the information needed to process orders, deliver products, and provide support — such as your name, phone number, and delivery address.\n\nWe do not sell your personal data. Payment for online orders is cash on delivery, so we do not store card details for those checkouts.\n\nFor privacy questions, email support@bynnas.com.",
+                'excerpt' => 'How Hira Moni collects and protects your information.',
+                'body' => "We collect only the information needed to process orders, deliver products, and provide support — such as your name, phone number, and delivery address.\n\nWe do not sell your personal data. Payment for online orders is cash on delivery, so we do not store card details for those checkouts.\n\nFor privacy questions, email support@hiramoni.com.",
                 'sort_order' => 4,
             ],
             [
                 'title' => 'Terms & Conditions',
                 'slug' => 'terms-and-conditions',
-                'excerpt' => 'Rules for shopping with Bynnas Social.',
-                'body' => "By placing an order with Bynnas Social you agree to these terms.\n\nOrders: Online orders are subject to stock availability. Cash on delivery (COD) orders reserve inventory until packed, cancelled, or delivered.\n\nPricing: The price shown at checkout is the final merchandise price. Delivery charges are calculated by zone and shown before you confirm.\n\nDelivery: Delivery times are estimates. A signature or OTP may be required. If you refuse a COD parcel without a valid reason, we may limit future COD eligibility.\n\nReturns: Unused items in original packaging may be returned within the period stated on our Returns & Warranty page.\n\nLaw: These terms are governed by the laws of Bangladesh. Contact support@bynnas.com for questions.",
+                'excerpt' => 'Rules for shopping with Hira Moni.',
+                'body' => "By placing an order with Hira Moni you agree to these terms.\n\nOrders: Online orders are subject to stock availability. Cash on delivery (COD) orders reserve inventory until packed, cancelled, or delivered.\n\nPricing: The price shown at checkout is the final merchandise price. Delivery charges are calculated by zone and shown before you confirm.\n\nDelivery: Delivery times are estimates. A signature or OTP may be required. If you refuse a COD parcel without a valid reason, we may limit future COD eligibility.\n\nReturns: Unused items in original packaging may be returned within the period stated on our Returns & Warranty page.\n\nLaw: These terms are governed by the laws of Bangladesh. Contact support@hiramoni.com for questions.",
                 'sort_order' => 5,
             ],
         ];
@@ -182,7 +182,7 @@ class DemoStorefrontSeeder extends Seeder
             CmsPage::updateOrCreate(
                 ['shop_id' => $shopId, 'slug' => $page['slug']],
                 array_merge($page, [
-                    'meta_title' => $page['title'].' | Bynnas Social',
+                    'meta_title' => $page['title'].' | Hira Moni',
                     'meta_description' => $page['excerpt'],
                     'show_in_footer' => true,
                     'is_published' => true,

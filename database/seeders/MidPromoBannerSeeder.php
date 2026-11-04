@@ -98,7 +98,7 @@ class MidPromoBannerSeeder extends Seeder
             }
 
             $response = Http::timeout(25)
-                ->withHeaders(['User-Agent' => 'BynnasSocialMidPromoSeeder/1.0'])
+                ->withHeaders(['User-Agent' => 'HiraMoniMidPromoSeeder/1.0'])
                 ->get($url);
 
             if (! $response->successful() || strlen($response->body()) < 500) {

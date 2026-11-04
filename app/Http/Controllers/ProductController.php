@@ -617,9 +617,9 @@ class ProductController extends Controller
         ];
 
         $rows = [
-            ['Classic Cotton T-Shirt - Black / M', '', 'TEE-BLK-M', 'Fashion', 'Bynnas Basics', '320', '650', '25', '5', '', 'classic-cotton-tee', 'Black', '#111827', 'M', 'Cotton', 'Soft 180 GSM cotton tee for everyday wear.', '', 'Classic Cotton T-Shirt | Bynnas Social', 'Breathable cotton t-shirt in black. Order online with cash on delivery.'],
-            ['Classic Cotton T-Shirt - Black / L', '', 'TEE-BLK-L', 'Fashion', 'Bynnas Basics', '320', '650', '18', '5', '', 'classic-cotton-tee', 'Black', '#111827', 'L', 'Cotton', 'Soft 180 GSM cotton tee for everyday wear.', '', '', ''],
-            ['Classic Cotton T-Shirt - White / M', '', 'TEE-WHT-M', 'Fashion', 'Bynnas Basics', '320', '650', '20', '5', '', 'classic-cotton-tee', 'White', '#ffffff', 'M', 'Cotton', 'Soft 180 GSM cotton tee for everyday wear.', '', '', ''],
+            ['Classic Cotton T-Shirt - Black / M', '', 'TEE-BLK-M', 'Fashion', 'Hira Basics', '320', '650', '25', '5', '', 'classic-cotton-tee', 'Black', '#111827', 'M', 'Cotton', 'Soft 180 GSM cotton tee for everyday wear.', '', 'Classic Cotton T-Shirt | Hira Moni', 'Breathable cotton t-shirt in black. Order online with cash on delivery.'],
+            ['Classic Cotton T-Shirt - Black / L', '', 'TEE-BLK-L', 'Fashion', 'Hira Basics', '320', '650', '18', '5', '', 'classic-cotton-tee', 'Black', '#111827', 'L', 'Cotton', 'Soft 180 GSM cotton tee for everyday wear.', '', '', ''],
+            ['Classic Cotton T-Shirt - White / M', '', 'TEE-WHT-M', 'Fashion', 'Hira Basics', '320', '650', '20', '5', '', 'classic-cotton-tee', 'White', '#ffffff', 'M', 'Cotton', 'Soft 180 GSM cotton tee for everyday wear.', '', '', ''],
             ['Matte Lipstick - Ruby Red', '', 'LIP-RUBY', 'Cosmetics', 'Glow Lab', '180', '450', '40', '8', '', 'matte-lipstick', 'Ruby Red', '#9f1239', '', '', 'Long-lasting matte finish.', '', '', ''],
             ['Ceramic Coffee Mug 350ml', '8801234500011', 'MUG-350', 'Home & Kitchen', '', '150', '390', '30', '5', '', '', '', '', '', 'Ceramic', 'Dishwasher-safe mug.', '', '', ''],
         ];
@@ -644,7 +644,7 @@ class ProductController extends Controller
 
         return response($csv, 200, [
             'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="bynnas-social-products-template.csv"',
+            'Content-Disposition' => 'attachment; filename="hira-moni-products-template.csv"',
         ]);
     }
 

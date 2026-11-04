@@ -1,6 +1,6 @@
 <x-login-layout>
     @php
-        $brandName = data_get($settings ?? null, 'store_name') ?: config('app.name', 'Bynnas Social');
+        $brandName = data_get($settings ?? null, 'store_name') ?: config('app.name', 'Hira Moni');
         $brandLogo = !empty(data_get($settings ?? null, 'logo_path'))
             ? public_storage_url($settings->logo_path)
             : null;
@@ -117,7 +117,7 @@
 
                 <p class="bl-foot">
                     &copy; {{ date('Y') }} {{ $brandName }} · Powered by
-                    <a href="{{ config('app.powered_by_url', 'https://bynnas.com') }}" target="_blank" rel="noopener noreferrer"><strong>{{ config('app.powered_by', 'Bynnas') }}</strong></a>
+                    <a href="{{ config('app.powered_by_url', 'https://hiramoni.com') }}" target="_blank" rel="noopener noreferrer"><strong>{{ config('app.powered_by', 'Hira Moni') }}</strong></a>
                 </p>
             </div>
         </section>

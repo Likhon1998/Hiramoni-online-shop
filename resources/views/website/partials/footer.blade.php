@@ -1,5 +1,5 @@
 @php
-    $storeName = $settings->store_name ?? config('app.name', 'Bynnas Social');
+    $storeName = $settings->store_name ?? config('app.name', 'Hira Moni');
     $tagline = trim((string) ($settings->footer_tagline ?? ''));
     $footerCopy = data_get($settings, 'home_copy') ?: [];
     $footerLogoTagline = trim((string) ($footerCopy['logo_tagline'] ?? ''));

@@ -12,14 +12,14 @@ use Illuminate\Database\Seeder;
  */
 class AdminUserSeeder extends Seeder
 {
-    public const EMAIL = 'admin@bynnasonline.com';
+    public const EMAIL = 'admin@hiramoni.com';
 
     public const PASSWORD = '12345678';
 
     public function run(): void
     {
         $shop = Shop::query()->orderBy('id')->first() ?? Shop::create([
-            'name' => env('SHOP_NAME', 'Bynnas Social'),
+            'name' => env('SHOP_NAME', 'Hira Moni'),
             'email' => self::EMAIL,
             'is_active' => true,
         ]);

@@ -1,5 +1,5 @@
 @php
-    $storeName = $settings->store_name ?? config('app.name', 'Bynnas Social');
+    $storeName = $settings->store_name ?? config('app.name', 'Hira Moni');
     $accent = $page->accent();
     $cta = $page->cta_text ?: 'Order now';
     $currency = $deliveryConfig['currency_symbol'] ?? '৳';

@@ -124,7 +124,7 @@ class SiteSetting extends Model
     public static function current(): self
     {
         return static::query()->first() ?? new static([
-            'store_name' => config('app.name', 'Bynnas Social'),
+            'store_name' => config('app.name', 'Hira Moni'),
             'currency_code' => 'BDT',
             'currency_symbol' => '৳',
         ]);

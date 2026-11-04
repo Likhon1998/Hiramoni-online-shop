@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Bynnas Social'),
+    'name' => env('APP_NAME', 'Hira Moni'),
 
     /*
     |--------------------------------------------------------------------------
@@ -24,8 +24,8 @@ return [
     |
     */
 
-    'powered_by' => env('POWERED_BY', 'Bynnas'),
-    'powered_by_url' => env('POWERED_BY_URL', 'https://bynnas.com'),
+    'powered_by' => env('POWERED_BY', 'Hira Moni'),
+    'powered_by_url' => env('POWERED_BY_URL', 'https://hiramoni.com'),
 
     /*
     |--------------------------------------------------------------------------

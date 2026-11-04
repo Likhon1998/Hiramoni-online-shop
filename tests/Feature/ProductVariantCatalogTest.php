@@ -279,7 +279,7 @@ class ProductVariantCatalogTest extends TestCase
     {
         $response = $this->actingAs($this->admin, 'admin')->get(route('products.import.template'));
         $response->assertOk();
-        $this->assertStringContainsString('bynnas-social-products-template.csv', $response->headers->get('Content-Disposition'));
+        $this->assertStringContainsString('hira-moni-products-template.csv', $response->headers->get('Content-Disposition'));
         $this->assertStringContainsString('Classic Cotton T-Shirt', $response->getContent());
         $this->assertStringNotContainsStringIgnoringCase('samsung', $response->getContent());
     }

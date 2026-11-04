@@ -23,7 +23,7 @@ class BlogSeeder extends Seeder
         if (! $settings) {
             $settings = SiteSetting::create([
                 'default_shop_id' => $shop->id,
-                'store_name' => 'Bynnas Social',
+                'store_name' => 'Hira Moni',
                 'currency_code' => 'BDT',
                 'currency_symbol' => '৳',
             ]);
@@ -39,7 +39,7 @@ class BlogSeeder extends Seeder
             'default_shop_id' => $settings->default_shop_id ?: $shop->id,
             'blog_hero_kicker' => 'OUR BLOG',
             'blog_hero_title' => 'News & Articles',
-            'blog_hero_subtitle' => 'Stay updated with product news, reviews, and buying guides from Bynnas Social.',
+            'blog_hero_subtitle' => 'Stay updated with product news, reviews, and buying guides from Hira Moni.',
             'blog_articles_title' => 'Latest Articles',
             'blog_newsletter_title' => 'Subscribe to Our Newsletter',
             'blog_newsletter_text' => 'Get the latest deals and product news delivered to your inbox.',

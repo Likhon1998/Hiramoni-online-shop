@@ -1,6 +1,6 @@
 @extends('website.layout')
 
-@section('title', 'My Account — ' . ($settings->store_name ?? config('app.name', 'Bynnas Social')))
+@section('title', 'My Account — ' . ($settings->store_name ?? config('app.name', 'Hira Moni')))
 
 @section('content')
 @php

@@ -1,7 +1,7 @@
 @extends('website.layout')
 @php
     $ws = app(\App\Services\WebsiteService::class);
-    $storeName = $settings->store_name ?? config('app.name', 'Bynnas Social');
+    $storeName = $settings->store_name ?? config('app.name', 'Hira Moni');
     $homeCopy = collect(data_get($settings, 'home_copy') ?: [])
         ->map(fn ($v) => is_string($v) ? str_replace('{store}', $storeName, $v) : $v)
         ->all();

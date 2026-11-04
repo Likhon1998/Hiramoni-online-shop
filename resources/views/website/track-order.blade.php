@@ -1,6 +1,6 @@
 @extends('website.layout')
 
-@section('title', 'Track Order — '.($settings->store_name ?? config('app.name', 'Bynnas Social')))
+@section('title', 'Track Order — '.($settings->store_name ?? config('app.name', 'Hira Moni')))
 
 @section('content')
 @php

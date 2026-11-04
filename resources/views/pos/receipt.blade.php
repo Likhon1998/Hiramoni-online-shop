@@ -10,7 +10,7 @@
         $printedAt = now()->timezone($tz);
         $shop = $order->shop ?? Auth::user()->shop ?? null;
         $storeSettings = app(\App\Services\WebsiteService::class)->settings();
-        $shopName = $storeSettings->store_name ?: ($shop->name ?? config('app.name', 'Bynnas Social'));
+        $shopName = $storeSettings->store_name ?: ($shop->name ?? config('app.name', 'Hira Moni'));
         $storeLogo = $storeSettings->logo_path ? public_storage_url($storeSettings->logo_path) : null;
         $storeContact = array_filter([$storeSettings->contact_phone, $storeSettings->contact_email, $storeSettings->contact_address]);
         $tzLabel = $issuedAt?->format('T') ?? $tz;

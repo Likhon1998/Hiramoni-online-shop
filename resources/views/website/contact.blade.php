@@ -15,7 +15,7 @@
     $newsletterTitle = data_get($settings, 'contact_newsletter_title') ?: 'Stay in the loop';
     $newsletterText = data_get($settings, 'contact_newsletter_text') ?: 'Subscribe for deals and product updates.';
 @endphp
-@section('title', 'Contact — '.($settings->store_name ?? config('app.name', 'Bynnas Social')))
+@section('title', 'Contact — '.($settings->store_name ?? config('app.name', 'Hira Moni')))
 @section('content')
 
 <section class="relative overflow-hidden border-b border-slate-100 bg-gradient-to-br from-slate-50 via-blue-50/50 to-white">
@@ -140,7 +140,7 @@
                     <div class="h-56 bg-gradient-to-br from-slate-100 to-blue-50 flex items-center justify-center text-slate-400 text-sm">
                         <div class="text-center px-4">
                             <svg class="w-10 h-10 mx-auto text-blue-500 mb-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
-                            <p class="font-semibold text-slate-600">{{ $settings->store_name ?? config('app.name', 'Bynnas Social') }}</p>
+                            <p class="font-semibold text-slate-600">{{ $settings->store_name ?? config('app.name', 'Hira Moni') }}</p>
                             @if(filled($settings->contact_address ?? null))
                                 <p class="text-xs mt-1">{{ $settings->contact_address }}</p>
                             @endif

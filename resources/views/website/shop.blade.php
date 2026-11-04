@@ -1,5 +1,5 @@
 @extends('website.layout')
-@section('title', (($pageTitle ?? 'Shop') ?: 'Shop').' — '.($settings->store_name ?? config('app.name', 'Bynnas Social')))
+@section('title', (($pageTitle ?? 'Shop') ?: 'Shop').' — '.($settings->store_name ?? config('app.name', 'Hira Moni')))
 
 @section('content')
 @php

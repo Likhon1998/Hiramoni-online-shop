@@ -23,10 +23,10 @@ class WebsiteSeeder extends Seeder
         }
 
         $shop->fill([
-            'name' => 'Bynnas Social',
+            'name' => 'Hira Moni',
             'phone' => '+880 1712-345678',
             'address' => 'Gulshan 1, Dhaka 1212, Bangladesh',
-            'email' => 'support@bynnas.com',
+            'email' => 'support@hiramoni.com',
             'is_active' => true,
         ])->save();
 
@@ -38,7 +38,7 @@ class WebsiteSeeder extends Seeder
 
         SiteSetting::create([
             'default_shop_id' => $shop->id,
-            'store_name' => 'Bynnas Social',
+            'store_name' => 'Hira Moni',
             'currency_code' => 'BDT',
             'currency_symbol' => '৳',
             'special_offer_text' => 'This Week’s Deals',
@@ -70,13 +70,13 @@ class WebsiteSeeder extends Seeder
                 'blog_eyebrow' => 'Journal',
                 'blog_title' => 'Guides &',
                 'blog_title_accent' => 'Reviews',
-                'blog_subtitle' => 'Buying tips and product reviews from the Bynnas Social team.',
+                'blog_subtitle' => 'Buying tips and product reviews from the Hira Moni team.',
             ],
             'deals_kicker' => 'HOT DEALS',
             'deals_title' => "Deals You'll",
             'deals_title_accent' => 'Love',
             'deals_subtitle' => 'Save on trending products and everyday favourites.',
-            'contact_email' => 'support@bynnas.com',
+            'contact_email' => 'support@hiramoni.com',
             'contact_phone' => '+880 1712-345678',
             'contact_address' => 'Gulshan 1, Dhaka 1212, Bangladesh',
             'contact_hours_weekday' => 'Sat – Thu: 10:00 AM – 8:00 PM (BDT)',
@@ -96,17 +96,17 @@ class WebsiteSeeder extends Seeder
             'contact_form_subtitle' => 'Tell us what you are looking for — we will help you find it.',
             'contact_newsletter_title' => 'Get deal alerts',
             'contact_newsletter_text' => 'Flash sales, new arrivals, and exclusive drops.',
-            'contact_website_url' => 'https://bynnas.com',
+            'contact_website_url' => 'https://hiramoni.com',
             'faq_hero_title' => 'Frequently asked questions',
             'faq_hero_subtitle' => 'Orders, COD, delivery, warranty, and returns — answered clearly.',
             'faq_help_title' => 'Still need help?',
             'faq_help_text' => 'Our support team can check stock, warranty, and delivery for your order.',
             'faq_help_button' => 'Contact support',
             'social_links' => [
-                'facebook' => 'https://facebook.com/bynnas',
-                'instagram' => 'https://instagram.com/bynnas',
-                'youtube' => 'https://youtube.com/@bynnas',
-                'tiktok' => 'https://tiktok.com/@bynnas',
+                'facebook' => 'https://facebook.com/hiramoni',
+                'instagram' => 'https://instagram.com/hiramoni',
+                'youtube' => 'https://youtube.com/@hiramoni',
+                'tiktok' => 'https://tiktok.com/@hiramoni',
                 'whatsapp' => 'https://wa.me/8801712345678',
             ],
             'delivery_inside_dhaka' => 60,
@@ -193,7 +193,7 @@ class WebsiteSeeder extends Seeder
 
         $this->call(MidPromoBannerSeeder::class);
 
-        foreach (['Bynnas Basics', 'Urban Thread', 'Glow Lab', 'Little Sprout', 'PlayNest', 'HomeCraft', 'Nova Tech', 'Carry Co.'] as $i => $name) {
+        foreach (['Hira Basics', 'Urban Thread', 'Glow Lab', 'Little Sprout', 'PlayNest', 'HomeCraft', 'Nova Tech', 'Carry Co.'] as $i => $name) {
             Brand::updateOrCreate(
                 ['shop_id' => $shop->id, 'name' => $name],
                 ['sort_order' => $i + 1, 'is_active' => true]
@@ -233,7 +233,7 @@ class WebsiteSeeder extends Seeder
             }
 
             $response = Http::timeout(25)
-                ->withHeaders(['User-Agent' => 'BynnasSocialWebsiteSeeder/1.0'])
+                ->withHeaders(['User-Agent' => 'HiraMoniWebsiteSeeder/1.0'])
                 ->get($url);
 
             if (! $response->successful() || strlen($response->body()) < 500) {

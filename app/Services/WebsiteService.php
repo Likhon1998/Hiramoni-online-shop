@@ -81,7 +81,7 @@ class WebsiteService
         ];
 
         // Old default that hard-coded a store name; treat it as unset so {store} applies.
-        $legacy = ['blog_subtitle' => 'Guides, reviews, and tips from the Bynnas Social team.'];
+        $legacy = ['blog_subtitle' => 'Guides, reviews, and tips from the Hira Moni team.'];
 
         return array_merge($defaults, array_filter(
             $saved ?? [],
@@ -111,7 +111,7 @@ class WebsiteService
         }
 
         return (object) [
-            'store_name' => $site->store_name ?: ($shop?->name ?? config('app.name', 'Bynnas Social')),
+            'store_name' => $site->store_name ?: ($shop?->name ?? config('app.name', 'Hira Moni')),
             'logo_path' => $site->logo_path,
             'favicon_path' => $site->favicon_path,
             'currency_code' => $currencyCode,

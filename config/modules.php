@@ -7,7 +7,7 @@ return [
     | Optional modules
     |--------------------------------------------------------------------------
     |
-    | Bynnas Social is online / social commerce first. The legacy physical
+    | Hira Moni is online / social commerce first. The legacy physical
     | retail module (POS terminal, counters & cash sessions, BAKI credit,
     | EMI plans, exchanges, offline POS sales, counter staff reports) is kept
     | in the codebase with its data, but is switched off by default.

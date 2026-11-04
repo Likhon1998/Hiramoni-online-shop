@@ -1,6 +1,6 @@
 @php
-    $poweredBy = config('app.powered_by', 'Bynnas');
-    $poweredByUrl = config('app.powered_by_url', 'https://bynnas.com');
+    $poweredBy = config('app.powered_by', 'Hira Moni');
+    $poweredByUrl = config('app.powered_by_url', 'https://hiramoni.com');
     $variant = $variant ?? 'default';
     $poweredByLink = '<a href="'.e($poweredByUrl).'" target="_blank" rel="noopener noreferrer" class="powered-by-link">'.e($poweredBy).'</a>';
 @endphp

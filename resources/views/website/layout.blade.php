@@ -61,7 +61,7 @@
             };
         })();
     </script>
-    <title>@yield('title', $settings->store_name ?? config('app.name', 'Bynnas Social'))</title>
+    <title>@yield('title', $settings->store_name ?? config('app.name', 'Hira Moni'))</title>
     @hasSection('meta')
         @yield('meta')
     @else
@@ -80,7 +80,7 @@
         <link rel="canonical" href="{{ url()->current() }}">
         <meta property="og:type" content="@yield('og_type', 'website')">
         <meta property="og:site_name" content="{{ $settings->store_name ?? config('app.name') }}">
-        <meta property="og:title" content="@yield('title', $settings->store_name ?? config('app.name', 'Bynnas Social'))">
+        <meta property="og:title" content="@yield('title', $settings->store_name ?? config('app.name', 'Hira Moni'))">
         <meta property="og:url" content="{{ url()->current() }}">
         @if($defaultMetaDescription !== '')
             <meta property="og:description" content="{{ $defaultMetaDescription }}">
@@ -900,7 +900,7 @@
     <div class="gaget-page-loader__bar" aria-hidden="true"></div>
     <div class="gaget-page-loader__inner">
         <div class="gaget-page-loader__balls" aria-hidden="true"><i></i><i></i><i></i></div>
-        <p class="gaget-page-loader__text">{{ $settings->store_name ?? config('app.name', 'Bynnas Social') }}</p>
+        <p class="gaget-page-loader__text">{{ $settings->store_name ?? config('app.name', 'Hira Moni') }}</p>
         <span class="gaget-page-loader__msg" id="gaget-loader-msg">Loading</span>
     </div>
 </div>
