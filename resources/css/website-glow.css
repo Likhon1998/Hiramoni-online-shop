@@ -716,7 +716,7 @@ body.gw-home .gw-hero {
     min-height: 100% !important;
     aspect-ratio: unset !important;
     object-fit: cover !important;
-    object-position: 55% 22%;
+    object-position: 52% 18%;
     display: block !important;
     z-index: 0;
     pointer-events: none;
@@ -2738,7 +2738,8 @@ body.gw-home .gaget-header-spacer {
     background: var(--gw-blush) !important;
 }
 
-@media (max-width: 1100px) {
+/* Tablet only — phones get 2-up further below */
+@media (max-width: 1100px) and (min-width: 901px) {
     .gw-product-grid,
     .gaget-store .gs-grid:not(.gs-grid--list),
     .gaget-store .tn-product-grid,
@@ -2766,6 +2767,36 @@ body.gw-home .gaget-header-spacer {
 }
 
 @media (max-width: 900px) {
+    /* Always 2 products per row on phones / small tablets */
+    .gw-product-grid,
+    .gaget-store .gs-grid:not(.gs-grid--list),
+    .gaget-store .tn-product-grid,
+    .gaget-store .tn-flash-grid,
+    .gaget-store .bb-product-grid,
+    .gaget-store .gaget-shop-grid,
+    .gaget-store .gaget-product-grid-5,
+    .gw-best-rail {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 12px !important;
+    }
+    .gaget-store .gs-grid:not(.gs-grid--list) .gs-card,
+    .gaget-store .gs-grid:not(.gs-grid--list) .gaget-product-card,
+    .gaget-store .tn-product-card {
+        min-width: 0 !important;
+        max-width: none !important;
+    }
+    .gaget-store .tn-product-badge,
+    .gaget-store .gaget-discount-badge,
+    .gaget-store .tn-product-card .tn-badge {
+        font-size: 9px !important;
+        padding: 3px 7px !important;
+        max-width: calc(100% - 12px);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
     .tn-container {
         padding-left: max(16px, env(safe-area-inset-left)) !important;
         padding-right: max(16px, env(safe-area-inset-right)) !important;
@@ -2895,15 +2926,14 @@ body.gw-home .gaget-header-spacer {
         stroke: currentColor !important;
     }
 
-    /* Hero — wide banner: match height to width so cover doesn’t
-       zoom into empty silk; keep model + products in frame */
+    /* Hero — keep the model’s face in frame (anchor near top) */
     .gw-hero { padding-bottom: 0; }
     body.gw-home .gw-hero-stage,
     .gw-hero-stage {
         min-height: 0 !important;
         height: auto !important;
-        aspect-ratio: 4 / 5;
-        max-height: 78vh;
+        aspect-ratio: 3 / 4;
+        max-height: min(72vh, 640px);
     }
     body.gw-home .gw-hero-overlay,
     .gw-hero-overlay {
@@ -2919,8 +2949,8 @@ body.gw-home .gaget-header-spacer {
         padding: calc(var(--g-header-h, 110px) * .35 + 8px) max(16px, env(safe-area-inset-right)) 22px max(16px, env(safe-area-inset-left)) !important;
     }
     .gw-hero-bleed {
-        object-position: 70% 42%;
-        object-fit: cover;
+        object-fit: cover !important;
+        object-position: 68% 14% !important;
     }
     .gw-hero-stage::before {
         background:
@@ -3363,9 +3393,9 @@ body.gw-home .gaget-header-spacer {
     body.gw-home .gw-hero-stage,
     .gw-hero-stage {
         aspect-ratio: 3 / 4;
-        max-height: 82vh;
+        max-height: min(72vh, 580px);
     }
-    .gw-hero-bleed { object-position: 72% 40%; }
+    .gw-hero-bleed { object-position: 70% 12% !important; }
     .gw-hero-title { font-size: clamp(1.85rem, 8vw, 2.25rem) !important; }
     .gw-hero-sub { font-size: 14px; margin-bottom: 14px; }
     .gw-hero-actions { flex-direction: column; align-items: stretch; }
@@ -3440,8 +3470,9 @@ body.gw-home .gaget-header-spacer {
     body.gw-home .gw-hero-stage,
     .gw-hero-stage {
         aspect-ratio: 3 / 4;
-        max-height: 80vh;
+        max-height: min(70vh, 540px);
     }
+    .gw-hero-bleed { object-position: 68% 10% !important; }
     .gw-hero-title { font-size: 1.75rem !important; }
     .gw-cat-media {
         width: min(100%, 52px) !important;
