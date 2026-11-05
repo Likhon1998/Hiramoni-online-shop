@@ -127,13 +127,20 @@ if (! function_exists('site_favicon_url')) {
         }
 
         $favicon = data_get($settings, 'favicon_path');
-        if (filled($favicon)) {
+        if (filled($favicon) && is_file(public_storage_path($favicon))) {
             return public_storage_url($favicon);
         }
 
         $logo = data_get($settings, 'logo_path');
-        if (filled($logo)) {
+        if (filled($logo) && is_file(public_storage_path($logo))) {
             return public_storage_url($logo);
+        }
+
+        // Prefer the shipped circular brand mark for browser tabs.
+        foreach (['images/hiramoni-logo-round.png', 'images/hiramoni-logo.png', 'favicon.png', 'favicon.svg'] as $file) {
+            if (is_file(public_path($file))) {
+                return asset($file);
+            }
         }
 
         return asset('favicon.svg');
