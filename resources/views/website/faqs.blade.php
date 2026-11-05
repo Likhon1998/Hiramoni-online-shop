@@ -1,12 +1,12 @@
 @extends('website.layout')
 @php
     $settings = $settings ?? (object) [];
-    $heroTitle = data_get($settings, 'faq_hero_title') ?: 'Frequently Asked Questions';
+    $heroTitle = data_get($settings, 'faq_hero_title') ?: __('website.faqs.hero_title');
     $heroSub = data_get($settings, 'faq_hero_subtitle')
-        ?: 'Find quick answers to common questions about orders, shipping, returns, products and more.';
-    $helpTitle = data_get($settings, 'faq_help_title') ?: 'Still Need Help?';
-    $helpText = data_get($settings, 'faq_help_text') ?: "Can't find the answer you're looking for?";
-    $helpButton = data_get($settings, 'faq_help_button') ?: 'Contact Support';
+        ?: __('website.faqs.hero_sub');
+    $helpTitle = data_get($settings, 'faq_help_title') ?: __('website.faqs.help_title');
+    $helpText = data_get($settings, 'faq_help_text') ?: __('website.faqs.help_text');
+    $helpButton = data_get($settings, 'faq_help_button') ?: __('website.faqs.help_button');
     $contactHref = route('website.contact');
     $faqCategories = $faqCategories ?? collect();
     $faqSearch = $faqSearch ?? null;
@@ -31,11 +31,11 @@
 <section class="relative overflow-hidden border-b border-slate-100 bg-gradient-to-br from-slate-50 via-pink-50 to-white">
     <div class="max-w-7xl mx-auto px-4 py-10 sm:py-12">
         <nav class="text-xs text-slate-400 mb-4">
-            <a href="{{ route('home') }}" class="hover:text-pink-700">Home</a>
+            <a href="{{ route('home') }}" class="hover:text-pink-700">{{ __('website.common.home') }}</a>
             <span class="mx-1.5">›</span>
-            <a href="{{ route('website.faqs') }}" class="hover:text-pink-700">Help Center</a>
+            <a href="{{ route('website.faqs') }}" class="hover:text-pink-700">{{ __('website.faqs.help_center') }}</a>
             <span class="mx-1.5">›</span>
-            <span class="text-slate-600">FAQ</span>
+            <span class="text-slate-600">{{ __('website.faqs.faq') }}</span>
         </nav>
         <div class="grid lg:grid-cols-12 gap-8 items-center">
             <div class="lg:col-span-7">

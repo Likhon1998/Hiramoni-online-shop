@@ -29,9 +29,9 @@
     @if($discount > 0)
         <span class="gaget-discount-badge">-{{ $discount }}%</span>
     @elseif($isNew)
-        <span class="gs-badge-new">New</span>
+        <span class="gs-badge-new">{{ __('website.common.new') }}</span>
     @elseif($product->is_best_seller)
-        <span class="gs-badge-new gs-badge-best">Best Seller</span>
+        <span class="gs-badge-new gs-badge-best">{{ __('website.common.best_seller') }}</span>
     @endif
 
     <a href="{{ route('website.product', $product) }}" class="gaget-product-img">
@@ -62,7 +62,7 @@
             <div class="gs-card-actions">
                 <button type="button"
                         class="gs-icon-btn gs-icon-btn--cart"
-                        title="Add to cart"
+                        title="{{ __('website.common.add_to_cart') }}"
                         data-add-to-cart='@json($cartItem)'
                         data-qty="1"
                         data-open-cart="1">
@@ -70,7 +70,7 @@
                 </button>
                 <button type="button"
                         class="gs-icon-btn"
-                        title="Wishlist"
+                        title="{{ __('website.common.wishlist') }}"
                         :class="inWishlist({{ $product->id }}) && 'is-wish'"
                         @click.prevent="toggleWishlist(@js($listItem))">
                     <svg :fill="inWishlist({{ $product->id }}) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>

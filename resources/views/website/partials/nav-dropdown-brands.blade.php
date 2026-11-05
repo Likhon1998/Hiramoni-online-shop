@@ -12,8 +12,8 @@
     $allBrandsUrl = $allUrl ?? route('website.brands');
 @endphp
 <a href="{{ $allBrandsUrl }}" class="gaget-nav-dropdown-item gaget-nav-dropdown-item--all">
-    <span>All brands</span>
-    <span class="gaget-nav-dropdown-cta">View all @include('website.partials.nav-dropdown-arrow', ['class' => ''])</span>
+    <span>{{ __('website.mobile.all_brands') }}</span>
+    <span class="gaget-nav-dropdown-cta">{{ __('website.nav.view_all') }} @include('website.partials.nav-dropdown-arrow', ['class' => ''])</span>
 </a>
 @if($navBrands->isNotEmpty())
     <div class="gaget-nav-brands-grid">
@@ -34,5 +34,5 @@
         @endforeach
     </div>
 @else
-    <span class="gaget-nav-dropdown-empty">No brands yet</span>
+    <span class="gaget-nav-dropdown-empty">{{ __('website.nav.no_brands') }}</span>
 @endif

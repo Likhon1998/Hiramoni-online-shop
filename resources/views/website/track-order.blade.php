@@ -15,8 +15,8 @@
 <div class="bb-track" x-data="trackOrderPage(@js($invoiceNo ?? ''), @js(old('phone', $phone ?? '')), @js(old('lookup_mode', !empty($phoneOrders) ? 'phone' : 'id')))">
     <div class="bb-track-wrap">
         <header class="bb-track-head">
-            <span class="bb-track-kicker">Order tracking</span>
-            <h1 class="bb-track-title">Where’s my order?</h1>
+            <span class="bb-track-kicker">{{ __('website.track.kicker') }}</span>
+            <h1 class="bb-track-title">{{ __('website.track.title') }}</h1>
             <p class="bb-track-sub">Track with your Order ID and phone number — or, if you forgot the Order ID, find all your orders with just your phone number. No account needed.</p>
         </header>
 
@@ -39,12 +39,12 @@
             @endif
             <div class="bb-track-fields" :class="{ 'is-single': mode === 'phone' }">
                 <label class="bb-track-field" x-show="mode === 'id'">
-                    <span>Order ID</span>
+                    <span>{{ __('website.track.order_id') }}</span>
                     <input name="invoice_no" x-model="invoice" :required="mode === 'id'" :disabled="mode !== 'id'" maxlength="64" autocomplete="off" placeholder="WEB-1-2026-00001">
                     @error('invoice_no') <em>{{ $message }}</em> @enderror
                 </label>
                 <label class="bb-track-field">
-                    <span>Phone number used at checkout</span>
+                    <span>{{ __('website.track.phone') }}</span>
                     <input name="phone" x-model="phone" required maxlength="32" type="tel" autocomplete="tel" placeholder="01XXXXXXXXX">
                     @error('phone') <em>{{ $message }}</em> @enderror
                 </label>
@@ -52,12 +52,12 @@
             <p class="bb-track-hint" x-show="mode === 'phone'" x-cloak>We’ll show every order placed with this number. For privacy, delivery name and address stay partly hidden.</p>
             <button type="submit" class="bb-track-submit" :disabled="submitting">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                <span x-text="submitting ? 'Finding your orders…' : (mode === 'phone' ? 'Find my orders' : 'Track order')">Track order</span>
+                <span x-text="submitting ? @js(__('website.track.finding')) : (mode === 'phone' ? @js(__('website.track.find_orders')) : @js(__('website.track.track_order')) )">{{ __('website.track.track_order') }}</span>
             </button>
 
             <template x-if="recent.length">
                 <div class="bb-track-recent">
-                    <span class="bb-track-recent__label">Recent orders on this device</span>
+                    <span class="bb-track-recent__label">{{ __('website.track.recent') }}</span>
                     <div class="bb-track-recent__list">
                         <template x-for="order in recent" :key="order.invoice">
                             <button type="button" class="bb-track-recent__chip" @click="useRecent(order)">
@@ -146,7 +146,7 @@
                         <div class="min-w-0">
                             <p class="bb-track-courier__name">{{ $tracking['courier'] ?: 'Courier' }}</p>
                             @if(!empty($tracking['tracking_number']))
-                                <p class="bb-track-courier__no">Tracking # <strong>{{ $tracking['tracking_number'] }}</strong></p>
+                                <p class="bb-track-courier__no">{{ __('website.track.tracking_no') }} <strong>{{ $tracking['tracking_number'] }}</strong></p>
                             @endif
                         </div>
                     </div>
@@ -154,7 +154,7 @@
 
                 <div class="bb-track-grid">
                     <div class="bb-track-card">
-                        <h3 class="bb-track-card__title">Items</h3>
+                        <h3 class="bb-track-card__title">{{ __('website.track.items') }}</h3>
                         <ul class="bb-track-items">
                             @foreach($tracking['items'] ?? [] as $item)
                                 <li>
@@ -169,7 +169,7 @@
                         </ul>
                     </div>
                     <div class="bb-track-card">
-                        <h3 class="bb-track-card__title">Delivery to</h3>
+                        <h3 class="bb-track-card__title">{{ __('website.track.delivery_to') }}</h3>
                         <p class="bb-track-card__strong">{{ $tracking['customer_name'] ?: '—' }}</p>
                         <p class="bb-track-card__text">{{ $tracking['delivery_address'] ?: '—' }}</p>
                         @if(!empty($trackingMasked))
@@ -183,7 +183,7 @@
 
                 @if(count($tracking['updates'] ?? []) > 1)
                     <details class="bb-track-card bb-track-history">
-                        <summary>Full update history</summary>
+                        <summary>{{ __('website.track.full_history') }}</summary>
                         <ul>
                             @foreach($tracking['updates'] as $update)
                                 <li>
@@ -200,9 +200,9 @@
 
         <p class="bb-track-foot">
             @auth('web')
-                <a href="{{ route('website.account') }}#recent-orders">View all orders in My Account</a>
+                <a href="{{ route('website.account') }}#recent-orders">{{ __('website.track.view_all_account') }}</a>
             @else
-                Have an account? <button type="button" @click="openSignIn('login')">Sign in</button> to see all your orders.
+                {{ __('website.track.have_account') }} <button type="button" @click="openSignIn('login')">{{ __('website.track.sign_in') }}</button> {{ __('website.track.sign_in_see') }}
             @endauth
         </p>
     </div>

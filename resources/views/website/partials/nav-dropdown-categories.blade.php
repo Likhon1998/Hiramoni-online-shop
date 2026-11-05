@@ -3,8 +3,8 @@
   @var string $allUrl
 --}}
 <a href="{{ $allUrl }}" class="gaget-nav-dropdown-item gaget-nav-dropdown-item--all">
-    <span>All categories</span>
-    <span class="gaget-nav-dropdown-cta">View all @include('website.partials.nav-dropdown-arrow', ['class' => ''])</span>
+    <span>{{ __('website.mobile.all_categories') }}</span>
+    <span class="gaget-nav-dropdown-cta">{{ __('website.nav.view_all') }} @include('website.partials.nav-dropdown-arrow', ['class' => ''])</span>
 </a>
 @forelse($allCategories ?? [] as $cat)
     @php $catMeta = $cat->iconMeta(); @endphp
@@ -16,5 +16,5 @@
         @include('website.partials.nav-dropdown-arrow')
     </a>
 @empty
-    <span class="gaget-nav-dropdown-empty">No categories yet</span>
+    <span class="gaget-nav-dropdown-empty">{{ __('website.nav.no_categories') }}</span>
 @endforelse

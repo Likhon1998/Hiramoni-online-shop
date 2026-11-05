@@ -48,9 +48,9 @@
     @if($discount > 0)
         <span class="tn-product-discount">-{{ $discount }}%</span>
     @elseif($isNew)
-        <span class="tn-product-new">New</span>
+        <span class="tn-product-new">{{ __('website.common.new') }}</span>
     @elseif($product->is_best_seller)
-        <span class="tn-product-best">Best Seller</span>
+        <span class="tn-product-best">{{ __('website.common.best_seller') }}</span>
     @endif
 
     <button type="button"
@@ -59,7 +59,7 @@
             :class="inWishlist({{ $product->id }}) && 'is-active'"
             @click.prevent="toggleWishlist(@js($listItem))"
             :aria-pressed="inWishlist({{ $product->id }}) ? 'true' : 'false'"
-            aria-label="Toggle wishlist">
+            aria-label="{{ __('website.common.toggle_wishlist') }}">
         <svg :fill="inWishlist({{ $product->id }}) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
         </svg>
@@ -96,7 +96,7 @@
                 @elseif($comboBlurb !== '')
                     <p class="tn-product-combo-blurb">{{ $comboBlurb }}</p>
                 @else
-                    <p class="tn-product-combo-blurb">Multi-item combo set</p>
+                    <p class="tn-product-combo-blurb">{{ __('website.common.multi_combo') }}</p>
                 @endif
             </div>
         @endif
@@ -119,11 +119,11 @@
                     data-add-to-cart='@json($cartItem)'
                     data-qty="1"
                     data-open-cart="1"
-                    aria-label="Add {{ $displayName }} to cart">
+                    aria-label="{{ __('website.common.add_to_cart') }}: {{ $displayName }}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h2l.6 2.2M7 17h10l2.4-9.5H6.2L7 17zm0 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm10 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/>
                 </svg>
-                <span class="tn-product-add-label">Add</span>
+                <span class="tn-product-add-label">{{ __('website.common.add') }}</span>
             </button>
         </div>
     </div>

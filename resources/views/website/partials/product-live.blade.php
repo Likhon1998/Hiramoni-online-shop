@@ -15,7 +15,7 @@
 
 {{-- Breadcrumbs --}}
 <nav class="text-xs text-slate-400 mb-3 flex flex-wrap items-center gap-1">
-    <a href="{{ route('home') }}">Home</a>
+    <a href="{{ route('home') }}">{{ __('website.common.home') }}</a>
     <span>/</span>
     @if($product->category)
         <a href="{{ route('website.shop', ['category' => $product->category_id]) }}">{{ $product->category->name }}</a>
@@ -99,7 +99,7 @@
     <div class="pd-buy">
         <div class="pd-brand-row">
             @if($product->showsAsNew())
-                <span class="text-[10px] font-semibold uppercase bg-emerald-500 text-white px-2 py-0.5 rounded">New</span>
+                <span class="text-[10px] font-semibold uppercase bg-emerald-500 text-white px-2 py-0.5 rounded">{{ __('website.common.new') }}</span>
             @endif
             @if($product->brand?->logo_path)
                 <img src="{{ public_storage_url($product->brand->logo_path) }}"
@@ -121,7 +121,7 @@
                 <span class="flex text-amber-400">
                     @for($i=1;$i<=5;$i++)<span class="{{ $i<=$stars?'':'text-slate-200' }}">★</span>@endfor
                 </span>
-                <span>({{ $product->review_count }} {{ \Illuminate\Support\Str::plural('Review', $product->review_count) }})</span>
+                <span>({{ trans_choice('website.product.reviews_count', $product->review_count, ['count' => $product->review_count]) }})</span>
             </div>
         @endif
 
@@ -138,12 +138,12 @@
             <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
                 @if($product->availableStock() > 0)
                     <span class="text-slate-600">Availability:
-                        <span class="font-semibold text-emerald-600">In Stock</span>
-                        <span class="text-slate-400">({{ $product->availableStock() }} available)</span>
+                        <span class="font-semibold text-emerald-600">{{ __('website.product.in_stock') }}</span>
+                        <span class="text-slate-400">{{ __('website.product.available', ['count' => $product->availableStock()]) }}</span>
                     </span>
                 @else
                     <span class="text-slate-600">Availability:
-                        <span class="font-semibold text-red-600">Out of Stock</span>
+                        <span class="font-semibold text-red-600">{{ __('website.product.out_of_stock') }}</span>
                     </span>
                 @endif
                 @if(filled($product->barcode))
@@ -201,7 +201,7 @@
             @endphp
             <div class="pd-combo">
                 <div class="pd-combo-head">
-                    <p class="pd-combo-title">Combo set</p>
+                    <p class="pd-combo-title">{{ __('website.product.combo_set') }}</p>
                     <span class="pd-combo-badge">
                         {{ $comboCount > 0 ? $comboCount.' '.\Illuminate\Support\Str::plural('product', $comboCount) : 'Multi-item pack' }}
                     </span>
@@ -210,7 +210,7 @@
                     <p class="pd-combo-blurb">{{ $comboBlurb }}</p>
                 @endif
                 @if($comboCount > 0)
-                    <p class="pd-combo-subtitle">What’s included</p>
+                    <p class="pd-combo-subtitle">{{ __('website.product.whats_included') }}</p>
                     <ol class="pd-combo-list">
                         @foreach($comboItems as $item)
                             <li>
@@ -248,13 +248,13 @@
             @if($availableQty > 0)
                 <div class="pd-cta-top">
                     <div class="pd-qty">
-                        <button type="button" @click="qty = Math.max(1, qty - 1)" aria-label="Decrease quantity">−</button>
+                        <button type="button" @click="qty = Math.max(1, qty - 1)" aria-label="{{ __('website.common.decrease_qty') }}">−</button>
                         <span x-text="qty"></span>
                         <button type="button"
                                 @click="qty = Math.min({{ max(1, $availableQty) }}, qty + 1)"
                                 :disabled="qty >= {{ max(1, $availableQty) }}"
                                 :class="qty >= {{ max(1, $availableQty) }} && 'opacity-40 cursor-not-allowed'"
-                                aria-label="Increase quantity">+</button>
+                                aria-label="{{ __('website.common.increase_qty') }}">+</button>
                     </div>
                     <button type="button"
                             data-add-to-cart='@json($cartItem)'
@@ -263,7 +263,7 @@
                             data-checkout="1"
                             class="pd-btn-primary">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                        Buy Now
+                        {{ __('website.product.buy_now') }}
                     </button>
                 </div>
                 <div class="pd-cta-bottom">
@@ -273,13 +273,13 @@
                             data-open-cart="1"
                             class="pd-btn-secondary">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                        Add To Cart
+                        {{ __('website.product.add_to_cart') }}
                     </button>
                     <button type="button"
                             class="pd-btn-wish"
                             :class="inWishlist({{ $product->id }}) && 'is-active'"
                             @click="toggleWishlist(@js($listItem))"
-                            :aria-label="inWishlist({{ $product->id }}) ? 'Remove from wishlist' : 'Add to wishlist'">
+                            :aria-label="inWishlist({{ $product->id }}) ? @js(__('website.common.remove_wishlist')) : @js(__('website.common.add_wishlist'))">
                         <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
                              :fill="inWishlist({{ $product->id }}) ? 'currentColor' : 'none'">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
@@ -296,7 +296,7 @@
                          :fill="inWishlist({{ $product->id }}) ? 'currentColor' : 'none'" class="w-4 h-4">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                     </svg>
-                    <span x-text="inWishlist({{ $product->id }}) ? 'Wishlisted' : 'Save for later'"></span>
+                    <span x-text="inWishlist({{ $product->id }}) ? @js(__('website.product.wishlisted')) : @js(__('website.product.save_later'))"></span>
                 </button>
             @endif
         </div>
@@ -329,18 +329,18 @@
                 @if($longDescription)
                     <button type="button" @click="tab='description'"
                             :class="tab==='description' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500'"
-                            class="pb-2 text-sm font-medium border-b-2 transition">Description</button>
+                            class="pb-2 text-sm font-medium border-b-2 transition">{{ __('website.product.description') }}</button>
                 @endif
                 @if($reviews->isNotEmpty())
                     <button type="button" @click="tab='reviews'"
                             :class="tab==='reviews' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500'"
-                            class="pb-2 text-sm font-medium border-b-2 transition">Reviews ({{ $reviews->count() }})</button>
+                            class="pb-2 text-sm font-medium border-b-2 transition">{{ __('website.product.reviews') }} ({{ $reviews->count() }})</button>
                 @endif
             </div>
 
             @if($longDescription)
                 <div x-show="tab==='description'">
-                    <h3 class="text-sm font-semibold text-slate-900 mb-1.5">About this item</h3>
+                    <h3 class="text-sm font-semibold text-slate-900 mb-1.5">{{ __('website.product.about') }}</h3>
                     <div class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{{ $longDescription }}</div>
                 </div>
             @endif
@@ -361,7 +361,7 @@
 
     @if($related->count())
         <div class="pd-related {{ ($longDescription || $reviews->isNotEmpty()) ? 'mt-6 pt-5 border-t border-slate-100' : '' }}">
-            <h2 class="text-sm font-semibold text-slate-900 mb-3">You may also like</h2>
+            <h2 class="text-sm font-semibold text-slate-900 mb-3">{{ __('website.product.related') }}</h2>
             <div class="pd-related-grid">
                 @foreach($related->take(4) as $rel)
                     @php $relImg = $ws->productImageUrl($rel); @endphp

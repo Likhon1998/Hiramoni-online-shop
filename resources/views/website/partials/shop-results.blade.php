@@ -5,7 +5,7 @@
         $to = $products->lastItem() ?? 0;
         $total = $products->total();
     @endphp
-    Showing {{ $from }}–{{ $to }} of {{ number_format($total) }} products
+    {{ __('website.shop.showing_range', ['from' => $from, 'to' => $to, 'total' => number_format($total)]) }}
 </div>
 
 <div class="gs-grid" data-shop-grid :class="view === 'list' && 'gs-grid--list'">
@@ -13,8 +13,8 @@
         @include('website.partials.product-card', ['product' => $product, 'listMode' => true])
     @empty
         <div class="gs-empty">
-            <p>No products found.</p>
-            <a href="{{ route('website.shop') }}" data-shop-clear data-no-loader>Clear filters</a>
+            <p>{{ __('website.common.no_products') }}</p>
+            <a href="{{ route('website.shop') }}" data-shop-clear data-no-loader>{{ __('website.common.clear_filters') }}</a>
         </div>
     @endforelse
 </div>

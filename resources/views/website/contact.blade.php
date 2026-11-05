@@ -105,29 +105,29 @@
                 @csrf
                 <div class="grid sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="text-xs font-semibold text-slate-600">Your Name</label>
-                        <input name="name" value="{{ old('name') }}" required class="mt-1 w-full rounded-xl border-slate-200 text-sm" placeholder="John Doe">
+                        <label class="text-xs font-semibold text-slate-600">{{ __('website.contact.your_name') }}</label>
+                        <input name="name" value="{{ old('name') }}" required class="mt-1 w-full rounded-xl border-slate-200 text-sm" placeholder="{{ __('website.contact.name_ph') }}">
                     </div>
                     <div>
-                        <label class="text-xs font-semibold text-slate-600">Your Email</label>
-                        <input type="email" name="email" value="{{ old('email') }}" required class="mt-1 w-full rounded-xl border-slate-200 text-sm" placeholder="john@example.com">
+                        <label class="text-xs font-semibold text-slate-600">{{ __('website.contact.your_email') }}</label>
+                        <input type="email" name="email" value="{{ old('email') }}" required class="mt-1 w-full rounded-xl border-slate-200 text-sm" placeholder="{{ __('website.contact.email_ph') }}">
                     </div>
                 </div>
                 <div>
-                    <label class="text-xs font-semibold text-slate-600">Subject</label>
-                    <input name="subject" value="{{ old('subject') }}" required class="mt-1 w-full rounded-xl border-slate-200 text-sm" placeholder="How can we help you?">
+                    <label class="text-xs font-semibold text-slate-600">{{ __('website.contact.subject') }}</label>
+                    <input name="subject" value="{{ old('subject') }}" required class="mt-1 w-full rounded-xl border-slate-200 text-sm" placeholder="{{ __('website.contact.subject_ph') }}">
                 </div>
                 <div>
-                    <label class="text-xs font-semibold text-slate-600">Order Number <span class="font-normal text-slate-400">(Optional)</span></label>
+                    <label class="text-xs font-semibold text-slate-600">{{ __('website.contact.order_number') }} <span class="font-normal text-slate-400">{{ __('website.contact.optional') }}</span></label>
                     <input name="order_number" value="{{ old('order_number') }}" class="mt-1 w-full rounded-xl border-slate-200 text-sm" placeholder="#ORD-12345">
                 </div>
                 <div>
-                    <label class="text-xs font-semibold text-slate-600">Message</label>
-                    <textarea name="message" rows="5" required class="mt-1 w-full rounded-xl border-slate-200 text-sm" placeholder="Tell us more about your inquiry…">{{ old('message') }}</textarea>
+                    <label class="text-xs font-semibold text-slate-600">{{ __('website.contact.message') }}</label>
+                    <textarea name="message" rows="5" required class="mt-1 w-full rounded-xl border-slate-200 text-sm" placeholder="{{ __('website.contact.message_ph') }}">{{ old('message') }}</textarea>
                 </div>
                 <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-pink-600 px-5 py-3 text-sm font-semibold text-white hover:bg-pink-700 transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-                    Send Message
+                    {{ __('website.contact.send') }}
                 </button>
             </form>
         </div>
@@ -155,7 +155,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     </span>
                     <div>
-                        <p class="text-xs font-bold text-slate-900">Our Office</p>
+                        <p class="text-xs font-bold text-slate-900">{{ __('website.contact.our_office') }}</p>
                         <p class="text-xs text-slate-500 mt-0.5 leading-relaxed">{{ $address }}</p>
                     </div>
                 </div>
@@ -166,7 +166,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                     </span>
                     <div>
-                        <p class="text-xs font-bold text-slate-900">Phone</p>
+                        <p class="text-xs font-bold text-slate-900">{{ __('website.contact.phone') }}</p>
                         <a href="tel:{{ preg_replace('/[^0-9+]/', '', $phone) }}" class="text-xs text-slate-500 hover:text-pink-700">{{ $phone }}</a>
                     </div>
                 </div>
@@ -177,7 +177,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                     </span>
                     <div>
-                        <p class="text-xs font-bold text-slate-900">Email</p>
+                        <p class="text-xs font-bold text-slate-900">{{ __('website.contact.email') }}</p>
                         <a href="mailto:{{ $email }}" class="text-xs text-slate-500 hover:text-pink-700 break-all">{{ $email }}</a>
                     </div>
                 </div>
@@ -187,7 +187,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/></svg>
                     </span>
                     <div>
-                        <p class="text-xs font-bold text-slate-900">Website</p>
+                        <p class="text-xs font-bold text-slate-900">{{ __('website.contact.website') }}</p>
                         <a href="{{ $website }}" class="text-xs text-slate-500 hover:text-pink-700" target="_blank" rel="noopener">{{ $websiteLabel }}</a>
                     </div>
                 </div>
@@ -204,8 +204,8 @@
         </div>
         <form method="POST" action="{{ route('website.newsletter') }}" class="flex-1 flex flex-col sm:flex-row gap-2">
             @csrf
-            <input type="email" name="email" required placeholder="Enter your email" class="flex-1 rounded-xl border-slate-200 text-sm bg-white">
-            <button class="rounded-xl bg-pink-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-pink-700">Subscribe</button>
+            <input type="email" name="email" required placeholder="{{ __('website.contact.newsletter_ph') }}" class="flex-1 rounded-xl border-slate-200 text-sm bg-white">
+            <button class="rounded-xl bg-pink-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-pink-700">{{ __('website.contact.subscribe') }}</button>
         </form>
         @if(session('newsletter_success'))
             <p class="text-xs text-emerald-600">{{ session('newsletter_success') }}</p>

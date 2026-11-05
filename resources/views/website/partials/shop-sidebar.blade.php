@@ -21,7 +21,7 @@
             @click="filtersOpen = !filtersOpen"
             :aria-expanded="filtersOpen.toString()">
         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h18M6 12h12M10 20h4"/></svg>
-        <span x-text="filtersOpen ? 'Hide filters' : 'Filters & categories'"></span>
+        <span x-text="filtersOpen ? @js(__('website.shop.hide_filters')) : @js(__('website.shop.filters_categories'))"></span>
     </button>
     <div class="gs-filters-backdrop" x-show="filtersOpen" x-cloak @click="filtersOpen = false" aria-hidden="true"></div>
     <div class="gs-sidebar-pin" data-gs-sidebar-pin>
@@ -63,14 +63,14 @@
 
         {{-- Categories --}}
         <div class="gs-filter-block">
-            <h3 class="gs-filter-title">Categories</h3>
+            <h3 class="gs-filter-title">{{ __('website.shop.categories') }}</h3>
             <ul class="gs-cat-list">
                 <li>
                     <a href="{{ route('website.shop', request()->except('category', 'page')) }}"
                        class="gs-cat-link {{ ! $activeCat ? 'is-active' : '' }}"
                        data-category=""
                        data-no-loader>
-                        <span>All Categories</span>
+                        <span>{{ __('website.shop.all_categories') }}</span>
                         <span class="gs-cat-count">({{ number_format($categoryTotal) }})</span>
                     </a>
                 </li>
@@ -124,33 +124,33 @@
         {{-- Price --}}
         <div class="gs-filter-block">
             <div class="gs-price-head">
-                <h3 class="gs-filter-title">Price</h3>
-                <button type="button" class="gs-price-reset" x-show="changed" x-cloak @click="resetPrice()">Reset</button>
+                <h3 class="gs-filter-title">{{ __('website.shop.price') }}</h3>
+                <button type="button" class="gs-price-reset" x-show="changed" x-cloak @click="resetPrice()">{{ __('website.shop.reset') }}</button>
             </div>
             <div class="gs-price-slider">
                 <div class="gs-price-fields">
                     <label class="gs-price-field">
-                        <span>Min</span>
+                        <span>{{ __('website.shop.min') }}</span>
                         <span class="gs-price-input">
                             <i>{{ $symbol }}</i>
                             <input type="number" inputmode="numeric" :min="boundMin" :max="max" step="1"
-                                   x-model.number="min" @change="applyPrice()" aria-label="Minimum price">
+                                   x-model.number="min" @change="applyPrice()" aria-label="{{ __('website.shop.min_price') }}">
                         </span>
                     </label>
                     <span class="gs-price-to" aria-hidden="true">–</span>
                     <label class="gs-price-field">
-                        <span>Max</span>
+                        <span>{{ __('website.shop.max') }}</span>
                         <span class="gs-price-input">
                             <i>{{ $symbol }}</i>
                             <input type="number" inputmode="numeric" :min="min" :max="boundMax" step="1"
-                                   x-model.number="max" @change="applyPrice()" aria-label="Maximum price">
+                                   x-model.number="max" @change="applyPrice()" aria-label="{{ __('website.shop.max_price') }}">
                         </span>
                     </label>
                 </div>
                 <div class="gs-price-track">
                     <div class="gs-price-range" :style="'left:' + pctMin + '%; right:' + (100 - pctMax) + '%'"></div>
-                    <input type="range" :min="boundMin" :max="boundMax" step="1" x-model.number="min" @input="syncMin()" @change="applyPrice()" class="gs-range gs-range-min" aria-label="Minimum price">
-                    <input type="range" :min="boundMin" :max="boundMax" step="1" x-model.number="max" @input="syncMax()" @change="applyPrice()" class="gs-range gs-range-max" aria-label="Maximum price">
+                    <input type="range" :min="boundMin" :max="boundMax" step="1" x-model.number="min" @input="syncMin()" @change="applyPrice()" class="gs-range gs-range-min" aria-label="{{ __('website.shop.min_price') }}">
+                    <input type="range" :min="boundMin" :max="boundMax" step="1" x-model.number="max" @input="syncMax()" @change="applyPrice()" class="gs-range gs-range-max" aria-label="{{ __('website.shop.max_price') }}">
                 </div>
                 <div class="gs-price-scale">
                     <span>{{ $symbol }}<span x-text="money(boundMin)"></span></span>
@@ -164,7 +164,7 @@
         {{-- Brands --}}
         @if($brands->isNotEmpty())
             <div class="gs-filter-block">
-                <h3 class="gs-filter-title">Brands</h3>
+                <h3 class="gs-filter-title">{{ __('website.shop.brands') }}</h3>
                 <ul class="gs-brand-list">
                     @foreach($brands as $i => $brand)
                         <li @if($i >= $visibleBrands) x-show="brandsOpen" x-cloak @endif>
@@ -180,7 +180,7 @@
                 </ul>
                 @if($brands->count() > $visibleBrands)
                     <button type="button" class="gs-view-more" @click="brandsOpen = !brandsOpen"
-                            x-text="brandsOpen ? '− Show Less' : '+ View More'"></button>
+                            x-text="brandsOpen ? @js(__('website.shop.show_less')) : @js(__('website.shop.view_more'))"></button>
                 @endif
             </div>
         @endif

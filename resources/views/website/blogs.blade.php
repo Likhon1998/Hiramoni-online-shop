@@ -85,16 +85,16 @@
                 @if($hasFilters)
                     <div class="gw-blog-filter-note">
                         @if($blogSearch)
-                            <p>Results for <strong>“{{ $blogSearch }}”</strong></p>
+                            <p>{{ __('website.blog.results_for') }} <strong>“{{ $blogSearch }}”</strong></p>
                         @endif
                         @if($activeCategoryName)
-                            <p>Category: <strong>{{ $activeCategoryName }}</strong></p>
+                            <p>{{ __('website.blog.category') }} <strong>{{ $activeCategoryName }}</strong></p>
                         @endif
                     </div>
-                    <a href="{{ route('website.blogs') }}" class="gw-blog-clear">Clear filters</a>
+                    <a href="{{ route('website.blogs') }}" class="gw-blog-clear">{{ __('website.blog.clear_filters') }}</a>
                 @else
                     <h2 class="gw-blog-section-title">{{ $articlesTitle }}</h2>
-                    <p class="gw-blog-section-count">{{ method_exists($blogs, 'total') ? $blogs->total() : $blogs->count() }} stories</p>
+                    <p class="gw-blog-section-count">{{ method_exists($blogs, 'total') ? $blogs->total() : $blogs->count() }} {{ __('website.blog.stories') }}</p>
                 @endif
             </header>
 
@@ -121,15 +121,15 @@
                                 <p class="gw-blog-excerpt">{{ $post->excerpt }}</p>
                             @endif
                             <a href="{{ route('website.blog', $post->slug) }}" class="gw-blog-more">
-                                Read story
+                                {{ __('website.common.read_more') }}
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                             </a>
                         </div>
                     </article>
                 @empty
                     <div class="gw-blog-empty">
-                        <p>No stories match your filters yet.</p>
-                        <a href="{{ route('website.blogs') }}" class="gw-blog-clear">Browse all stories</a>
+                        <p>{{ __('website.blog.no_match') }}</p>
+                        <a href="{{ route('website.blogs') }}" class="gw-blog-clear">{{ __('website.blog.browse_all') }}</a>
                     </div>
                 @endforelse
             </div>
@@ -139,16 +139,16 @@
             @endif
         </div>
 
-        <aside class="gw-blog-aside" aria-label="Blog sidebar">
+        <aside class="gw-blog-aside" aria-label="{{ __('website.blog.sidebar') }}">
             <div class="gw-blog-panel">
-                <h3 class="gw-blog-panel-title">Search</h3>
+                <h3 class="gw-blog-panel-title">{{ __('website.blog.search') }}</h3>
                 <form action="{{ route('website.blogs') }}" method="GET" class="gw-blog-search">
                     @if($activeBlogCategory)
                         <input type="hidden" name="category" value="{{ $activeBlogCategory }}">
                     @endif
-                    <label class="sr-only" for="blog-search">Search articles</label>
-                    <input id="blog-search" type="search" name="q" value="{{ $blogSearch }}" placeholder="Search beauty tips...">
-                    <button type="submit" aria-label="Search">
+                    <label class="sr-only" for="blog-search">{{ __('website.blog.search_articles') }}</label>
+                    <input id="blog-search" type="search" name="q" value="{{ $blogSearch }}" placeholder="{{ __('website.blog.search_ph') }}">
+                    <button type="submit" aria-label="{{ __('website.search.aria') }}">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </button>
                 </form>
@@ -156,12 +156,12 @@
 
             @if($blogCategories->count())
                 <div class="gw-blog-panel">
-                    <h3 class="gw-blog-panel-title">Categories</h3>
+                    <h3 class="gw-blog-panel-title">{{ __('website.blog.categories') }}</h3>
                     <ul class="gw-blog-cats">
                         <li>
                             <a href="{{ route('website.blogs', array_filter(['q' => $blogSearch])) }}"
                                class="{{ ! $activeBlogCategory ? 'is-active' : '' }}">
-                                <span>All stories</span>
+                                <span>{{ __('website.blog.all_stories') }}</span>
                                 <span>{{ method_exists($blogs, 'total') && ! $hasFilters ? $blogs->total() : $blogCategories->sum('blogs_count') }}</span>
                             </a>
                         </li>
@@ -180,7 +180,7 @@
 
             @if($popularPosts->count())
                 <div class="gw-blog-panel">
-                    <h3 class="gw-blog-panel-title">Popular reads</h3>
+                    <h3 class="gw-blog-panel-title">{{ __('website.blog.popular') }}</h3>
                     <ul class="gw-blog-popular">
                         @foreach($popularPosts as $pop)
                             <li>
@@ -205,9 +205,9 @@
                 @endif
                 <form action="{{ route('website.newsletter') }}" method="POST" class="gw-blog-newsletter">
                     @csrf
-                    <label class="sr-only" for="blog-newsletter-email">Email</label>
-                    <input id="blog-newsletter-email" type="email" name="email" required placeholder="Your email address">
-                    <button type="submit">Subscribe</button>
+                    <label class="sr-only" for="blog-newsletter-email">{{ __('website.blog.email') }}</label>
+                    <input id="blog-newsletter-email" type="email" name="email" required placeholder="{{ __('website.blog.email_ph') }}">
+                    <button type="submit">{{ __('website.blog.subscribe') }}</button>
                 </form>
             </div>
         </aside>

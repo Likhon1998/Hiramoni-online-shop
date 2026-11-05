@@ -1,5 +1,5 @@
 @extends('website.layout')
-@section('title', (($pageTitle ?? 'Shop') ?: 'Shop').' — '.($settings->store_name ?? config('app.name', 'Hira Moni')))
+@section('title', (($pageTitle ?? __('website.shop.title')) ?: 'Shop').' — '.($settings->store_name ?? config('app.name', 'Hira Moni')))
 
 @section('content')
 @php
@@ -245,7 +245,7 @@ requestAnimationFrame(window.bindShopProductScroll);
      x-data="shopLive({
          endpoint: @js(route('website.shop')),
          view: @js($viewMode),
-         title: @js($pageTitle ?? 'Shop'),
+         title: @js($pageTitle ?? __('website.shop.title')),
      })"
      @shop-refresh="refresh()"
      @popstate.window="onPopState()">
@@ -257,27 +257,27 @@ requestAnimationFrame(window.bindShopProductScroll);
         @endif
 
         <div class="gs-main">
-            <nav class="gs-breadcrumb" aria-label="Breadcrumb">
-                <a href="{{ route('home') }}">Home</a>
+            <nav class="gs-breadcrumb" aria-label="{{ __('website.common.breadcrumb') }}">
+                <a href="{{ route('home') }}">{{ __('website.common.home') }}</a>
                 <span>›</span>
-                <span class="gs-breadcrumb-current">Shop</span>
+                <span class="gs-breadcrumb-current">{{ __('website.shop.title') }}</span>
             </nav>
 
             <div class="gs-toolbar">
                 <div class="gs-toolbar-left">
-                    <h1 class="gs-title" data-shop-title>{{ $pageTitle ?? 'Shop' }}</h1>
+                    <h1 class="gs-title" data-shop-title>{{ $pageTitle ?? __('website.shop.title') }}</h1>
                     <p class="gs-count" data-shop-count-label>
                         @php
                             $from = $products->firstItem() ?? 0;
                             $to = $products->lastItem() ?? 0;
                             $total = $products->total();
                         @endphp
-                        Showing {{ $from }}–{{ $to }} of {{ number_format($total) }} products
+                        {{ __('website.shop.showing_range', ['from' => $from, 'to' => $to, 'total' => number_format($total)]) }}
                     </p>
                 </div>
 
                 <div class="gs-toolbar-right">
-                    <div class="gs-view-toggle" role="group" aria-label="View mode">
+                    <div class="gs-view-toggle" role="group" aria-label="{{ __('website.common.view_mode') }}">
                         <button type="button" class="gs-view-btn" :class="view === 'grid' && 'is-active'" @click="view = 'grid'" title="Grid view">
                             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z"/></svg>
                         </button>
@@ -287,14 +287,14 @@ requestAnimationFrame(window.bindShopProductScroll);
                     </div>
 
                     <div class="gs-sort">
-                        <label for="gs-sort">Sort by:</label>
+                        <label for="gs-sort">{{ __('website.common.sort_by') }}</label>
                         <select id="gs-sort" x-model="sort" @change="onSortChange()" data-no-loader>
-                            <option value="featured" @selected(($sort ?? request('sort', 'featured')) === 'featured')>Featured</option>
-                            <option value="latest" @selected(($sort ?? '') === 'latest')>Latest</option>
-                            <option value="price_asc" @selected(($sort ?? '') === 'price_asc')>Price: Low to High</option>
-                            <option value="price_desc" @selected(($sort ?? '') === 'price_desc')>Price: High to Low</option>
-                            <option value="name" @selected(($sort ?? '') === 'name')>Name</option>
-                            <option value="bestsellers" @selected(($sort ?? '') === 'bestsellers')>Best Sellers</option>
+                            <option value="featured" @selected(($sort ?? request('sort', 'featured')) === 'featured')>{{ __('website.common.featured') }}</option>
+                            <option value="latest" @selected(($sort ?? '') === 'latest')>{{ __('website.common.latest') }}</option>
+                            <option value="price_asc" @selected(($sort ?? '') === 'price_asc')>{{ __('website.common.price_low_high') }}</option>
+                            <option value="price_desc" @selected(($sort ?? '') === 'price_desc')>{{ __('website.common.price_high_low') }}</option>
+                            <option value="name" @selected(($sort ?? '') === 'name')>{{ __('website.common.name') }}</option>
+                            <option value="bestsellers" @selected(($sort ?? '') === 'bestsellers')>{{ __('website.common.bestsellers') }}</option>
                         </select>
                     </div>
                 </div>

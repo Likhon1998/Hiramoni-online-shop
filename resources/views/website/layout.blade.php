@@ -594,7 +594,7 @@
                         const data = await res.json().catch(() => ({}));
                         this.applyCsrfFromResponse(data);
                         if (!res.ok) {
-                            this.authMessage = data.message || data.errors?.email?.[0] || (res.status === 419 ? 'Session expired. Please try signing in again.' : 'Sign in failed.');
+                            this.authMessage = data.message || data.errors?.email?.[0] || (res.status === 419 ? @js(__('website.auth.session_expired')) : @js(__('website.auth.sign_in_failed')));
                             if (window.GagetLoader) window.GagetLoader.hide();
                             return;
                         }
@@ -714,7 +714,7 @@
                         if (data.success) {
                             if (!data.invoice && !data.order_id) {
                                 this.orderSuccess = false;
-                                this.orderMessage = 'Order placed but no Order ID was returned. Please check My Orders or contact support.';
+                                this.orderMessage = @js(__('website.checkout.order_no_id'));
                                 return;
                             }
                             this.cart = [];
@@ -733,7 +733,7 @@
                             }
                         } else {
                             this.orderSuccess = false;
-                            this.orderMessage = data.message || 'Order failed.';
+                            this.orderMessage = data.message || @js(__('website.checkout.order_failed'));
                         }
                     } catch (e) {
                         this.orderSuccess = false;
@@ -948,13 +948,13 @@
      :class="{ 'is-open': cartOpen }"
      :aria-hidden="cartOpen ? 'false' : 'true'">
     <div class="gaget-cart-backdrop" @click="closeCart()"></div>
-    <aside class="gaget-cart-panel" role="dialog" aria-modal="true" aria-label="Shopping cart">
+    <aside class="gaget-cart-panel" role="dialog" aria-modal="true" aria-label="{{ __('website.cart.shopping_cart') }}">
         <div class="gaget-cart-panel__head">
             <div class="gaget-cart-panel__head-text">
-                <h3 class="gaget-cart-panel__title">Cart</h3>
-                <p class="gaget-cart-panel__count"><span x-text="cartCount"></span> <span x-text="cartCount === 1 ? 'item' : 'items'"></span></p>
+                <h3 class="gaget-cart-panel__title">{{ __('website.cart.title') }}</h3>
+                <p class="gaget-cart-panel__count"><span x-text="cartCount"></span> <span x-text="cartCount === 1 ? @js(__('website.cart.item')) : @js(__('website.cart.items'))"></span></p>
             </div>
-            <button type="button" class="gaget-cart-panel__close" @click="closeCart()" aria-label="Close cart">
+            <button type="button" class="gaget-cart-panel__close" @click="closeCart()" aria-label="{{ __('website.cart.close') }}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>
@@ -970,9 +970,9 @@
                             <circle cx="40" cy="52" r="3" fill="#E91E63" stroke="none"/>
                         </svg>
                     </div>
-                    <p class="gaget-cart-empty__title">Your cart is taking a nap</p>
-                    <p class="gaget-cart-empty__text">Browse the shop and add something you like.</p>
-                    <button type="button" class="gaget-btn-primary gaget-cart-empty__cta" @click="closeCart()">Continue shopping</button>
+                    <p class="gaget-cart-empty__title">{{ __('website.cart.empty_title') }}</p>
+                    <p class="gaget-cart-empty__text">{{ __('website.cart.empty_text') }}</p>
+                    <button type="button" class="gaget-btn-primary gaget-cart-empty__cta" @click="closeCart()">{{ __('website.cart.continue_shopping') }}</button>
                 </div>
             </template>
 
@@ -984,20 +984,20 @@
                     <div class="gaget-cart-line__meta">
                         <div class="gaget-cart-line__top">
                             <p class="gaget-cart-line__name" x-text="item.name"></p>
-                            <button type="button" class="gaget-cart-line__remove" @click="removeItem(i)" aria-label="Remove item">
+                            <button type="button" class="gaget-cart-line__remove" @click="removeItem(i)" aria-label="{{ __('website.cart.remove_item') }}">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M6 7h12M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m2 0v12a2 2 0 01-2 2H8a2 2 0 01-2-2V7h12zM10 11v6M14 11v6"/></svg>
                             </button>
                         </div>
                         <p class="gaget-cart-line__price" x-text="currency + Math.round(Number(item.price) || 0).toLocaleString()"></p>
                         <div class="gaget-cart-line__actions">
                             <div class="gaget-cart-qty">
-                                <button type="button" @click="updateQty(i, -1)" aria-label="Decrease quantity">−</button>
+                                <button type="button" @click="updateQty(i, -1)" aria-label="{{ __('website.common.decrease_qty') }}">−</button>
                                 <span x-text="item.qty"></span>
                                 <button type="button"
                                         @click="updateQty(i, 1)"
                                         :disabled="Number(item.stock) > 0 && Number(item.qty) >= Number(item.stock)"
                                         :class="Number(item.stock) > 0 && Number(item.qty) >= Number(item.stock) && 'opacity-40 cursor-not-allowed'"
-                                        aria-label="Increase quantity">+</button>
+                                        aria-label="{{ __('website.common.increase_qty') }}">+</button>
                             </div>
                             <p class="gaget-cart-line__line-total" x-text="currency + Math.round((Number(item.price) || 0) * (Number(item.qty) || 0)).toLocaleString()"></p>
                         </div>
@@ -1009,13 +1009,13 @@
         <div class="gaget-cart-panel__foot" x-show="cart.length > 0" x-cloak>
             <div class="gaget-cart-panel__summary">
                 <div class="gaget-cart-panel__total">
-                    <span>Subtotal</span>
+                    <span>{{ __('website.cart.subtotal') }}</span>
                     <strong x-text="currency + Math.round(Number(cartTotal) || 0).toLocaleString()"></strong>
                 </div>
-                <p class="gaget-cart-panel__hint">Shipping &amp; taxes calculated at checkout</p>
+                <p class="gaget-cart-panel__hint">{{ __('website.cart.shipping_hint') }}</p>
             </div>
             <button type="button" @click="startCheckout()" class="gaget-cart-panel__checkout">
-                Checkout
+                {{ __('website.cart.checkout') }}
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
             </button>
         </div>
@@ -1031,30 +1031,30 @@
 
         {{-- Auth step (standalone account OR checkout) --}}
         <div x-show="checkoutStep==='auth'" x-cloak>
-            <h3 class="text-xl font-bold text-slate-900 pr-8" x-text="authPurpose === 'checkout' ? 'Sign in for faster checkout' : (authTab === 'register' ? 'Create your account' : 'Welcome back')"></h3>
-            <p class="text-sm text-slate-500 mt-1 mb-5" x-text="authPurpose === 'checkout' ? 'Use your saved details and see every order in My Orders — or continue as a guest.' : 'Create an account anytime — then sign in to shop and track orders.'"></p>
+            <h3 class="text-xl font-bold text-slate-900 pr-8" x-text="authPurpose === 'checkout' ? @js(__('website.auth.sign_in_faster')) : (authTab === 'register' ? @js(__('website.auth.create_account')) : @js(__('website.auth.welcome_back')) )"></h3>
+            <p class="text-sm text-slate-500 mt-1 mb-5" x-text="authPurpose === 'checkout' ? @js(__('website.auth.checkout_sub')) : @js(__('website.auth.account_sub'))"></p>
 
             <div class="flex rounded-xl bg-slate-100 p-1 mb-5">
-                <button type="button" @click="authTab='login'; authMessage=''; authMessageOk=false" class="flex-1 rounded-lg py-2 text-sm font-semibold transition" :class="authTab==='login' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'">Sign in</button>
-                <button type="button" @click="authTab='register'; authMessage=''; authMessageOk=false" class="flex-1 rounded-lg py-2 text-sm font-semibold transition" :class="authTab==='register' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'">Create account</button>
+                <button type="button" @click="authTab='login'; authMessage=''; authMessageOk=false" class="flex-1 rounded-lg py-2 text-sm font-semibold transition" :class="authTab==='login' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'">{{ __('website.auth.sign_in') }}</button>
+                <button type="button" @click="authTab='register'; authMessage=''; authMessageOk=false" class="flex-1 rounded-lg py-2 text-sm font-semibold transition" :class="authTab==='register' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'">{{ __('website.auth.create_account_btn') }}</button>
             </div>
 
             <div x-show="authTab==='login'" class="space-y-3">
-                <input x-model="authLogin.email" type="email" placeholder="Email" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm" autocomplete="email">
-                <input x-model="authLogin.password" type="password" placeholder="Password" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm" autocomplete="current-password" @keydown.enter.prevent="submitLogin()">
+                <input x-model="authLogin.email" type="email" placeholder="{{ __('website.auth.email') }}" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm" autocomplete="email">
+                <input x-model="authLogin.password" type="password" placeholder="{{ __('website.auth.password') }}" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm" autocomplete="current-password" @keydown.enter.prevent="submitLogin()">
                 <button type="button" @click="submitLogin()" :disabled="authLoading" class="w-full gaget-btn-primary text-center disabled:opacity-50">
-                    <span x-text="authLoading ? 'Signing in...' : (authPurpose === 'checkout' ? 'Sign in & continue' : 'Sign in')"></span>
+                    <span x-text="authLoading ? @js(__('website.auth.signing_in')) : (authPurpose === 'checkout' ? @js(__('website.auth.sign_in_continue')) : @js(__('website.auth.sign_in')) )"></span>
                 </button>
             </div>
 
             <div x-show="authTab==='register'" class="space-y-3">
-                <input x-model="authRegister.name" type="text" placeholder="Full name" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm" autocomplete="name">
-                <input x-model="authRegister.phone" type="text" placeholder="Phone number" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm" autocomplete="tel">
-                <input x-model="authRegister.email" type="email" placeholder="Email" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm" autocomplete="email">
-                <input x-model="authRegister.password" type="password" placeholder="Password (min. 8 characters)" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm" autocomplete="new-password">
-                <textarea x-model="authRegister.address" placeholder="Address (optional)" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm" rows="2"></textarea>
+                <input x-model="authRegister.name" type="text" placeholder="{{ __('website.auth.full_name') }}" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm" autocomplete="name">
+                <input x-model="authRegister.phone" type="text" placeholder="{{ __('website.auth.phone') }}" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm" autocomplete="tel">
+                <input x-model="authRegister.email" type="email" placeholder="{{ __('website.auth.email') }}" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm" autocomplete="email">
+                <input x-model="authRegister.password" type="password" placeholder="{{ __('website.auth.password_min') }}" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm" autocomplete="new-password">
+                <textarea x-model="authRegister.address" placeholder="{{ __('website.auth.address_optional') }}" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm" rows="2"></textarea>
                 <button type="button" @click="submitRegister()" :disabled="authLoading" class="w-full gaget-btn-primary text-center disabled:opacity-50">
-                    <span x-text="authLoading ? 'Creating account...' : 'Create account'"></span>
+                    <span x-text="authLoading ? @js(__('website.auth.creating')) : @js(__('website.auth.create_account_btn'))"></span>
                 </button>
             </div>
 
@@ -1066,17 +1066,17 @@
                         <span class="h-px flex-1 bg-slate-200"></span>or<span class="h-px flex-1 bg-slate-200"></span>
                     </div>
                     <button type="button" @click="continueAsGuest()" class="bb-guest-btn mt-4">
-                        Continue as guest
+                        {{ __('website.auth.continue_guest') }}
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 12h14m-6-6 6 6-6 6"/></svg>
                     </button>
-                    <p class="mt-2 text-center text-[11.5px] text-slate-500">No account needed — track your order with its Order ID and phone number.</p>
+                    <p class="mt-2 text-center text-[11.5px] text-slate-500">{{ __('website.auth.guest_track_note') }}</p>
                 </div>
             </template>
         </div>
 
         {{-- Order step --}}
         <div x-show="checkoutStep==='order'" x-cloak>
-            <h3 class="text-xl font-bold text-slate-900 pr-8">Place order</h3>
+            <h3 class="text-xl font-bold text-slate-900 pr-8">{{ __('website.checkout.place_order') }}</h3>
             <p class="text-sm text-slate-500 mt-1 mb-4"><span x-text="cartCount"></span> item(s) · Subtotal <span class="font-semibold text-slate-800" x-text="currency + Math.round(Number(cartTotal) || 0).toLocaleString()"></span></p>
 
             <div x-show="!isLoggedIn" class="bb-guest-note mb-4">
@@ -1084,35 +1084,35 @@
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                 </span>
                 <span class="min-w-0 flex-1">
-                    <span class="block text-[12.5px] font-bold text-slate-800">Checking out as a guest</span>
-                    <span class="block text-[11.5px] text-slate-500">No account needed. Have one? Sign in to use your saved details.</span>
+                    <span class="block text-[12.5px] font-bold text-slate-800">{{ __('website.checkout.guest_title') }}</span>
+                    <span class="block text-[11.5px] text-slate-500">{{ __('website.checkout.guest_sub') }}</span>
                 </span>
-                <button type="button" @click="signInForCheckout()" class="bb-guest-note__link">Sign in</button>
+                <button type="button" @click="signInForCheckout()" class="bb-guest-note__link">{{ __('website.checkout.sign_in') }}</button>
             </div>
 
             <div class="space-y-3">
                 <div>
-                    <label class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">Full name <span class="text-rose-500">*</span></label>
-                    <input x-model="checkout.name" type="text" required autocomplete="name" placeholder="Your full name" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm">
+                    <label class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">{{ __('website.checkout.full_name') }} <span class="text-rose-500">*</span></label>
+                    <input x-model="checkout.name" type="text" required autocomplete="name" placeholder="{{ __('website.checkout.full_name_ph') }}" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm">
                 </div>
                 <div>
-                    <label class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">Phone number <span class="text-rose-500">*</span></label>
+                    <label class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">{{ __('website.checkout.phone') }} <span class="text-rose-500">*</span></label>
                     <input x-model="checkout.phone" @change="syncCart({ silent: true })" type="tel" required autocomplete="tel" placeholder="01XXXXXXXXX" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm">
                 </div>
                 <div>
-                    <label class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">Delivery address <span class="text-rose-500">*</span></label>
+                    <label class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">{{ __('website.checkout.address') }} <span class="text-rose-500">*</span></label>
                     <textarea x-model="checkout.address"
                               required
                               autocomplete="street-address"
-                              placeholder="Enter your delivery address"
+                              placeholder="{{ __('website.checkout.address_ph') }}"
                               class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm"
                               :class="!String(checkout.address || '').trim() && orderMessage && orderMessage.toLowerCase().includes('address') ? 'border-rose-400 ring-1 ring-rose-200' : ''"
                               rows="3"></textarea>
-                    <p class="mt-1 text-[11px] text-slate-500">Required for delivery. Any address format is fine — saved address is used when available.</p>
+                    <p class="mt-1 text-[11px] text-slate-500">{{ __('website.checkout.address_hint') }}</p>
                 </div>
 
                 <div>
-                    <p class="mb-1.5 text-xs font-bold uppercase tracking-wide text-slate-500">Delivery area</p>
+                    <p class="mb-1.5 text-xs font-bold uppercase tracking-wide text-slate-500">{{ __('website.checkout.delivery_area') }}</p>
                     <div class="grid grid-cols-2 gap-2">
                         <template x-for="zone in deliveryZones" :key="zone.code">
                             <button type="button" @click="checkout.zone = zone.code"
@@ -1127,33 +1127,33 @@
                 </div>
 
                 <div class="rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-xs space-y-1.5">
-                    <div class="flex justify-between"><span class="text-slate-500">Subtotal</span><span class="font-semibold" x-text="currency + Math.round(Number(deliveryQuote.subtotal) || 0).toLocaleString()"></span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">{{ __('website.checkout.subtotal') }}</span><span class="font-semibold" x-text="currency + Math.round(Number(deliveryQuote.subtotal) || 0).toLocaleString()"></span></div>
                     <div class="flex justify-between">
-                        <span class="text-slate-500">Delivery (<span x-text="deliveryQuote.zoneLabel"></span>)</span>
-                        <span class="font-semibold" x-text="deliveryQuote.isFree ? 'FREE' : (currency + Math.round(Number(deliveryQuote.deliveryFee) || 0).toLocaleString())"></span>
+                        <span class="text-slate-500">{{ __('website.checkout.delivery') }} (<span x-text="deliveryQuote.zoneLabel"></span>)</span>
+                        <span class="font-semibold" x-text="deliveryQuote.isFree ? @js(__('website.checkout.free')) : (currency + Math.round(Number(deliveryQuote.deliveryFee) || 0).toLocaleString())"></span>
                     </div>
                     <p x-show="deliveryQuote.freeReason" x-text="deliveryQuote.freeReason" class="text-[11px] text-emerald-600 font-medium"></p>                    <div class="flex justify-between border-t border-slate-200 pt-1.5 text-sm">
-                        <span class="font-bold text-slate-800">Total</span>
+                        <span class="font-bold text-slate-800">{{ __('website.checkout.total') }}</span>
                         <span class="font-bold text-slate-900" x-text="currency + Math.round(Number(deliveryQuote.grandTotal) || 0).toLocaleString()"></span>
                     </div>
                 </div>
 
                 <div x-show="deliveryQuote.codEnabled || deliveryQuote.confirmationEnabled">
-                    <p class="mb-1.5 text-xs font-bold uppercase tracking-wide text-slate-500">Payment</p>
+                    <p class="mb-1.5 text-xs font-bold uppercase tracking-wide text-slate-500">{{ __('website.checkout.payment') }}</p>
                     <div class="space-y-2">
                         <label x-show="deliveryQuote.codEnabled" class="flex items-start gap-2.5 rounded-xl border px-3 py-2.5 cursor-pointer"
                                :class="checkout.payment_method==='cash_on_delivery' ? 'border-orange-500 bg-orange-50/70' : 'border-slate-200 bg-white'">
                             <input type="radio" class="mt-0.5" value="cash_on_delivery" x-model="checkout.payment_method">
                             <span>
-                                <span class="block text-xs font-bold text-slate-900">Cash on delivery</span>
-                                <span class="block text-[11px] text-slate-500">Pay full amount when your order arrives</span>
+                                <span class="block text-xs font-bold text-slate-900">{{ __('website.checkout.cod') }}</span>
+                                <span class="block text-[11px] text-slate-500">{{ __('website.checkout.cod_hint') }}</span>
                             </span>
                         </label>
                         <label x-show="deliveryQuote.confirmationEnabled" class="flex items-start gap-2.5 rounded-xl border px-3 py-2.5 cursor-pointer"
                                :class="checkout.payment_method==='confirmation_charge' ? 'border-orange-500 bg-orange-50/70' : 'border-slate-200 bg-white'">
                             <input type="radio" class="mt-0.5" value="confirmation_charge" x-model="checkout.payment_method">
                             <span>
-                                <span class="block text-xs font-bold text-slate-900">Confirmation charge</span>
+                                <span class="block text-xs font-bold text-slate-900">{{ __('website.checkout.confirmation_charge') }}</span>
                                 <span class="block text-[11px] text-slate-500">
                                     Pay <span class="font-semibold" x-text="currency+Number(deliveryConfig.confirmation_amount||0).toFixed(0)"></span> now ·
                                     balance <span class="font-semibold" x-text="currency + Math.round(Number(deliveryQuote.amountDueLater) || 0).toLocaleString()"></span> on delivery
@@ -1163,7 +1163,7 @@
                         <div x-show="deliveryQuote.paymentMethod === 'confirmation_charge'" x-cloak class="rounded-xl border border-orange-200 bg-orange-50/60 px-3 py-2.5 space-y-2">
                             <p x-show="deliveryConfig.confirmation_instructions" class="text-[11.5px] leading-relaxed text-slate-700 whitespace-pre-line" x-text="deliveryConfig.confirmation_instructions"></p>
                             <label class="block">
-                                <span class="mb-1 block text-[11px] font-bold uppercase tracking-wide text-slate-500">Transaction ID <span class="text-rose-500">*</span></span>
+                                <span class="mb-1 block text-[11px] font-bold uppercase tracking-wide text-slate-500">{{ __('website.checkout.txn_id') }} <span class="text-rose-500">*</span></span>
                                 <input x-model="checkout.payment_reference" type="text" maxlength="100" autocomplete="off" placeholder="e.g. 9A7B6C5D4E"
                                        class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-white">
                             </label>
@@ -1173,10 +1173,10 @@
 
                 <button type="button" @click="placeOrder()" :disabled="ordering" class="w-full gaget-btn-primary text-center disabled:opacity-50">
                     <span x-text="ordering
-                        ? 'Placing order...'
+                        ? @js(__('website.checkout.placing'))
                         : (deliveryQuote.paymentMethod==='confirmation_charge'
                             ? ('Confirm · pay ' + currency + deliveryQuote.confirmationAmount.toFixed(0) + ' now')
-                            : 'Confirm order (Cash on delivery)')"></span>
+                            : @js(__('website.checkout.confirm_cod')))"></span>
                 </button>
             </div>
 
@@ -1194,26 +1194,26 @@
                     <path d="M14 25l7 7 13-13" stroke="#E91E63" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </div>
-            <h3 class="text-xl font-extrabold text-slate-900">Order placed successfully!</h3>
-            <p class="mt-2 text-sm text-slate-500">Thank you — we’ve received your order and will contact you to confirm it.</p>
+            <h3 class="text-xl font-extrabold text-slate-900">{{ __('website.checkout.success_title') }}</h3>
+            <p class="mt-2 text-sm text-slate-500">{{ __('website.checkout.success_sub') }}</p>
             <div class="mt-5 rounded-2xl border border-emerald-200 bg-gradient-to-b from-emerald-50 to-white px-4 py-4 shadow-sm">
-                <p class="text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-700">Your Order ID</p>
+                <p class="text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-700">{{ __('website.checkout.your_order_id') }}</p>
                 <p class="mt-1.5 font-mono text-[17px] font-extrabold tracking-wide text-emerald-950" x-text="lastOrderInvoice || ('#' + lastOrderId)"></p>
-                <p class="mt-2 text-[12px] text-emerald-800/80" x-show="!lastOrderGuest">Keep this ID for tracking and support.</p>
+                <p class="mt-2 text-[12px] text-emerald-800/80" x-show="!lastOrderGuest">{{ __('website.checkout.keep_id') }}</p>
                 <p class="mt-2 text-[12px] text-emerald-800/80" x-show="lastOrderGuest" x-cloak>
-                    Track anytime with this ID and your phone <span class="font-semibold" x-text="checkout.phone"></span>.
+                    {{ __('website.checkout.track_with_phone') }} <span class="font-semibold" x-text="checkout.phone"></span>.
                 </p>
             </div>
 
             <template x-if="!lastOrderGuest">
                 <div>
                     <p class="mt-4 text-[12px] text-slate-500">
-                        Taking you to <span class="font-semibold text-slate-700">My Orders</span>
+                        {{ __('website.checkout.taking_to_orders') }}
                         <span x-show="redirectSeconds > 0"> in <span class="font-bold text-blue-600" x-text="redirectSeconds"></span>s…</span>
                     </p>
                     <div class="mt-5 flex flex-col gap-2">
                         <button type="button" @click="goToAccountNow()" class="gaget-btn-primary w-full text-center text-sm py-3">
-                            View my order now
+                            {{ __('website.checkout.view_order_now') }}
                         </button>
                     </div>
                 </div>
@@ -1222,14 +1222,14 @@
             <template x-if="lastOrderGuest">
                 <div class="mt-5 flex flex-col gap-2">
                     <button type="button" @click="trackLastOrder()" class="gaget-btn-primary w-full text-center text-sm py-3">
-                        Track my order
+                        {{ __('website.checkout.track_my_order') }}
                     </button>
                     <button type="button" @click="finishGuestOrder()" class="bb-guest-btn">
-                        Continue shopping
+                        {{ __('website.checkout.continue_shopping') }}
                     </button>
                     <p class="mt-1 text-[11.5px] text-slate-500">
-                        Want every order in one place?
-                        <button type="button" @click="openSignIn('register')" class="font-bold text-[color:var(--bb-coral-deep)] hover:underline">Create an account</button>
+                        {{ __('website.checkout.want_account') }}
+                        <button type="button" @click="openSignIn('register')" class="font-bold text-[color:var(--bb-coral-deep)] hover:underline">{{ __('website.checkout.create_account') }}</button>
                     </p>
                 </div>
             </template>

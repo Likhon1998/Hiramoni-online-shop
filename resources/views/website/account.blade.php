@@ -132,9 +132,9 @@
         <div class="space-y-4 min-w-0 order-2 xl:order-1">
             @include('website.partials.account-sidebar', ['activeMenu' => 'dashboard', 'customer' => $customer, 'activeOrder' => $activeOrder])
             <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm hidden sm:block">
-                <p class="text-[15px] font-bold text-slate-900">Exclusive Member Benefits</p>
-                <p class="mt-1 text-[11px] text-slate-500">Get special offers and faster checkout.</p>
-                <a href="{{ route('website.shop') }}" class="mt-3 inline-flex text-[13px] font-semibold text-pink-700 hover:text-pink-700">Explore Benefits →</a>
+                <p class="text-[15px] font-bold text-slate-900">{{ __('website.account.member_benefits') }}</p>
+                <p class="mt-1 text-[11px] text-slate-500">{{ __('website.account.member_benefits_sub') }}</p>
+                <a href="{{ route('website.shop') }}" class="mt-3 inline-flex text-[13px] font-semibold text-pink-700 hover:text-pink-700">{{ __('website.account.explore_benefits') }}</a>
             </div>
         </div>
 
@@ -151,7 +151,7 @@
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                     </div>
                     <div>
-                        <p class="gaget-order-placed-banner__title">Order placed successfully</p>
+                        <p class="gaget-order-placed-banner__title">{{ __('website.account.order_success') }}</p>
                         <p class="gaget-order-placed-banner__text">
                             @if($justPlacedInvoice)
                                 We’ve received order <strong>{{ $justPlacedInvoice }}</strong> and will contact you to confirm it. Track it below — we’ll update status as it moves.
@@ -170,11 +170,11 @@
 
             <div class="gaget-account-stats">
                 <div class="gaget-account-stat">
-                    <p class="gaget-account-stat__label">Total Orders</p>
+                    <p class="gaget-account-stat__label">{{ __('website.account.total_orders') }}</p>
                     <div class="gaget-account-stat__row">
                         <div>
                             <p class="gaget-account-stat__value">{{ $totalOrders }}</p>
-                            <p class="gaget-account-stat__hint">All time</p>
+                            <p class="gaget-account-stat__hint">{{ __('website.account.all_time') }}</p>
                         </div>
                         <div class="gaget-account-stat__icon gaget-account-stat__icon--blue">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
@@ -182,11 +182,11 @@
                     </div>
                 </div>
                 <div class="gaget-account-stat">
-                    <p class="gaget-account-stat__label">Packaging</p>
+                    <p class="gaget-account-stat__label">{{ __('website.account.packaging') }}</p>
                     <div class="gaget-account-stat__row">
                         <div>
                             <p class="gaget-account-stat__value">{{ $packagingOrders }}</p>
-                            <p class="gaget-account-stat__hint">Received / packing</p>
+                            <p class="gaget-account-stat__hint">{{ __('website.account.received_packing') }}</p>
                         </div>
                         <div class="gaget-account-stat__icon gaget-account-stat__icon--amber">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
@@ -194,11 +194,11 @@
                     </div>
                 </div>
                 <div class="gaget-account-stat">
-                    <p class="gaget-account-stat__label">In Transit</p>
+                    <p class="gaget-account-stat__label">{{ __('website.account.in_transit') }}</p>
                     <div class="gaget-account-stat__row">
                         <div>
                             <p class="gaget-account-stat__value">{{ $inTransitOrders }}</p>
-                            <p class="gaget-account-stat__hint">Out for delivery</p>
+                            <p class="gaget-account-stat__hint">{{ __('website.account.out_for_delivery') }}</p>
                         </div>
                         <div class="gaget-account-stat__icon gaget-account-stat__icon--green">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 17h6m-8 0H5a2 2 0 01-2-2V7a2 2 0 012-2h9a2 2 0 012 2v2m0 8h1a2 2 0 002-2v-3m-3 5a2 2 0 11-4 0m4 0a2 2 0 104 0m-4 0H9m10-8l-2-3h-3"/></svg>
@@ -206,11 +206,11 @@
                     </div>
                 </div>
                 <div class="gaget-account-stat">
-                    <p class="gaget-account-stat__label">Delivered</p>
+                    <p class="gaget-account-stat__label">{{ __('website.account.delivered') }}</p>
                     <div class="gaget-account-stat__row">
                         <div>
                             <p class="gaget-account-stat__value">{{ $deliveredOrders }}</p>
-                            <p class="gaget-account-stat__hint">Completed</p>
+                            <p class="gaget-account-stat__hint">{{ __('website.account.completed') }}</p>
                         </div>
                         <div class="gaget-account-stat__icon gaget-account-stat__icon--lime">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 13l4 4L19 7"/></svg>
@@ -294,7 +294,7 @@
                             </h2>
                             <p class="text-[11px] text-slate-500">Live status from our store to your doorstep.</p>
                         </div>
-                        <a href="{{ route('website.account') }}#recent-orders" class="shrink-0 text-[11px] font-bold text-pink-700 hover:text-pink-700 whitespace-nowrap">View all</a>
+                        <a href="{{ route('website.account') }}#recent-orders" class="shrink-0 text-[11px] font-bold text-pink-700 hover:text-pink-700 whitespace-nowrap">{{ __('website.account.view_all') }}</a>
                     </div>
 
                     <template x-if="current">
@@ -311,7 +311,7 @@
                                 </div>
 
                                 <div class="acct-active-order__status" x-show="current.where">
-                                    <p class="acct-active-order__status-label">Current status</p>
+                                    <p class="acct-active-order__status-label">{{ __('website.account.current_status') }}</p>
                                     <p class="acct-active-order__status-text" x-text="current.where"></p>
                                 </div>
 
@@ -354,11 +354,11 @@
 
                                 <div class="acct-active-order__delivery">
                                     <div>
-                                        <p class="acct-active-order__delivery-label">Courier</p>
+                                        <p class="acct-active-order__delivery-label">{{ __('website.account.courier') }}</p>
                                         <p class="acct-active-order__delivery-value" x-text="current.courier"></p>
                                     </div>
                                     <div>
-                                        <p class="acct-active-order__delivery-label">Delivery address</p>
+                                        <p class="acct-active-order__delivery-label">{{ __('website.account.delivery_address') }}</p>
                                         <p class="acct-active-order__delivery-value" x-text="current.address"></p>
                                     </div>
                                 </div>
@@ -397,23 +397,23 @@
                     </template>
 
                     <div x-show="!current" class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-6 py-10 text-center">
-                        <p class="text-[13px] font-semibold text-slate-700">No active order yet.</p>
+                        <p class="text-[13px] font-semibold text-slate-700">{{ __('website.account.no_active') }}</p>
                         <p class="mt-1 text-xs text-slate-500">Place your first order and status updates will appear here.</p>
-                        <a href="{{ route('website.shop') }}" class="mt-4 inline-flex rounded-xl bg-pink-600 px-4 py-2.5 text-[13px] font-semibold text-white hover:bg-pink-700">Start Shopping</a>
+                        <a href="{{ route('website.shop') }}" class="mt-4 inline-flex rounded-xl bg-pink-600 px-4 py-2.5 text-[13px] font-semibold text-white hover:bg-pink-700">{{ __('website.account.start_shopping') }}</a>
                     </div>
                     </div>
 
                     <div id="recent-orders" class="acct-orders rounded-2xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm min-w-0">
                 <div class="mb-3 flex items-center justify-between gap-3 min-w-0">
                     <div class="min-w-0">
-                        <h2 class="text-[15px] font-bold text-slate-900">Recent Orders</h2>
+                        <h2 class="text-[15px] font-bold text-slate-900">{{ __('website.account.recent_orders') }}</h2>
                     </div>
-                    <a href="#recent-orders" class="shrink-0 text-[11px] font-bold text-pink-700 hover:text-pink-700">View all</a>
+                    <a href="#recent-orders" class="shrink-0 text-[11px] font-bold text-pink-700 hover:text-pink-700">{{ __('website.account.view_all') }}</a>
                 </div>
 
                 @if($recentOrders->isEmpty())
                     <div class="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center">
-                        <p class="text-[13px] font-semibold text-slate-700">No orders yet.</p>
+                        <p class="text-[13px] font-semibold text-slate-700">{{ __('website.account.no_orders') }}</p>
                         <p class="mt-1 text-xs text-slate-500">When you place a website order, it will appear here immediately.</p>
                     </div>
                 @else
@@ -452,12 +452,12 @@
                         <table class="w-full text-[13px]">
                             <thead class="border-b border-slate-100 text-[10px] uppercase tracking-wide text-slate-400">
                                 <tr>
-                                    <th class="px-2 py-2.5 text-left">Order ID</th>
-                                    <th class="px-2 py-2.5 text-left">Date</th>
-                                    <th class="px-2 py-2.5 text-left">Items</th>
-                                    <th class="px-2 py-2.5 text-right">Total</th>
-                                    <th class="px-2 py-2.5 text-left">Status</th>
-                                    <th class="px-2 py-2.5 text-right">Action</th>
+                                    <th class="px-2 py-2.5 text-left">{{ __('website.account.order_id') }}</th>
+                                    <th class="px-2 py-2.5 text-left">{{ __('website.account.date') }}</th>
+                                    <th class="px-2 py-2.5 text-left">{{ __('website.account.items_col') }}</th>
+                                    <th class="px-2 py-2.5 text-right">{{ __('website.account.total') }}</th>
+                                    <th class="px-2 py-2.5 text-left">{{ __('website.account.status') }}</th>
+                                    <th class="px-2 py-2.5 text-right">{{ __('website.account.action') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-50">
@@ -502,7 +502,7 @@
 
                 <div class="space-y-4 min-w-0">
                     <div class="acct-info-card rounded-2xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm min-w-0">
-                        <h2 class="text-[15px] font-bold text-slate-900">Account Overview</h2>
+                        <h2 class="text-[15px] font-bold text-slate-900">{{ __('website.account.overview') }}</h2>
                         <div class="mt-3 space-y-3 text-[13px]">
                             <div class="flex items-start justify-between gap-3 border-b border-slate-100 pb-3 min-w-0">
                                 <div class="min-w-0">
@@ -632,7 +632,7 @@
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13 16h-1v-4h-1m1-4h.01M12 3a9 9 0 100 18 9 9 0 000-18z"/></svg>
                             </div>
                             <div>
-                                <p class="acct-order-sheet__status-label">Current status</p>
+                                <p class="acct-order-sheet__status-label">{{ __('website.account.current_status') }}</p>
                                 <p class="acct-order-sheet__status-text" x-text="detail.where"></p>
                             </div>
                         </div>
@@ -686,12 +686,12 @@
                             <h4 class="acct-order-sheet__section-title">Delivery details</h4>
                             <div class="acct-order-delivery">
                                 <div>
-                                    <p class="acct-order-delivery__label">Courier</p>
+                                    <p class="acct-order-delivery__label">{{ __('website.account.courier') }}</p>
                                     <p class="acct-order-delivery__value" x-text="detail.courier || 'Store dispatch'"></p>
                                     <p class="acct-order-delivery__track" x-show="detail.tracking_no" x-text="'Tracking: ' + detail.tracking_no"></p>
                                 </div>
                                 <div>
-                                    <p class="acct-order-delivery__label">Delivery address</p>
+                                    <p class="acct-order-delivery__label">{{ __('website.account.delivery_address') }}</p>
                                     <p class="acct-order-delivery__value" x-text="detail.address"></p>
                                 </div>
                             </div>
