@@ -33,12 +33,12 @@ class DemoStorefrontSeeder extends Seeder
     {
         // Keys match a product slug or a whole variant family (variant_group).
         $targets = [
-            'matte-lipstick' => 0.80,
-            'wireless-earbuds-pro' => 0.85,
-            'slim-fit-denim-jeans' => 0.88,
-            'soft-plush-teddy-bear' => 0.82,
-            'everyday-backpack' => 0.86,
-            'hydrating-body-lotion' => 0.90,
+            'fit-me-matte-poreless-foundation' => 0.88,
+            'superstay-matte-ink-lipstick' => 0.85,
+            'bright-beauty-spot-less-cream' => 0.90,
+            'nourishing-body-lotion' => 0.88,
+            'soft-matte-lip-cream' => 0.86,
+            'revitalift-hyaluronic-serum' => 0.87,
         ];
 
         $starts = now()->subDay();

@@ -44,40 +44,43 @@ class WebsiteService
     public function homeCopyDefaults(?array $saved = null): array
     {
         $defaults = [
-            'logo_tagline' => '',
+            'logo_tagline' => 'glow naturally, Define you',
             'hero_badge' => '',
-            'hero_title' => 'Welcome to {store}',
-            'hero_subtitle' => 'Browse the collection and order online with delivery to your door.',
-            'hero_trust_1_title' => '',
-            'hero_trust_1_sub' => '',
-            'hero_trust_2_title' => '',
-            'hero_trust_2_sub' => '',
-            'hero_trust_3_title' => '',
-            'hero_trust_3_sub' => '',
-            'categories_title' => 'Shop by',
-            'categories_title_accent' => 'Category',
-            'categories_subtitle' => 'Everything you love, sorted by category — browse the collection.',
+            'hero_title' => 'Glow Naturally, Live Beautifully',
+            'hero_subtitle' => 'Discover premium skincare & cosmetics for your unique glow — delivered to your door.',
+            'hero_offer' => 'Get 15% OFF on your first order',
+            'hero_trust_1_title' => 'Free Shipping',
+            'hero_trust_1_sub' => 'On orders over 999',
+            'hero_trust_2_title' => '100% Authentic',
+            'hero_trust_2_sub' => 'Guaranteed genuine',
+            'hero_trust_3_title' => 'Easy Returns',
+            'hero_trust_3_sub' => '7-day hassle-free returns',
+            'categories_title' => 'Explore Our',
+            'categories_title_accent' => 'Categories',
+            'categories_subtitle' => 'Shop premium skincare, makeup, fragrance & more — curated for your beauty routine.',
             'flash_title' => 'Flash',
             'flash_title_accent' => 'Sale',
             'flash_subtitle' => 'Today’s best prices on selected products — ends when the timer hits zero.',
-            'featured_title' => 'Featured Products',
-            'featured_subtitle' => 'Hand-picked products from our collection.',
-            'combo_title' => 'Combo Deals',
-            'combo_subtitle' => 'Bundles that save you more.',
-            'why_title' => 'Why Shop with {store}',
-            'why_subtitle' => '',
+            'featured_title' => 'Loved by',
+            'featured_title_accent' => 'Thousands',
+            'featured_subtitle' => 'Our best-selling beauty picks — tried, loved, and recommended.',
+            'combo_title' => 'Beauty Combo Sets',
+            'combo_subtitle' => 'Complete beauty sets — everything you need, perfectly paired.',
+            'why_title' => 'Why Choose {store}',
+            'why_subtitle' => 'Because you deserve the best in beauty — premium quality, authentic products, delivered with care.',
             'why_badge' => '',
+            'promo_sub' => 'On your favourite beauty products — limited time only.',
             'new_title' => 'New',
             'new_title_accent' => 'Arrivals',
-            'new_subtitle' => 'Fresh arrivals added to the store — explore what’s new this week.',
-            'brands_title' => 'Brands We',
-            'brands_title_accent' => 'Carry',
-            'brands_subtitle' => 'Trusted brands — shop your favorites.',
+            'new_subtitle' => 'Fresh beauty launches — be the first to explore what’s new this week.',
+            'brands_title' => 'Our Trusted',
+            'brands_title_accent' => 'Brands',
+            'brands_subtitle' => 'The world\'s most loved beauty brands — all in one place.',
             'reviews_title' => 'What Our Customers Say',
-            'reviews_subtitle' => 'Feedback from our customers.',
-            'blog_title' => 'Latest from the',
-            'blog_title_accent' => 'Blog',
-            'blog_subtitle' => 'Guides, tips and stories from the {store} team.',
+            'reviews_subtitle' => 'Real stories from real customers who found their glow with {store}.',
+            'blog_title' => 'Beauty Tips',
+            'blog_title_accent' => '& More',
+            'blog_subtitle' => 'Expert beauty guides, skincare tips, and makeup inspiration from the {store} team.',
         ];
 
         // Old default that hard-coded a store name; treat it as unset so {store} applies.
@@ -253,6 +256,7 @@ class WebsiteService
 
         $this->linkOrphanProductsToBrands($shopId);
         $this->mergeDuplicateBrands($shopId);
+        $this->ensureTrustedBrands($shopId);
 
         $brands = Brand::where('shop_id', $shopId)
             ->where('is_active', true)
@@ -311,6 +315,7 @@ class WebsiteService
             'comboProducts' => $comboProducts,
             'trendingProducts' => $trendingProducts,
             'brands' => $brands,
+            'trustedBrands' => $this->trustedBrands($shopId),
             'mainNav' => NavigationLink::where('shop_id', $shopId)->where('location', 'main_nav')->where('is_active', true)->orderBy('sort_order')->get(),
             'topBarNav' => NavigationLink::where('shop_id', $shopId)->where('location', 'top_bar')->where('is_active', true)->orderBy('sort_order')->get(),
             'featuredReviews' => CmsReview::where('shop_id', $shopId)->where('is_published', true)->where('is_featured', true)->orderBy('sort_order')->take(6)->get(),
@@ -341,6 +346,7 @@ class WebsiteService
             'comboProducts' => collect(),
             'trendingProducts' => collect(),
             'brands' => collect(),
+            'trustedBrands' => $this->trustedBrands(),
             'mainNav' => collect(),
             'topBarNav' => collect(),
             'featuredReviews' => collect(),
@@ -900,6 +906,155 @@ class WebsiteService
                     'brand_name' => $match->name,
                 ]);
             }
+        }
+    }
+
+    /**
+     * Showcase beauty brands used by "Our Trusted Brands" + navbar dropdown.
+     *
+     * @return list<array{name:string,slug:string,file:string}>
+     */
+    public function trustedBrandDefs(): array
+    {
+        return [
+            ['name' => "L'Oréal Paris", 'slug' => 'loreal-paris', 'file' => 'loreal.svg'],
+            ['name' => 'Maybelline New York', 'slug' => 'maybelline', 'file' => 'maybelline.svg'],
+            ['name' => "Pond's", 'slug' => 'ponds', 'file' => 'ponds.svg'],
+            ['name' => 'Dove', 'slug' => 'dove', 'file' => 'dove.svg'],
+            ['name' => 'NYX Professional Makeup', 'slug' => 'nyx', 'file' => 'nyx.jpg'],
+            ['name' => 'Olay', 'slug' => 'olay', 'file' => 'olay.svg'],
+            ['name' => 'Nivea', 'slug' => 'nivea', 'file' => 'nivea.svg'],
+        ];
+    }
+
+    /**
+     * Trusted brands for storefront UI — loaded dynamically from Brand rows.
+     *
+     * @return \Illuminate\Support\Collection<int, object{id:int,name:string,slug:string,logo_url:?string,products_count:int}>
+     */
+    public function trustedBrands(?int $shopId = null): \Illuminate\Support\Collection
+    {
+        $shopId = $shopId ?: $this->shopId();
+        $defs = collect($this->trustedBrandDefs())->keyBy('slug');
+
+        if (! $shopId) {
+            return $defs->values()->map(fn (array $brand) => (object) [
+                'id' => 0,
+                'name' => $brand['name'],
+                'slug' => $brand['slug'],
+                'logo_url' => asset('images/brands/'.$brand['file']),
+                'products_count' => 0,
+            ]);
+        }
+
+        $this->ensureTrustedBrands($shopId);
+
+        $visibleProducts = fn ($q) => $q->availableForSale()
+            ->where(fn ($inner) => $inner->where('is_published', true)->orWhereNull('is_published'));
+
+        $defByName = collect($this->trustedBrandDefs())->keyBy(fn (array $d) => mb_strtolower($d['name']));
+
+        return Brand::where('shop_id', $shopId)
+            ->where('is_active', true)
+            ->withCount(['products' => $visibleProducts])
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get()
+            ->map(function (Brand $brand) use ($defs, $defByName) {
+                $def = $defs->first(fn (array $d) => Str::slug($brand->name) === $d['slug']
+                    || strcasecmp($brand->name, $d['name']) === 0)
+                    ?? $defByName->get(mb_strtolower($brand->name));
+
+                if (! $def) {
+                    return null;
+                }
+
+                // Always prefer the curated legal brand mark in public/images/brands.
+                $logoUrl = asset('images/brands/'.$def['file']);
+                if (! is_file(public_path('images/brands/'.$def['file']))) {
+                    $logoUrl = $brand->logo_url;
+                }
+
+                return (object) [
+                    'id' => $brand->id,
+                    'name' => $brand->name,
+                    'slug' => $def['slug'],
+                    'logo_url' => $logoUrl,
+                    'products_count' => (int) $brand->products_count,
+                ];
+            })
+            ->filter()
+            ->sortBy(fn ($brand) => (int) $defs->keys()->search($brand->slug))
+            ->values();
+    }
+
+    /** @return list<int> */
+    public function trustedBrandIds(?int $shopId = null): array
+    {
+        return $this->trustedBrands($shopId)
+            ->pluck('id')
+            ->filter(fn ($id) => (int) $id > 0)
+            ->map(fn ($id) => (int) $id)
+            ->values()
+            ->all();
+    }
+
+    /** Create missing trusted Brand rows so /brand/{slug} routes resolve. */
+    public function ensureTrustedBrands(int $shopId): void
+    {
+        $existing = Brand::where('shop_id', $shopId)->get();
+
+        foreach ($this->trustedBrandDefs() as $index => $def) {
+            $match = $existing->first(function (Brand $brand) use ($def) {
+                $brandSlug = Str::slug($brand->name);
+
+                return $brandSlug === $def['slug']
+                    || str_starts_with($brandSlug, $def['slug'])
+                    || strcasecmp($brand->name, $def['name']) === 0;
+            });
+
+            $logoPath = null;
+            $source = public_path('images/brands/'.$def['file']);
+            if (is_file($source)) {
+                $logoPath = 'brands/'.$def['file'];
+                $sourceSize = filesize($source) ?: 0;
+                $storedSize = \Illuminate\Support\Facades\Storage::disk('public')->exists($logoPath)
+                    ? (int) \Illuminate\Support\Facades\Storage::disk('public')->size($logoPath)
+                    : 0;
+
+                // Always refresh when the curated legal logo is missing or larger than a text placeholder.
+                if ($storedSize < 500 || $sourceSize > $storedSize) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->put($logoPath, file_get_contents($source));
+                }
+
+                // Drop generated slug wordmarks (e.g. dove.svg text stub, loreal-paris.svg).
+                $slugWordmark = 'brands/'.Str::slug($def['name']).'.svg';
+                if ($slugWordmark !== $logoPath
+                    && \Illuminate\Support\Facades\Storage::disk('public')->exists($slugWordmark)
+                    && \Illuminate\Support\Facades\Storage::disk('public')->size($slugWordmark) < 500) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($slugWordmark);
+                }
+            }
+
+            if ($match) {
+                $match->forceFill([
+                    'name' => $def['name'],
+                    'is_active' => true,
+                    'sort_order' => $index + 1,
+                    'logo_path' => $logoPath ?: $match->logo_path,
+                ])->save();
+
+                continue;
+            }
+
+            $created = Brand::create([
+                'shop_id' => $shopId,
+                'name' => $def['name'],
+                'is_active' => true,
+                'sort_order' => $index + 1,
+                'logo_path' => $logoPath,
+            ]);
+            $existing->push($created);
         }
     }
 

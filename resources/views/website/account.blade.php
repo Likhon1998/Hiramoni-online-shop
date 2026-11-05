@@ -134,7 +134,7 @@
             <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm hidden sm:block">
                 <p class="text-[15px] font-bold text-slate-900">Exclusive Member Benefits</p>
                 <p class="mt-1 text-[11px] text-slate-500">Get special offers and faster checkout.</p>
-                <a href="{{ route('website.shop') }}" class="mt-3 inline-flex text-[13px] font-semibold text-blue-600 hover:text-blue-700">Explore Benefits →</a>
+                <a href="{{ route('website.shop') }}" class="mt-3 inline-flex text-[13px] font-semibold text-pink-700 hover:text-pink-700">Explore Benefits →</a>
             </div>
         </div>
 
@@ -294,7 +294,7 @@
                             </h2>
                             <p class="text-[11px] text-slate-500">Live status from our store to your doorstep.</p>
                         </div>
-                        <a href="{{ route('website.account') }}#recent-orders" class="shrink-0 text-[11px] font-bold text-blue-600 hover:text-blue-700 whitespace-nowrap">View all</a>
+                        <a href="{{ route('website.account') }}#recent-orders" class="shrink-0 text-[11px] font-bold text-pink-700 hover:text-pink-700 whitespace-nowrap">View all</a>
                     </div>
 
                     <template x-if="current">
@@ -381,7 +381,7 @@
                                         <template x-for="(slide, i) in slides" :key="'dot-' + slide.id">
                                             <button type="button" @click="go(i)"
                                                     class="h-2 rounded-full transition-all"
-                                                    :class="i === index ? 'w-5 bg-blue-600' : 'w-2 bg-slate-300 hover:bg-slate-400'"
+                                                    :class="i === index ? 'w-5 bg-pink-600' : 'w-2 bg-slate-300 hover:bg-slate-400'"
                                                     :aria-label="'Show order ' + (i + 1)"></button>
                                         </template>
                                         <span class="ml-1 text-[11px] font-semibold text-slate-500" x-text="(index + 1) + ' / ' + count"></span>
@@ -399,7 +399,7 @@
                     <div x-show="!current" class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-6 py-10 text-center">
                         <p class="text-[13px] font-semibold text-slate-700">No active order yet.</p>
                         <p class="mt-1 text-xs text-slate-500">Place your first order and status updates will appear here.</p>
-                        <a href="{{ route('website.shop') }}" class="mt-4 inline-flex rounded-xl bg-blue-600 px-4 py-2.5 text-[13px] font-semibold text-white hover:bg-blue-700">Start Shopping</a>
+                        <a href="{{ route('website.shop') }}" class="mt-4 inline-flex rounded-xl bg-pink-600 px-4 py-2.5 text-[13px] font-semibold text-white hover:bg-pink-700">Start Shopping</a>
                     </div>
                     </div>
 
@@ -408,7 +408,7 @@
                     <div class="min-w-0">
                         <h2 class="text-[15px] font-bold text-slate-900">Recent Orders</h2>
                     </div>
-                    <a href="#recent-orders" class="shrink-0 text-[11px] font-bold text-blue-600 hover:text-blue-700">View all</a>
+                    <a href="#recent-orders" class="shrink-0 text-[11px] font-bold text-pink-700 hover:text-pink-700">View all</a>
                 </div>
 
                 @if($recentOrders->isEmpty())
@@ -509,21 +509,21 @@
                                     <p class="text-[10px] uppercase tracking-wide text-slate-400">Name</p>
                                     <p class="mt-1 font-semibold text-slate-900 break-words">{{ $customer?->name ?? auth()->user()->name }}</p>
                                 </div>
-                                <a href="{{ route('website.account.profile.edit') }}" class="shrink-0 text-slate-400 hover:text-blue-600" title="Edit">✎</a>
+                                <a href="{{ route('website.account.profile.edit') }}" class="shrink-0 text-slate-400 hover:text-pink-700" title="Edit">✎</a>
                             </div>
                             <div class="flex items-start justify-between gap-3 border-b border-slate-100 pb-3 min-w-0">
                                 <div class="min-w-0">
                                     <p class="text-[10px] uppercase tracking-wide text-slate-400">Email</p>
                                     <p class="mt-1 font-semibold text-slate-900 break-all">{{ auth()->user()->email }}</p>
                                 </div>
-                                <a href="{{ route('website.account.profile.edit') }}" class="shrink-0 text-slate-400 hover:text-blue-600" title="Edit">✎</a>
+                                <a href="{{ route('website.account.profile.edit') }}" class="shrink-0 text-slate-400 hover:text-pink-700" title="Edit">✎</a>
                             </div>
                             <div class="flex items-start justify-between gap-3 border-b border-slate-100 pb-3 min-w-0">
                                 <div class="min-w-0">
                                     <p class="text-[10px] uppercase tracking-wide text-slate-400">Phone</p>
                                     <p class="mt-1 font-semibold text-slate-900 break-all">{{ $customer?->phone ?: 'Not added yet' }}</p>
                                 </div>
-                                <a href="{{ route('website.account.profile.edit') }}" class="shrink-0 text-slate-400 hover:text-blue-600" title="Edit">✎</a>
+                                <a href="{{ route('website.account.profile.edit') }}" class="shrink-0 text-slate-400 hover:text-pink-700" title="Edit">✎</a>
                             </div>
                             <div class="min-w-0">
                                 <p class="text-[10px] uppercase tracking-wide text-slate-400">Member Since</p>
@@ -536,7 +536,7 @@
                     <div class="acct-info-card rounded-2xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm min-w-0">
                         <div class="mb-3 flex items-center justify-between gap-2 min-w-0">
                             <h2 class="text-[15px] font-bold text-slate-900">Shipping Address</h2>
-                            <a href="{{ route('website.account.profile.edit') }}" class="shrink-0 text-[11px] font-semibold text-blue-600">Edit</a>
+                            <a href="{{ route('website.account.profile.edit') }}" class="shrink-0 text-[11px] font-semibold text-pink-700">Edit</a>
                         </div>
                         <div class="rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 min-w-0">
                             <div class="mb-2 flex items-center justify-between gap-2">
@@ -561,7 +561,7 @@
                             @if($unreadNotifications > 0)
                                 <form method="POST" action="{{ route('website.account.notifications.read-all') }}">
                                     @csrf
-                                    <button type="submit" class="shrink-0 text-[11px] font-semibold text-blue-600 hover:underline">Mark all read</button>
+                                    <button type="submit" class="shrink-0 text-[11px] font-semibold text-pink-700 hover:underline">Mark all read</button>
                                 </form>
                             @endif
                         </div>
@@ -569,10 +569,10 @@
                             @forelse($notifications as $note)
                                 <form method="POST" action="{{ route('website.account.notifications.read', $note->id) }}">
                                     @csrf
-                                    <button type="submit" class="w-full text-left rounded-xl border px-3 py-2.5 min-w-0 transition {{ $note->read_at ? 'border-slate-100 bg-white' : 'border-blue-100 bg-blue-50/60' }}">
+                                    <button type="submit" class="w-full text-left rounded-xl border px-3 py-2.5 min-w-0 transition {{ $note->read_at ? 'border-slate-100 bg-white' : 'border-pink-100 bg-pink-50/60' }}">
                                         <span class="flex items-center justify-between gap-2">
                                             <span class="text-[12.5px] font-bold text-slate-900 truncate">
-                                                @unless($note->read_at)<span class="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-blue-600 align-middle"></span>@endunless
+                                                @unless($note->read_at)<span class="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-pink-600 align-middle"></span>@endunless
                                                 {{ $note->data['title'] ?? 'Order update' }}
                                             </span>
                                             <span class="shrink-0 text-[10px] text-slate-400">{{ $note->created_at->diffForHumans(null, true) }}</span>

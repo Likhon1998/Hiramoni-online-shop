@@ -28,12 +28,12 @@
 @section('content')
 
 {{-- Hero --}}
-<section class="relative overflow-hidden border-b border-slate-100 bg-gradient-to-br from-slate-50 via-blue-50/40 to-white">
+<section class="relative overflow-hidden border-b border-slate-100 bg-gradient-to-br from-slate-50 via-pink-50 to-white">
     <div class="max-w-7xl mx-auto px-4 py-10 sm:py-12">
         <nav class="text-xs text-slate-400 mb-4">
-            <a href="{{ route('home') }}" class="hover:text-blue-600">Home</a>
+            <a href="{{ route('home') }}" class="hover:text-pink-700">Home</a>
             <span class="mx-1.5">›</span>
-            <a href="{{ route('website.faqs') }}" class="hover:text-blue-600">Help Center</a>
+            <a href="{{ route('website.faqs') }}" class="hover:text-pink-700">Help Center</a>
             <span class="mx-1.5">›</span>
             <span class="text-slate-600">FAQ</span>
         </nav>
@@ -44,9 +44,9 @@
             </div>
             <div class="lg:col-span-5 hidden sm:flex justify-end">
                 <div class="relative w-44 h-44">
-                    <div class="absolute inset-4 rounded-[2rem] bg-blue-100/80 rotate-6"></div>
+                    <div class="absolute inset-4 rounded-[2rem] bg-pink-100/80 rotate-6"></div>
                     <div class="absolute inset-0 flex items-center justify-center">
-                        <div class="w-28 h-28 rounded-[1.75rem] bg-blue-600 shadow-xl shadow-blue-600/25 flex items-center justify-center text-white">
+                        <div class="w-28 h-28 rounded-[1.75rem] bg-pink-600 shadow-xl shadow-blue-600/25 flex items-center justify-center text-white">
                             <span class="text-5xl font-black leading-none">?</span>
                         </div>
                     </div>
@@ -69,8 +69,8 @@
                 <ul class="p-2">
                     <li>
                         <a href="{{ route('website.faqs', array_filter(['q' => $faqSearch])) }}"
-                           class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition {{ !$activeFaqCategory ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-slate-600 hover:bg-slate-50' }}">
-                            <span class="w-8 h-8 rounded-lg {{ !$activeFaqCategory ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-500' }} inline-flex items-center justify-center shrink-0">
+                           class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition {{ !$activeFaqCategory ? 'bg-pink-50 text-pink-700 font-semibold' : 'text-slate-600 hover:bg-slate-50' }}">
+                            <span class="w-8 h-8 rounded-lg {{ !$activeFaqCategory ? 'bg-pink-100 text-pink-700' : 'bg-slate-100 text-slate-500' }} inline-flex items-center justify-center shrink-0">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $iconPaths['help'] }}"/></svg>
                             </span>
                             <span class="flex-1">All questions</span>
@@ -81,8 +81,8 @@
                         @php $active = $activeFaqCategory === $cat->slug; $icon = $iconPaths[$cat->icon ?? 'help'] ?? $iconPaths['help']; @endphp
                         <li>
                             <a href="{{ route('website.faqs', array_filter(['category' => $cat->slug, 'q' => $faqSearch])) }}"
-                               class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition {{ $active ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-slate-600 hover:bg-slate-50' }}">
-                                <span class="w-8 h-8 rounded-lg {{ $active ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-500' }} inline-flex items-center justify-center shrink-0">
+                               class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition {{ $active ? 'bg-pink-50 text-pink-700 font-semibold' : 'text-slate-600 hover:bg-slate-50' }}">
+                                <span class="w-8 h-8 rounded-lg {{ $active ? 'bg-pink-100 text-pink-700' : 'bg-slate-100 text-slate-500' }} inline-flex items-center justify-center shrink-0">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icon }}"/></svg>
                                 </span>
                                 <span class="flex-1 truncate">{{ $cat->name }}</span>
@@ -97,7 +97,7 @@
                 <h3 class="text-base font-bold text-slate-900">{{ $helpTitle }}</h3>
                 <p class="mt-1.5 text-sm text-slate-500">{{ $helpText }}</p>
                 <a href="{{ $contactHref }}"
-                   class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border-2 border-blue-600 px-4 py-2.5 text-sm font-semibold text-blue-600 hover:bg-blue-50 transition">
+                   class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border-2 border-blue-600 px-4 py-2.5 text-sm font-semibold text-pink-700 hover:bg-pink-50 transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $iconPaths['headset'] }}"/></svg>
                     {{ $helpButton }}
                 </a>
@@ -111,8 +111,8 @@
                     <input type="hidden" name="category" value="{{ $activeFaqCategory }}">
                 @endif
                 <input type="search" name="q" value="{{ $faqSearch }}" placeholder="Search FAQ..."
-                       class="w-full rounded-xl border border-slate-200 bg-white pl-4 pr-12 py-3 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600" aria-label="Search">
+                       class="w-full rounded-xl border border-slate-200 bg-white pl-4 pr-12 py-3 text-sm shadow-sm focus:border-pink-1000 focus:ring-pink-500">
+                <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-pink-700" aria-label="Search">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </button>
             </form>
@@ -127,7 +127,7 @@
                             {{ $activeCat->name ?? $activeFaqCategory }}
                         @endif
                     </p>
-                    <a href="{{ route('website.faqs') }}" class="text-xs font-semibold text-blue-600">Clear</a>
+                    <a href="{{ route('website.faqs') }}" class="text-xs font-semibold text-pink-700">Clear</a>
                 </div>
             @endif
 
@@ -136,11 +136,11 @@
                     <div>
                         <button type="button"
                                 class="w-full flex items-center justify-between gap-4 px-5 py-4 text-left transition"
-                                :class="open === {{ $i }} ? 'text-blue-600' : 'text-slate-800 hover:bg-slate-50/80'"
+                                :class="open === {{ $i }} ? 'text-pink-700' : 'text-slate-800 hover:bg-slate-50/80'"
                                 @click="open = open === {{ $i }} ? null : {{ $i }}">
                             <span class="text-sm sm:text-[15px] font-semibold leading-snug">{{ $faq->question }}</span>
                             <span class="shrink-0 w-7 h-7 rounded-full border border-slate-200 inline-flex items-center justify-center text-lg leading-none"
-                                  :class="open === {{ $i }} ? 'border-blue-200 text-blue-600 bg-blue-50' : 'text-slate-400'">
+                                  :class="open === {{ $i }} ? 'border-pink-200 text-pink-700 bg-pink-50' : 'text-slate-400'">
                                 <span x-text="open === {{ $i }} ? '−' : '+'"></span>
                             </span>
                         </button>
@@ -170,7 +170,7 @@
         @endphp
         @foreach($promises->take(4) as $item)
             <div class="flex gap-3">
-                <span class="w-11 h-11 rounded-full bg-blue-50 text-blue-600 inline-flex items-center justify-center shrink-0">
+                <span class="w-11 h-11 rounded-full bg-pink-50 text-pink-700 inline-flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $iconPaths[$item['icon']] }}"/></svg>
                 </span>
                 <div>

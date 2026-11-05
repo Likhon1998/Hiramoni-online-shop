@@ -30,25 +30,25 @@ class BlogSeeder extends Seeder
         }
 
         $heroPath = $this->storeRemoteImage(
-            'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=1600&q=80',
+            'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1600&q=80',
             'cms/blog-hero',
-            'hero-gadgets.jpg'
+            'hero-beauty.jpg'
         );
 
         $settings->fill([
             'default_shop_id' => $settings->default_shop_id ?: $shop->id,
-            'blog_hero_kicker' => 'OUR BLOG',
-            'blog_hero_title' => 'News & Articles',
-            'blog_hero_subtitle' => 'Stay updated with product news, reviews, and buying guides from Hira Moni.',
-            'blog_articles_title' => 'Latest Articles',
-            'blog_newsletter_title' => 'Subscribe to Our Newsletter',
-            'blog_newsletter_text' => 'Get the latest deals and product news delivered to your inbox.',
-            'blog_feature_1_title' => 'Expert Reviews',
-            'blog_feature_1_text' => 'In-depth & honest',
-            'blog_feature_2_title' => 'Buying Guides',
-            'blog_feature_2_text' => 'Smart picks for you',
-            'blog_feature_3_title' => 'Latest Updates',
-            'blog_feature_3_text' => 'Tech news, trends & more',
+            'blog_hero_kicker' => 'BEAUTY JOURNAL',
+            'blog_hero_title' => 'Glow Tips & Beauty Stories',
+            'blog_hero_subtitle' => 'Skincare routines, makeup guides, and honest product notes from Hira Moni.',
+            'blog_articles_title' => 'Latest Stories',
+            'blog_newsletter_title' => 'Stay in the glow',
+            'blog_newsletter_text' => 'Beauty tips, new arrivals, and gentle offers — straight to your inbox.',
+            'blog_feature_1_title' => 'Expert Tips',
+            'blog_feature_1_text' => 'Real routines that work',
+            'blog_feature_2_title' => 'Product Guides',
+            'blog_feature_2_text' => 'Find your perfect match',
+            'blog_feature_3_title' => 'Fresh Ideas',
+            'blog_feature_3_text' => 'Trends made simple',
         ]);
         if ($heroPath) {
             $settings->blog_hero_image = $heroPath;
@@ -56,10 +56,10 @@ class BlogSeeder extends Seeder
         $settings->save();
 
         $categoryDefs = [
-            'product-reviews' => ['name' => 'Product Reviews', 'color' => 'blue', 'sort_order' => 1],
-            'tech-news' => ['name' => 'Tech News', 'color' => 'emerald', 'sort_order' => 2],
-            'buying-guides' => ['name' => 'Buying Guides', 'color' => 'violet', 'sort_order' => 3],
-            'how-to' => ['name' => 'How-To', 'color' => 'amber', 'sort_order' => 4],
+            'skincare' => ['name' => 'Skincare', 'color' => 'rose', 'sort_order' => 1],
+            'makeup' => ['name' => 'Makeup', 'color' => 'violet', 'sort_order' => 2],
+            'routines' => ['name' => 'Routines', 'color' => 'emerald', 'sort_order' => 3],
+            'guides' => ['name' => 'Buying Guides', 'color' => 'amber', 'sort_order' => 4],
         ];
 
         $categories = [];
@@ -75,94 +75,102 @@ class BlogSeeder extends Seeder
             );
         }
 
+        // Hide leftover gadget categories/posts from the previous demo.
+        CmsBlogCategory::where('shop_id', $shop->id)
+            ->whereNotIn('slug', array_keys($categoryDefs))
+            ->update(['is_active' => false]);
+
+        $keepSlugs = [];
+
         $posts = [
             [
-                'title' => 'Sony WH-1000XM5 Review: Still the King of Noise Cancellation?',
-                'slug' => 'sony-wh-1000xm5-review',
-                'category' => 'product-reviews',
-                'excerpt' => "We put Sony's flagship headphones through daily commuting, flights, and long work sessions to see if they still lead the ANC pack.",
-                'body' => "Sony's WH-1000XM5 continues to set the bar for wireless noise cancelling headphones. Comfort is excellent for long sessions, call quality is clear, and the app gives fine control over EQ and ambient modes.\n\nBattery life easily covers a full work week of listening, and multipoint pairing makes switching between laptop and phone painless. If you want class-leading ANC without stepping into ultra-premium pricing, these still deserve the crown.",
-                'author_name' => 'Alex Rivera',
+                'title' => 'Build a Simple Morning Skincare Routine That Actually Sticks',
+                'slug' => 'simple-morning-skincare-routine',
+                'category' => 'routines',
+                'excerpt' => 'Cleanse, treat, moisturize, protect — a four-step glow ritual you can finish before your first coffee.',
+                'body' => "A good morning routine does not need ten bottles. Start with a gentle cleanser to remove overnight oil without stripping your skin barrier.\n\nNext, apply a lightweight serum or essence on damp skin so actives absorb better. Lock everything in with a moisturizer suited to your skin type — gel for oily skin, cream for dry skin.\n\nFinish with SPF every single day. Sunscreen is the step that keeps tone even and makeup sitting smoother. Keep products nearby, set a 5-minute timer if you need to, and consistency will do more than any viral trend.",
+                'author_name' => 'Hira Beauty Desk',
                 'reading_time' => 5,
-                'views_count' => 1840,
+                'views_count' => 2140,
                 'is_featured' => true,
-                'published_at' => '2025-05-24 10:00:00',
-                'image' => 'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=1200&q=80',
-                'file' => 'sony-headphones.jpg',
+                'published_at' => '2025-10-18 10:00:00',
+                'image' => 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=1200&q=80',
+                'file' => 'morning-routine.jpg',
             ],
             [
-                'title' => 'Best Smartwatches in 2025: Which One Should You Buy?',
-                'slug' => 'best-smartwatches-2025',
-                'category' => 'buying-guides',
-                'excerpt' => 'From Apple Watch to Galaxy Watch and budget fitness bands — here is a clear buying guide for every lifestyle and budget.',
-                'body' => "Choosing a smartwatch in 2025 depends less on specs sheets and more on the phone you already own, the sports you track, and how much battery you need between charges.\n\nApple Watch Ultra remains the premium pick for iPhone users. Galaxy Watch Ultra leads on Android with deep Samsung Health insights. If you mainly want sleep and workout tracking without notifications overload, a focused fitness watch will serve you better than a mini smartphone on your wrist.",
-                'author_name' => 'Maya Chen',
-                'reading_time' => 7,
-                'views_count' => 2210,
+                'title' => 'How to Choose the Right Moisturizer for Your Skin Type',
+                'slug' => 'choose-moisturizer-by-skin-type',
+                'category' => 'guides',
+                'excerpt' => 'Oily, dry, combination, or sensitive — match texture and ingredients so your skin stays calm, not congested.',
+                'body' => "Moisturizer is not optional, even if your skin feels oily. Dehydrated skin often overproduces oil, which makes shine and breakouts worse.\n\nOily and acne-prone skins usually love gel or gel-cream formulas with niacinamide or hyaluronic acid. Dry skins need richer creams with ceramides and nourishing oils. Combination skins can use a balanced lotion and spot-treat dry cheeks.\n\nSensitive skins should keep fragrance low and patch-test new products. Apply moisturizer on slightly damp skin, and give it a minute before makeup so foundation does not pill.",
+                'author_name' => 'Nadia Rahman',
+                'reading_time' => 6,
+                'views_count' => 1890,
                 'is_featured' => false,
-                'published_at' => '2025-05-20 09:00:00',
-                'image' => 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=1200&q=80',
-                'file' => 'smartwatches.jpg',
+                'published_at' => '2025-10-14 09:00:00',
+                'image' => 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=1200&q=80',
+                'file' => 'moisturizer-guide.jpg',
             ],
             [
-                'title' => 'iPhone 16 Pro Max vs Galaxy S25 Ultra: Flagship Showdown',
-                'slug' => 'iphone-16-pro-max-vs-galaxy-s25-ultra',
-                'category' => 'tech-news',
-                'excerpt' => 'Camera systems, battery stamina, and everyday performance — we compare the two phones everyone is debating this year.',
-                'body' => "Both flagships are outstanding, but they feel different day to day. The iPhone 16 Pro Max prioritizes video, polish, and long software support. The Galaxy S25 Ultra leans into versatility with its S Pen, zoom camera, and deeper customization.\n\nIf you live in the Apple ecosystem, the Pro Max is the safer buy. Android power users who edit photos, multitask heavily, and want stylus precision will likely prefer the Ultra.",
-                'author_name' => 'Jordan Lee',
-                'reading_time' => 8,
-                'views_count' => 3120,
+                'title' => 'Everyday Makeup Looks That Feel Fresh, Not Heavy',
+                'slug' => 'everyday-fresh-makeup-looks',
+                'category' => 'makeup',
+                'excerpt' => 'Tinted moisturizer, soft blush, and a defined lash line — polished beauty that still looks like you.',
+                'body' => "Everyday makeup should enhance, not hide. Begin with skincare and a light base — tinted moisturizer or a sheer foundation worked only where you need coverage.\n\nWarm the cheeks with a cream blush and tap a little on the lips for a matched flush. Define brows lightly, curl lashes, and finish with mascara. A soft brown liner in the outer corners adds depth without looking dramatic.\n\nKeep a balm or gloss nearby for touch-ups. The goal is healthy skin showing through, not a full glam face before brunch.",
+                'author_name' => 'Maya Chowdhury',
+                'reading_time' => 5,
+                'views_count' => 2460,
                 'is_featured' => true,
-                'published_at' => '2025-05-18 11:30:00',
-                'image' => 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=1200&q=80',
-                'file' => 'flagship-phones.jpg',
+                'published_at' => '2025-10-10 11:30:00',
+                'image' => 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=1200&q=80',
+                'file' => 'everyday-makeup.jpg',
             ],
             [
-                'title' => 'How to Clean Wireless Earbuds Without Damaging Them',
-                'slug' => 'how-to-clean-wireless-earbuds',
-                'category' => 'how-to',
-                'excerpt' => 'A simple routine that keeps tips, meshes, and charging contacts free of wax and dust — without voiding your warranty.',
-                'body' => "Turn earbuds off and remove silicone tips. Wipe the housing with a dry microfiber cloth, then gently brush speaker meshes with a soft, dry brush. Never rinse earbuds under water unless they are rated for it and the manufacturer allows it.\n\nFor the case, clear lint from the charging pins with a wooden toothpick and wipe the interior lightly. Clean tips with mild soapy water, dry completely, then reattach. Do this every few weeks and sound quality stays crisp.",
-                'author_name' => 'Sam Okonkwo',
+                'title' => 'Lip Care 101: Soft Lips Before Any Lipstick',
+                'slug' => 'lip-care-before-lipstick',
+                'category' => 'skincare',
+                'excerpt' => 'Exfoliate gently, hydrate deeply, then color — the order that keeps lipsticks smooth and flattering.',
+                'body' => "Flaky lips make even the best lipstick look patchy. Once or twice a week, massage a soft sugar scrub or a damp washcloth in tiny circles, then rinse.\n\nFollow with a rich balm or overnight lip mask. In the day, layer a thin balm under lipstick, blot, then apply color. Matte formulas need more prep than glosses.\n\nAvoid licking your lips — saliva dries them out. Keep a balm in your bag and reapply after coffee or meals for a smoother canvas every time.",
+                'author_name' => 'Hira Beauty Desk',
                 'reading_time' => 4,
-                'views_count' => 980,
+                'views_count' => 1320,
                 'is_featured' => false,
-                'published_at' => '2025-05-15 14:00:00',
-                'image' => 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=1200&q=80',
-                'file' => 'earbuds.jpg',
+                'published_at' => '2025-10-06 14:00:00',
+                'image' => 'https://images.unsplash.com/photo-1631214524020-7e18db9a8f92?w=1200&q=80',
+                'file' => 'lip-care.jpg',
             ],
             [
-                'title' => 'Build a Mid-Range Gaming PC That Still Looks Premium',
-                'slug' => 'mid-range-gaming-pc-setup',
-                'category' => 'tech-news',
-                'excerpt' => 'Balanced parts, clean cable management, and RGB that does not overwhelm — a setup guide for 1440p gaming without overspending.',
-                'body' => "Start with a modern mid-tier GPU and a CPU that will not bottleneck it. Pair 32GB of fast RAM with a 1TB NVMe SSD for games and a secondary drive for media.\n\nSpend on a case with strong airflow and a quality PSU — those parts age better than chasing every new GPU launch. Keep cable routes tidy, leave room for intake filters, and your rig will stay cool, quiet, and photo-ready.",
-                'author_name' => 'Chris Patel',
-                'reading_time' => 6,
-                'views_count' => 1560,
+                'title' => 'Niacinamide, Hyaluronic Acid & Retinol: What Goes Where',
+                'slug' => 'niacinamide-hyaluronic-retinol-order',
+                'category' => 'skincare',
+                'excerpt' => 'A calm, logical order for popular actives so you get results without unnecessary irritation.',
+                'body' => "Layering actives is simpler when you think thin to thick, and gentle to strong. After cleansing, apply hyaluronic acid on damp skin to pull in moisture.\n\nNiacinamide plays well with most routines and can sit after hydrating serums to help with pores and barrier comfort. Retinol belongs at night, after water-based serums and before moisturizer — start slow, two to three nights a week.\n\nNever mix strong acids and retinol on the same night when you are starting out. Always use SPF the next morning. If skin stings or peels heavily, scale back and buffer with moisturizer.",
+                'author_name' => 'Dr. Farah Islam',
+                'reading_time' => 7,
+                'views_count' => 2780,
                 'is_featured' => false,
-                'published_at' => '2025-05-12 16:00:00',
-                'image' => 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=1200&q=80',
-                'file' => 'gaming-pc.jpg',
+                'published_at' => '2025-10-02 16:00:00',
+                'image' => 'https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=1200&q=80',
+                'file' => 'actives-guide.jpg',
             ],
             [
-                'title' => 'Ultrabooks vs Gaming Laptops: Which Travel Machine Wins?',
-                'slug' => 'ultrabooks-vs-gaming-laptops',
-                'category' => 'buying-guides',
-                'excerpt' => 'Weight, battery, thermals, and real-world performance — how to pick the right laptop for work trips and weekend creative work.',
-                'body' => "Ultrabooks win on battery life, thin chassis, and quiet fan profiles for cafes and flights. Gaming laptops win when you need GPU horsepower for editing, 3D, or AAA titles — at the cost of bulk and shorter unplugged time.\n\nIf you mostly browse, write, and join video calls, an ultrabook is the better daily companion. Creators who export video or run local AI tools should look at thin gaming or creator laptops with discrete graphics and a strong charger.",
-                'author_name' => 'Elena Brooks',
-                'reading_time' => 6,
-                'views_count' => 1340,
+                'title' => 'How to Build a Beauty Basket Under ৳2,000',
+                'slug' => 'beauty-basket-under-2000',
+                'category' => 'guides',
+                'excerpt' => 'Cleanser, moisturizer, SPF, and one hero product — a smart starter kit without overspending.',
+                'body' => "You do not need a vanity full of bottles to look polished. Prioritize a gentle cleanser, a daily moisturizer, and sunscreen. Those three protect and prep better than unused specialty jars.\n\nAdd one hero product based on your goal: a brightening serum, a tinted lip balm, or a reliable mascara. Shop trusted brands you already love from our shelves, and check sizes — travel or mid sizes stretch budgets further.\n\nReassess after two weeks. If skin feels comfortable and makeup sits well, you already have a winning basket. Upgrade slowly instead of buying everything at once.",
+                'author_name' => 'Nadia Rahman',
+                'reading_time' => 5,
+                'views_count' => 1650,
                 'is_featured' => false,
-                'published_at' => '2025-05-10 08:30:00',
-                'image' => 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=1200&q=80',
-                'file' => 'laptop-travel.jpg',
+                'published_at' => '2025-09-28 08:30:00',
+                'image' => 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1200&q=80',
+                'file' => 'beauty-basket.jpg',
             ],
         ];
 
         foreach ($posts as $post) {
+            $keepSlugs[] = $post['slug'];
             $cover = $this->storeRemoteImage($post['image'], 'cms/blogs', $post['file']);
 
             CmsBlog::updateOrCreate(
@@ -182,6 +190,10 @@ class BlogSeeder extends Seeder
                 ]
             );
         }
+
+        CmsBlog::where('shop_id', $shop->id)
+            ->whereNotIn('slug', $keepSlugs)
+            ->update(['is_published' => false]);
     }
 
     private function storeRemoteImage(string $url, string $directory, string $filename): ?string

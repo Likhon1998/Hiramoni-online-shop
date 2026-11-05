@@ -86,12 +86,19 @@ class BrandLogoService
             return null;
         }
 
+        // Curated legal beauty marks ship in public/images/brands — prefer those over text stubs.
+        $curated = $this->curatedPublicLogoUrl($brand->name);
+        if ($curated) {
+            return $curated;
+        }
+
         // Prefer the logo staff uploaded — never replace it with a generated mark.
         if ($brand->logo_path && $this->isUserLogo($brand->logo_path) && Storage::disk('public')->exists($brand->logo_path)) {
             return public_storage_url($brand->logo_path);
         }
 
-        if ($brand->logo_path && Storage::disk('public')->exists($brand->logo_path)) {
+        if ($brand->logo_path && Storage::disk('public')->exists($brand->logo_path)
+            && Storage::disk('public')->size($brand->logo_path) >= 500) {
             return public_storage_url($brand->logo_path);
         }
 
@@ -105,6 +112,27 @@ class BrandLogoService
         }
 
         return $path ? public_storage_url($path) : null;
+    }
+
+    /** Resolve a curated brand mark from public/images/brands when available. */
+    protected function curatedPublicLogoUrl(string $name): ?string
+    {
+        foreach (app(WebsiteService::class)->trustedBrandDefs() as $def) {
+            $match = strcasecmp($name, $def['name']) === 0
+                || Str::slug($name) === $def['slug']
+                || str_starts_with(Str::slug($name), $def['slug']);
+
+            if (! $match) {
+                continue;
+            }
+
+            $file = $def['file'];
+            if (is_file(public_path('images/brands/'.$file))) {
+                return asset('images/brands/'.$file);
+            }
+        }
+
+        return null;
     }
 
     public function ensureStored(Brand $brand): ?string

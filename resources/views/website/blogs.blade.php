@@ -2,234 +2,215 @@
 @php
     $settings = $settings ?? (object) [];
     $storeName = data_get($settings, 'store_name', config('app.name', 'Hira Moni'));
-    $heroKicker = data_get($settings, 'blog_hero_kicker') ?: 'OUR BLOG';
-    $heroTitle = data_get($settings, 'blog_hero_title') ?: 'News & Articles';
+    $heroKicker = data_get($settings, 'blog_hero_kicker') ?: 'Beauty Journal';
+    $heroTitle = data_get($settings, 'blog_hero_title') ?: 'Glow Tips & Beauty Stories';
     $heroSub = data_get($settings, 'blog_hero_subtitle')
-        ?: 'News, guides and updates from '.$storeName.'.';
+        ?: 'Skincare routines, makeup guides, and honest product notes from '.$storeName.'.';
     $heroImage = data_get($settings, 'blog_hero_image')
         ? public_storage_url(data_get($settings, 'blog_hero_image'))
-        : null;
-    $articlesTitle = data_get($settings, 'blog_articles_title') ?: 'Latest Articles';
-    $newsletterTitle = data_get($settings, 'blog_newsletter_title') ?: 'Subscribe to Our Newsletter';
-    $newsletterText = data_get($settings, 'blog_newsletter_text') ?: 'Get new offers and articles delivered to your inbox.';
+        : asset('images/hiramoni-hero-bleed.jpg');
+    $articlesTitle = data_get($settings, 'blog_articles_title') ?: 'Latest Stories';
+    $newsletterTitle = data_get($settings, 'blog_newsletter_title') ?: 'Stay in the glow';
+    $newsletterText = data_get($settings, 'blog_newsletter_text') ?: 'Beauty tips and gentle offers — straight to your inbox.';
     $features = array_values(array_filter([
         [
-            'title' => data_get($settings, 'blog_feature_1_title'),
-            'text' => data_get($settings, 'blog_feature_1_text'),
-            'icon' => 'review',
+            'title' => data_get($settings, 'blog_feature_1_title') ?: 'Expert Tips',
+            'text' => data_get($settings, 'blog_feature_1_text') ?: 'Real routines that work',
+            'icon' => 'tip',
         ],
         [
-            'title' => data_get($settings, 'blog_feature_2_title'),
-            'text' => data_get($settings, 'blog_feature_2_text'),
+            'title' => data_get($settings, 'blog_feature_2_title') ?: 'Product Guides',
+            'text' => data_get($settings, 'blog_feature_2_text') ?: 'Find your perfect match',
             'icon' => 'guide',
         ],
         [
-            'title' => data_get($settings, 'blog_feature_3_title'),
-            'text' => data_get($settings, 'blog_feature_3_text'),
-            'icon' => 'updates',
+            'title' => data_get($settings, 'blog_feature_3_title') ?: 'Fresh Ideas',
+            'text' => data_get($settings, 'blog_feature_3_text') ?: 'Trends made simple',
+            'icon' => 'spark',
         ],
     ], fn ($f) => filled($f['title'])));
     $blogCategories = $blogCategories ?? collect();
     $popularPosts = $popularPosts ?? collect();
     $blogSearch = $blogSearch ?? null;
     $activeBlogCategory = $activeBlogCategory ?? null;
-    $badgeMap = [
-        'blue' => 'bg-blue-600 text-white',
-        'emerald' => 'bg-emerald-600 text-white',
-        'amber' => 'bg-amber-500 text-white',
-        'rose' => 'bg-rose-600 text-white',
-        'violet' => 'bg-violet-600 text-white',
-        'slate' => 'bg-slate-700 text-white',
-    ];
-    $catIconMap = [
-        'blue' => 'bg-blue-50 text-blue-600',
-        'emerald' => 'bg-emerald-50 text-emerald-700',
-        'amber' => 'bg-amber-50 text-amber-700',
-        'rose' => 'bg-rose-50 text-rose-700',
-        'violet' => 'bg-violet-50 text-violet-700',
-        'slate' => 'bg-slate-100 text-slate-600',
-    ];
+    $hasFilters = filled($blogSearch) || filled($activeBlogCategory);
+    $activeCategoryName = null;
+    if ($activeBlogCategory) {
+        $activeCategoryName = optional($blogCategories->firstWhere('slug', $activeBlogCategory))->name
+            ?: $activeBlogCategory;
+    }
 @endphp
 @section('title', 'Blog — '.$storeName)
+@section('meta_description', $heroSub)
 @section('content')
 
-{{-- Hero --}}
-<section class="relative overflow-hidden border-b border-slate-100">
-    <div class="absolute inset-0">
-        @if($heroImage)
-            <img src="{{ $heroImage }}" alt="" class="h-full w-full object-cover object-center opacity-35">
-        @endif
-        <div class="absolute inset-0 bg-gradient-to-r from-slate-100 via-slate-50/92 to-transparent"></div>
+<section class="gw-blog-hero" aria-labelledby="gw-blog-hero-title">
+    <div class="gw-blog-hero-media" aria-hidden="true">
+        <img src="{{ $heroImage }}" alt="">
+        <span class="gw-blog-hero-veil"></span>
     </div>
-    <div class="relative max-w-7xl mx-auto px-4 py-7 sm:py-8">
-        <p class="text-[10px] font-bold tracking-[0.18em] uppercase text-blue-500">{{ $heroKicker }}</p>
-        <h1 class="mt-1 text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">{{ $heroTitle }}</h1>
-        <p class="mt-1.5 max-w-lg text-xs sm:text-[13px] text-slate-600 leading-relaxed">{{ $heroSub }}</p>
+    <div class="tn-container gw-blog-hero-inner">
+        <p class="gw-blog-kicker">{{ $heroKicker }}</p>
+        <h1 id="gw-blog-hero-title" class="gw-blog-hero-title">{{ $heroTitle }}</h1>
+        <p class="gw-blog-hero-sub">{{ $heroSub }}</p>
 
-        <div class="mt-4 flex flex-wrap gap-x-6 gap-y-2.5">
-            @foreach($features as $feature)
-                <div class="flex items-center gap-2">
-                    <span class="shrink-0 w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                        @if($feature['icon'] === 'review')
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                        @elseif($feature['icon'] === 'guide')
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-                        @else
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                        @endif
-                    </span>
-                    <div>
-                        <p class="text-xs font-semibold text-slate-800 leading-none">{{ $feature['title'] }}</p>
-                        <p class="mt-0.5 text-[11px] text-slate-500 leading-none">{{ $feature['text'] }}</p>
-                    </div>
-                </div>
-            @endforeach
-        </div>
+        @if(count($features))
+            <ul class="gw-blog-promises">
+                @foreach($features as $feature)
+                    <li>
+                        <span class="gw-blog-promise-icon" aria-hidden="true">
+                            @if($feature['icon'] === 'guide')
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                            @elseif($feature['icon'] === 'spark')
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                            @else
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                            @endif
+                        </span>
+                        <span>
+                            <strong>{{ $feature['title'] }}</strong>
+                            <small>{{ $feature['text'] }}</small>
+                        </span>
+                    </li>
+                @endforeach
+            </ul>
+        @endif
     </div>
 </section>
 
-<div class="max-w-7xl mx-auto px-4 py-6 sm:py-7">
-    <div class="grid lg:grid-cols-12 gap-5 lg:gap-6">
-        {{-- Main column --}}
-        <div class="lg:col-span-9 min-w-0">
-            @if($blogSearch || $activeBlogCategory)
-                <div class="mb-3.5 flex items-center justify-between gap-3">
-                    <p class="text-xs text-slate-600">
-                        @if($blogSearch) Results for “<strong>{{ $blogSearch }}</strong>” @endif
-                        @if($activeBlogCategory)
-                            @php $cat = $blogCategories->firstWhere('slug', $activeBlogCategory); @endphp
-                            Category: <strong>{{ $cat->name ?? $activeBlogCategory }}</strong>
+<section class="gw-blog-page">
+    <div class="tn-container gw-blog-layout">
+        <div class="gw-blog-main">
+            <header class="gw-blog-toolbar">
+                @if($hasFilters)
+                    <div class="gw-blog-filter-note">
+                        @if($blogSearch)
+                            <p>Results for <strong>“{{ $blogSearch }}”</strong></p>
                         @endif
-                    </p>
-                    <a href="{{ route('website.blogs') }}" class="text-[11px] font-semibold text-blue-600 hover:text-blue-700">Clear filters</a>
-                </div>
-            @else
-                <h2 class="text-sm sm:text-base font-bold text-slate-900 tracking-tight mb-3.5">{{ $articlesTitle }}</h2>
-            @endif
+                        @if($activeCategoryName)
+                            <p>Category: <strong>{{ $activeCategoryName }}</strong></p>
+                        @endif
+                    </div>
+                    <a href="{{ route('website.blogs') }}" class="gw-blog-clear">Clear filters</a>
+                @else
+                    <h2 class="gw-blog-section-title">{{ $articlesTitle }}</h2>
+                    <p class="gw-blog-section-count">{{ method_exists($blogs, 'total') ? $blogs->total() : $blogs->count() }} stories</p>
+                @endif
+            </header>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div class="gw-blog-listing">
                 @forelse($blogs as $post)
-                    @php
-                        $catColor = $post->category->color ?? 'blue';
-                        $badgeClass = $badgeMap[$catColor] ?? $badgeMap['blue'];
-                    @endphp
-                    <article class="group flex flex-col rounded-xl border border-slate-100 bg-white overflow-hidden hover:border-slate-200 transition">
-                        <a href="{{ route('website.blog', $post->slug) }}" class="relative block overflow-hidden bg-slate-100 aspect-[16/10]">
-                            <img src="{{ $post->coverUrl() }}" alt="{{ $post->title }}"
-                                 class="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]">
+                    <article class="gw-blog-card">
+                        <a href="{{ route('website.blog', $post->slug) }}" class="gw-blog-media">
+                            <img src="{{ $post->coverUrl() }}" alt="{{ $post->title }}" loading="lazy" decoding="async">
                             @if($post->category)
-                                <span class="absolute bottom-2 left-2 inline-flex text-[9px] font-bold uppercase tracking-wider {{ $badgeClass }} px-1.5 py-0.5 rounded">
-                                    {{ $post->category->name }}
-                                </span>
+                                <span class="gw-blog-badge">{{ $post->category->name }}</span>
                             @endif
                         </a>
-                        <div class="p-3 flex flex-col flex-1">
-                            <h3 class="text-[13px] font-semibold text-slate-900 leading-snug line-clamp-2">
-                                <a href="{{ route('website.blog', $post->slug) }}" class="hover:text-blue-600 transition">{{ $post->title }}</a>
+                        <div class="gw-blog-body">
+                            <div class="gw-blog-meta">
+                                <time datetime="{{ optional($post->published_at)->toDateString() }}">
+                                    {{ optional($post->published_at)->format('M d, Y') }}
+                                </time>
+                                <span>{{ $post->readingTimeLabel() }}</span>
+                            </div>
+                            <h3>
+                                <a href="{{ route('website.blog', $post->slug) }}">{{ $post->title }}</a>
                             </h3>
                             @if($post->excerpt)
-                                <p class="mt-1.5 text-[11px] text-slate-500 leading-relaxed line-clamp-2">{{ $post->excerpt }}</p>
+                                <p class="gw-blog-excerpt">{{ $post->excerpt }}</p>
                             @endif
-                            <div class="mt-2.5 pt-2 border-t border-slate-50 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[10px] text-slate-400">
-                                <span class="inline-flex items-center gap-1">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                    {{ optional($post->published_at)->format('M d, Y') }}
-                                </span>
-                                <span class="inline-flex items-center gap-1">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                    {{ $post->readingTimeLabel() }}
-                                </span>
-                            </div>
+                            <a href="{{ route('website.blog', $post->slug) }}" class="gw-blog-more">
+                                Read story
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                            </a>
                         </div>
                     </article>
                 @empty
-                    <p class="sm:col-span-2 xl:col-span-3 text-center text-slate-400 py-10 text-xs">No articles yet — check back soon.</p>
+                    <div class="gw-blog-empty">
+                        <p>No stories match your filters yet.</p>
+                        <a href="{{ route('website.blogs') }}" class="gw-blog-clear">Browse all stories</a>
+                    </div>
                 @endforelse
             </div>
 
-            @if($blogs->hasPages())
-                <div class="mt-5">{{ $blogs->links() }}</div>
+            @if(method_exists($blogs, 'hasPages') && $blogs->hasPages())
+                <div class="gw-blog-pagination">{{ $blogs->withQueryString()->links() }}</div>
             @endif
         </div>
 
-        {{-- Sidebar --}}
-        <aside class="lg:col-span-3 space-y-3.5">
-            {{-- Search --}}
-            <div class="rounded-xl border border-slate-100 bg-white p-3">
-                <form action="{{ route('website.blogs') }}" method="GET" class="flex gap-1.5">
-                    @if($activeBlogCategory)<input type="hidden" name="category" value="{{ $activeBlogCategory }}">@endif
-                    <input type="search" name="q" value="{{ $blogSearch }}" placeholder="Search articles..."
-                           class="flex-1 rounded-lg border-slate-200 text-xs h-9 focus:border-blue-500 focus:ring-blue-500">
-                    <button type="submit" class="shrink-0 w-9 h-9 rounded-lg bg-slate-900 text-white flex items-center justify-center hover:bg-slate-800 transition" title="Search">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <aside class="gw-blog-aside" aria-label="Blog sidebar">
+            <div class="gw-blog-panel">
+                <h3 class="gw-blog-panel-title">Search</h3>
+                <form action="{{ route('website.blogs') }}" method="GET" class="gw-blog-search">
+                    @if($activeBlogCategory)
+                        <input type="hidden" name="category" value="{{ $activeBlogCategory }}">
+                    @endif
+                    <label class="sr-only" for="blog-search">Search articles</label>
+                    <input id="blog-search" type="search" name="q" value="{{ $blogSearch }}" placeholder="Search beauty tips...">
+                    <button type="submit" aria-label="Search">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </button>
                 </form>
             </div>
 
-            {{-- Categories --}}
             @if($blogCategories->count())
-            <div class="rounded-xl border border-slate-100 bg-white p-3.5">
-                <h3 class="text-xs font-bold text-slate-900 mb-2.5">Categories</h3>
-                <ul class="space-y-2">
-                    @foreach($blogCategories as $cat)
-                        @php $iconClass = $catIconMap[$cat->color ?? 'blue'] ?? $catIconMap['blue']; @endphp
+                <div class="gw-blog-panel">
+                    <h3 class="gw-blog-panel-title">Categories</h3>
+                    <ul class="gw-blog-cats">
                         <li>
-                            <a href="{{ route('website.blogs', ['category' => $cat->slug]) }}"
-                               class="flex items-center justify-between text-xs {{ ($activeBlogCategory ?? '') === $cat->slug ? 'text-blue-600 font-semibold' : 'text-slate-600 hover:text-blue-600' }} transition">
-                                <span class="inline-flex items-center gap-2 min-w-0">
-                                    <span class="w-6 h-6 rounded-md {{ $iconClass }} flex items-center justify-center text-[10px] font-bold shrink-0">{{ strtoupper(substr($cat->name, 0, 1)) }}</span>
-                                    <span class="truncate">{{ $cat->name }}</span>
-                                </span>
-                                <span class="text-[10px] text-slate-400 shrink-0 ml-1.5">({{ $cat->blogs_count }})</span>
+                            <a href="{{ route('website.blogs', array_filter(['q' => $blogSearch])) }}"
+                               class="{{ ! $activeBlogCategory ? 'is-active' : '' }}">
+                                <span>All stories</span>
+                                <span>{{ method_exists($blogs, 'total') && ! $hasFilters ? $blogs->total() : $blogCategories->sum('blogs_count') }}</span>
                             </a>
                         </li>
-                    @endforeach
-                </ul>
-                <a href="{{ route('website.blogs') }}" class="mt-2.5 inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-700">
-                    View All Categories
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                </a>
-            </div>
+                        @foreach($blogCategories as $cat)
+                            <li>
+                                <a href="{{ route('website.blogs', array_filter(['category' => $cat->slug, 'q' => $blogSearch])) }}"
+                                   class="{{ ($activeBlogCategory ?? '') === $cat->slug ? 'is-active' : '' }}">
+                                    <span>{{ $cat->name }}</span>
+                                    <span>{{ $cat->blogs_count }}</span>
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
             @endif
 
-            {{-- Popular Posts --}}
             @if($popularPosts->count())
-            <div class="rounded-xl border border-slate-100 bg-white p-3.5">
-                <h3 class="text-xs font-bold text-slate-900 mb-2.5">Popular Posts</h3>
-                <ul class="space-y-2.5">
-                    @foreach($popularPosts as $pop)
-                        <li>
-                            <a href="{{ route('website.blog', $pop->slug) }}" class="flex gap-2.5 group">
-                                <img src="{{ $pop->coverUrl() }}" alt="" class="w-12 h-12 rounded-lg object-cover bg-slate-100 shrink-0">
-                                <div class="min-w-0">
-                                    <p class="text-[11px] font-semibold text-slate-800 group-hover:text-blue-600 line-clamp-2 leading-snug transition">{{ $pop->title }}</p>
-                                    <p class="text-[10px] text-slate-400 mt-1">{{ optional($pop->published_at)->format('M d, Y') }}</p>
-                                </div>
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
-            </div>
+                <div class="gw-blog-panel">
+                    <h3 class="gw-blog-panel-title">Popular reads</h3>
+                    <ul class="gw-blog-popular">
+                        @foreach($popularPosts as $pop)
+                            <li>
+                                <a href="{{ route('website.blog', $pop->slug) }}">
+                                    <img src="{{ $pop->coverUrl() }}" alt="" loading="lazy" decoding="async">
+                                    <span>
+                                        <strong>{{ $pop->title }}</strong>
+                                        <small>{{ optional($pop->published_at)->format('M d, Y') }}</small>
+                                    </span>
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
             @endif
 
-            {{-- Newsletter --}}
-            <div class="rounded-xl border border-blue-100 bg-blue-50/70 p-3.5">
-                <h3 class="text-xs font-bold text-slate-900">{{ $newsletterTitle }}</h3>
-                <p class="mt-1 text-[11px] text-slate-500 leading-relaxed">{{ $newsletterText }}</p>
+            <div class="gw-blog-panel gw-blog-panel--newsletter">
+                <h3 class="gw-blog-panel-title">{{ $newsletterTitle }}</h3>
+                <p>{{ $newsletterText }}</p>
                 @if(session('newsletter_success'))
-                    <p class="mt-2 text-[11px] font-semibold text-emerald-600">{{ session('newsletter_success') }}</p>
+                    <p class="gw-blog-newsletter-ok">{{ session('newsletter_success') }}</p>
                 @endif
-                <form action="{{ route('website.newsletter') }}" method="POST" class="mt-2.5 space-y-2">
+                <form action="{{ route('website.newsletter') }}" method="POST" class="gw-blog-newsletter">
                     @csrf
-                    <input type="email" name="email" required placeholder="Your email address"
-                           class="w-full rounded-lg border-slate-200 bg-white text-xs h-9 focus:border-blue-500 focus:ring-blue-500">
-                    <button type="submit" class="w-full h-9 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 inline-flex items-center justify-center gap-1.5 transition">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-                        Subscribe
-                    </button>
+                    <label class="sr-only" for="blog-newsletter-email">Email</label>
+                    <input id="blog-newsletter-email" type="email" name="email" required placeholder="Your email address">
+                    <button type="submit">Subscribe</button>
                 </form>
             </div>
         </aside>
     </div>
-</div>
+</section>
 @endsection

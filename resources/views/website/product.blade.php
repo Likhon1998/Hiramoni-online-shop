@@ -7,27 +7,38 @@
     $ogImage = $product->og_image
         ? public_storage_url($product->og_image)
         : app(\App\Services\WebsiteService::class)->productImageUrl($product);
+    if ($ogImage && ! str_starts_with($ogImage, 'http')) {
+        $ogImage = url($ogImage);
+    }
     $canonical = route('website.product', $product);
+    $ogTitle = $product->og_title ?: $product->seoTitle();
+    $ogDescription = $product->og_description ?: ($seoDescription !== '' ? $seoDescription : 'Shop '.$product->storefrontDisplayName().' at '.$storeName);
 @endphp
 
 @section('title', $seoTitle)
 
 @section('meta')
-    @if($seoDescription !== '')
-        <meta name="description" content="{{ $seoDescription }}">
+    @if($ogDescription !== '')
+        <meta name="description" content="{{ $ogDescription }}">
     @endif
     <link rel="canonical" href="{{ $canonical }}">
     <meta property="og:type" content="product">
     <meta property="og:site_name" content="{{ $storeName }}">
-    <meta property="og:title" content="{{ $product->og_title ?: $product->seoTitle() }}">
-    <meta property="og:description" content="{{ $product->og_description ?: $seoDescription }}">
+    <meta property="og:title" content="{{ $ogTitle }}">
+    <meta property="og:description" content="{{ $ogDescription }}">
     <meta property="og:url" content="{{ $canonical }}">
     @if($ogImage)
         <meta property="og:image" content="{{ $ogImage }}">
+        <meta property="og:image:alt" content="{{ $product->storefrontDisplayName() }}">
     @endif
     <meta property="product:price:amount" content="{{ number_format($product->currentPrice(), 2, '.', '') }}">
     <meta property="product:price:currency" content="{{ data_get($settings ?? null, 'currency_code', 'BDT') }}">
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $ogTitle }}">
+    <meta name="twitter:description" content="{{ $ogDescription }}">
+    @if($ogImage)
+        <meta name="twitter:image" content="{{ $ogImage }}">
+    @endif
 @endsection
 
 @section('content')

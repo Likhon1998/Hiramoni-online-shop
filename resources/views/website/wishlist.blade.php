@@ -4,7 +4,7 @@
 <div class="max-w-7xl mx-auto px-4 py-10">
     <div class="flex flex-wrap items-end justify-between gap-3 mb-8">
         <div>
-            <p class="text-xs font-bold tracking-[0.15em] uppercase text-blue-600">Saved items</p>
+            <p class="text-xs font-bold tracking-[0.15em] uppercase text-pink-700">Saved items</p>
             <h1 class="mt-1 text-2xl sm:text-3xl font-extrabold text-slate-900">Wishlist</h1>
             <p class="mt-1 text-sm text-slate-500"><span x-text="wishlistCount"></span> item(s) saved for later</p>
         </div>
@@ -16,7 +16,7 @@
             <svg class="w-12 h-12 mx-auto text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
             <p class="mt-4 text-slate-600 font-semibold">Your wishlist is empty</p>
             <p class="mt-1 text-sm text-slate-400">Tap the heart on any product to save it here.</p>
-            <a href="{{ route('website.shop') }}" class="mt-6 inline-flex rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">Browse products</a>
+            <a href="{{ route('website.shop') }}" class="mt-6 inline-flex rounded-xl bg-pink-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-pink-700">Browse products</a>
         </div>
     </template>
 
@@ -27,10 +27,10 @@
                     <img :src="item.image" :alt="item.name" class="w-full h-full object-cover">
                 </a>
                 <div class="p-4 flex flex-col flex-1">
-                    <a :href="item.url" class="text-sm font-semibold text-slate-900 hover:text-blue-600 line-clamp-2" x-text="item.name"></a>
-                    <p class="mt-2 text-blue-600 font-bold text-sm" x-text="currency + Math.round(Number(item.price) || 0).toLocaleString()"></p>
+                    <a :href="item.url" class="text-sm font-semibold text-slate-900 hover:text-pink-700 line-clamp-2" x-text="item.name"></a>
+                    <p class="mt-2 text-pink-700 font-bold text-sm" x-text="currency + Math.round(Number(item.price) || 0).toLocaleString()"></p>
                     <div class="mt-auto pt-4 flex gap-2">
-                        <button type="button" class="flex-1 rounded-lg bg-slate-900 text-white text-xs font-bold py-2.5 hover:bg-blue-600"
+                        <button type="button" class="flex-1 rounded-lg bg-slate-900 text-white text-xs font-bold py-2.5 hover:bg-pink-600"
                                 :data-add-to-cart="JSON.stringify({id:item.id,name:item.name,price:item.price,image:item.image})"
                                 data-qty="1"
                                 data-open-cart="1">Add to cart</button>

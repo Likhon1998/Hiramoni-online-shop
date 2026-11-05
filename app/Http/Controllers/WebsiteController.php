@@ -425,27 +425,61 @@ class WebsiteController extends Controller
         return $facets;
     }
 
+    public function brands()
+    {
+        $shopId = $this->website->shopId();
+        abort_unless($shopId, 404);
+
+        $brandIds = $this->website->trustedBrandIds($shopId);
+        abort_unless($brandIds !== [], 404);
+
+        // Pre-select trusted brands in the shop filters UI.
+        request()->merge(['brands' => $brandIds]);
+
+        $query = $this->website->catalogQuery($shopId)
+            ->whereIn('brand_id', $brandIds)
+            ->with(['category', 'brand'])
+            ->latest();
+        $this->website->applyVariantGroupListing($query);
+        $products = $query->paginate(24)->appends(['brands' => $brandIds]);
+
+        return view('website.shop', array_merge($this->website->homepageData(), $this->shopSidebarData($shopId), [
+            'products' => $products,
+            'activeBrandIds' => $brandIds,
+            'pageTitle' => 'All Brands',
+            'pageSubtitle' => 'Shop beauty products from our trusted brands.',
+            'sort' => 'latest',
+        ]));
+    }
+
     public function brand(string $slug)
     {
         $shopId = $this->website->shopId();
         abort_unless($shopId, 404);
 
-        $brand = Brand::where('shop_id', $shopId)
-            ->where(function ($q) {
-                $q->where('is_active', true)->orWhereNull('is_active');
-            })
-            ->withCount(['products' => function ($q) use ($shopId) {
-                $q->where('shop_id', $shopId)
-                    ->availableForSale()
-                    ->where(function ($qq) {
-                        $qq->where('is_published', true)->orWhereNull('is_published');
-                    });
-            }])
-            ->get()
-            ->filter(fn ($b) => \Illuminate\Support\Str::slug($b->name) === $slug)
-            // Prefer the brand row that actually has products (handles samsung / Samsung duplicates).
-            ->sortByDesc('products_count')
-            ->first();
+        // Resolve trusted-brand aliases first (e.g. maybelline → Maybelline New York).
+        $trusted = $this->website->trustedBrands($shopId)->firstWhere('slug', $slug);
+        $brand = $trusted
+            ? Brand::where('shop_id', $shopId)->where('id', $trusted->id)->first()
+            : null;
+
+        if (! $brand) {
+            $brand = Brand::where('shop_id', $shopId)
+                ->where(function ($q) {
+                    $q->where('is_active', true)->orWhereNull('is_active');
+                })
+                ->withCount(['products' => function ($q) use ($shopId) {
+                    $q->where('shop_id', $shopId)
+                        ->availableForSale()
+                        ->where(function ($qq) {
+                            $qq->where('is_published', true)->orWhereNull('is_published');
+                        });
+                }])
+                ->get()
+                ->filter(fn ($b) => \Illuminate\Support\Str::slug($b->name) === $slug)
+                ->sortByDesc('products_count')
+                ->first();
+        }
 
         abort_unless($brand, 404);
 
@@ -453,14 +487,17 @@ class WebsiteController extends Controller
         $this->website->mergeDuplicateBrands($shopId);
 
         // Re-resolve after merge in case the chosen row was absorbed.
-        $brand = Brand::where('shop_id', $shopId)
-            ->where(function ($q) {
-                $q->where('is_active', true)->orWhereNull('is_active');
-            })
-            ->get()
-            ->filter(fn ($b) => \Illuminate\Support\Str::slug($b->name) === $slug)
-            ->sortByDesc(fn ($b) => Product::where('brand_id', $b->id)->count())
-            ->first() ?? $brand;
+        $brand = Brand::where('shop_id', $shopId)->where('id', $brand->id)->first()
+            ?? Brand::where('shop_id', $shopId)
+                ->where(function ($q) {
+                    $q->where('is_active', true)->orWhereNull('is_active');
+                })
+                ->get()
+                ->filter(fn ($b) => \Illuminate\Support\Str::slug($b->name) === $slug
+                    || strcasecmp($b->name, $brand->name) === 0)
+                ->sortByDesc(fn ($b) => Product::where('brand_id', $b->id)->count())
+                ->first()
+            ?? $brand;
 
         $brandQuery = $this->website->catalogQuery($shopId)
             ->where(function ($q) use ($brand) {
@@ -565,11 +602,25 @@ class WebsiteController extends Controller
 
         $related = \App\Models\CmsBlog::where('shop_id', $blog->shop_id)
             ->published()
+            ->with('category')
             ->where('id', '!=', $blog->id)
             ->when($blog->category_id, fn ($q) => $q->where('category_id', $blog->category_id))
             ->latest('published_at')
             ->take(3)
             ->get();
+
+        if ($related->count() < 3) {
+            $related = $related->concat(
+                \App\Models\CmsBlog::where('shop_id', $blog->shop_id)
+                    ->published()
+                    ->with('category')
+                    ->where('id', '!=', $blog->id)
+                    ->whereNotIn('id', $related->pluck('id'))
+                    ->latest('published_at')
+                    ->take(3 - $related->count())
+                    ->get()
+            )->values();
+        }
 
         return view('website.blog-show', array_merge($this->website->homepageData(), [
             'blog' => $blog,

@@ -1,6 +1,6 @@
 @php
     $headerName = $settings->store_name ?? config('app.name', 'Hira Moni');
-    $headerIconPath = $settings->favicon_path ?: $settings->logo_path;
+    $headerIconPath = $settings->logo_path ?: $settings->favicon_path;
     $headerIcon = $headerIconPath ? public_storage_url($headerIconPath) : null;
     $headerIconVer = $headerIconPath
         ? (@filemtime(public_storage_path($headerIconPath)) ?: time())
@@ -9,10 +9,50 @@
     $headerCopy = data_get($settings, 'home_copy') ?: [];
     $headerTagline = trim((string) ($headerCopy['logo_tagline'] ?? ''));
     $headerTagline = $headerTagline === '-' ? '' : $headerTagline;
+    // Brand lockup slogan (exact casing + highlight on "Define you")
+    $headerSlogan = 'glow naturally, Define you';
+    $headerWordmark = 'HIRAMONI';
     $hasAboutPage = $navLinks->isEmpty() && \App\Models\CmsPage::where('slug', 'about-us')->where('is_published', true)->exists();
 @endphp
 
-<div class="gaget-sticky-header" x-data="{ searchOpen: false }">
+<div class="gaget-sticky-header gw-header-soft" x-data="{ searchOpen: false }">
+    {{-- Magenta announcement strip (mockup) --}}
+    <div class="gw-topbar" role="region" aria-label="Store announcements">
+        <div class="gw-topbar-inner">
+            <div class="gw-topbar-left">
+                <span class="gw-topbar-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 7h11v8H3V7zm11 2h4l3 3v3h-7V9zM6 18.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm10 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/></svg>
+                    Free Shipping on orders over ৳2000
+                </span>
+                <span class="gw-topbar-sep" aria-hidden="true"></span>
+                <span class="gw-topbar-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 7h.01M7 3h5.5a2 2 0 011.4.6l6.5 6.5a2 2 0 010 2.8l-6.1 6.1a2 2 0 01-2.8 0L4.6 12A2 2 0 014 10.6V5a2 2 0 012-2h1z"/></svg>
+                    Get 10% OFF on your first order!
+                </span>
+                <span class="gw-topbar-sep" aria-hidden="true"></span>
+                <span class="gw-topbar-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                    Beauty begins with you ♡
+                </span>
+            </div>
+            <div class="gw-topbar-right">
+                <a href="{{ route('website.track') }}">Track Order</a>
+                <span class="gw-topbar-sep" aria-hidden="true"></span>
+                <a href="{{ route('website.faqs') }}">Help</a>
+                <span class="gw-topbar-sep" aria-hidden="true"></span>
+                @auth('web')
+                    @if(auth('web')->user()->isStorefrontCustomer())
+                        <a href="{{ route('website.account') }}">My Account</a>
+                    @else
+                        <button type="button" @click="openSignIn('login')">Login / Register</button>
+                    @endif
+                @else
+                    <button type="button" @click="openSignIn('login')">Login / Register</button>
+                @endauth
+            </div>
+        </div>
+    </div>
+
     <div class="gaget-floatbar-shell">
         <div class="gaget-floatbar">
             {{-- Brand --}}
@@ -26,25 +66,32 @@
                     <svg x-show="mobileOpen" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
 
-                <a href="{{ route('home') }}" class="gaget-floatbar-logo" aria-label="{{ $headerName }}">
+                <a href="{{ route('home') }}" class="gaget-floatbar-logo {{ $headerIcon ? 'has-brand-mark' : '' }}" aria-label="{{ $headerName }}">
                     @if($headerIcon)
                         <img src="{{ $headerIcon }}?v={{ $headerIconVer }}"
-                             alt="{{ $headerName }}"
-                             class="gaget-logo-mark"
-                             width="36"
-                             height="36">
+                             alt=""
+                             class="gaget-logo-mark gaget-logo-mark--round"
+                             width="56"
+                             height="56"
+                             decoding="async">
                     @else
                         <span class="gaget-logo-icon" aria-hidden="true">
-                            @include('website.partials.lottie', ['name' => 'bear'])
+                            <svg viewBox="0 0 40 40" width="34" height="34" fill="none" aria-hidden="true">
+                                <path d="M20 8c-1.5 4.5-6.5 7-6.5 12.5S20 32 20 32s6.5-6 6.5-11.5S21.5 12.5 20 8Z" fill="#E91E63"/>
+                                <path d="M11 16c3.5 2 5.5 6.5 5.5 10.5S14 32 14 32s-7-4.5-7-10 1.5-7.5 4-6Z" fill="#F06292"/>
+                                <path d="M29 16c-3.5 2-5.5 6.5-5.5 10.5S26 32 26 32s7-4.5 7-10-1.5-7.5-4-6Z" fill="#F06292"/>
+                                <circle cx="20" cy="22" r="3.2" fill="#AD1457"/>
+                            </svg>
                         </span>
                     @endif
                     <span class="gaget-logo-stack">
-                        <span class="gaget-logo-text">{{ $headerName }}</span>
-                        @if($headerTagline !== '')
-                            <span class="gaget-logo-tagline">{{ $headerTagline }}</span>
-                        @endif
+                        <span class="gaget-logo-text">{{ $headerWordmark }}</span>
+                        <span class="gaget-logo-tagline">
+                            glow naturally, <em>Define you</em>
+                        </span>
                     </span>
                 </a>
+                <span class="gw-logo-divider" aria-hidden="true"></span>
             </div>
 
             {{-- Desktop nav --}}
@@ -93,29 +140,9 @@
                                     {{ $link->label }}
                                     <svg class="gaget-nav-chevron" :class="{ 'is-open': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
-                                <div class="gaget-nav-dropdown-menu gaget-nav-dropdown-menu--end" @mouseover="track($event)" @focusin="track($event)" @mouseleave="untrack()">
+                                <div class="gaget-nav-dropdown-menu gaget-nav-dropdown-menu--end gaget-nav-dropdown-menu--brands" @mouseover="track($event)" @focusin="track($event)" @mouseleave="untrack()">
                                     <span class="gaget-nav-dropdown-glow" aria-hidden="true" :class="{ 'is-on': hl.on, 'is-snap': hl.snap }" :style="`--hl-y:${hl.y}px;--hl-h:${hl.h}px`"></span>
-                                    <a href="{{ $link->url ?: route('home').'#brands' }}" class="gaget-nav-dropdown-item gaget-nav-dropdown-item--all">
-                                        <span>All brands</span>
-                                        <span class="gaget-nav-dropdown-cta">View all @include('website.partials.nav-dropdown-arrow', ['class' => ''])</span>
-                                    </a>
-                                    @php $brandTints = [['#f7f3fe', '#6a4bb8'], ['#fdf3ea', '#db6f4a'], ['#eef1e4', '#6f8560'], ['#fff6dc', '#b98a14'], ['#fdeef1', '#c9506d'], ['#eaf4fb', '#3f7fae']]; @endphp
-                                    @forelse($brands ?? [] as $brand)
-                                        @php $tint = $brandTints[$loop->index % count($brandTints)]; @endphp
-                                        <a href="{{ route('website.brand', \Illuminate\Support\Str::slug($brand->name)) }}" class="gaget-nav-dropdown-item" style="--i: {{ min($loop->index + 1, 14) }}">
-                                            <span class="gaget-nav-dropdown-icon" style="--dd-bg: {{ $tint[0] }}; --dd-fg: {{ $tint[1] }};">
-                                                @if($brand->logo_url)
-                                                    <img src="{{ $brand->logo_url }}" alt="" loading="lazy" decoding="async">
-                                                @else
-                                                    {{ mb_strtoupper(mb_substr($brand->name, 0, 1)) }}
-                                                @endif
-                                            </span>
-                                            <span class="gaget-nav-dropdown-label">{{ $brand->name }}</span>
-                                            @include('website.partials.nav-dropdown-arrow')
-                                        </a>
-                                    @empty
-                                        <span class="gaget-nav-dropdown-empty">No brands yet</span>
-                                    @endforelse
+                                    @include('website.partials.nav-dropdown-brands', ['allUrl' => route('website.brands')])
                                 </div>
                             </div>
                         @elseif(strcasecmp($navLabel, 'Shop') === 0)
@@ -146,10 +173,20 @@
                                 $isHome = strcasecmp($navLabel, 'Home') === 0 && request()->routeIs('home');
                                 $isActive = $isHome || (url()->current() === url($link->url));
                             @endphp
-                            <a href="{{ $link->url }}" class="gaget-nav-link {{ $isActive ? 'is-active' : '' }}">{{ $link->label }}</a>
+                            @if(strcasecmp($navLabel, 'Home') === 0)
+                                <a href="{{ $link->url }}" class="gaget-nav-link gaget-nav-link--home {{ $isActive ? 'is-active' : '' }}">
+                                    <svg class="gw-nav-home-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1v-9.5z"/></svg>
+                                    {{ $link->label }}
+                                </a>
+                            @else
+                                <a href="{{ $link->url }}" class="gaget-nav-link {{ $isActive ? 'is-active' : '' }}">{{ $link->label }}</a>
+                            @endif
                         @endif
                     @empty
-                        <a href="{{ route('home') }}" class="gaget-nav-link {{ request()->routeIs('home') ? 'is-active' : '' }}">Home</a>
+                        <a href="{{ route('home') }}" class="gaget-nav-link gaget-nav-link--home {{ request()->routeIs('home') ? 'is-active' : '' }}">
+                            <svg class="gw-nav-home-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1v-9.5z"/></svg>
+                            Home
+                        </a>
 
                         <div class="gaget-nav-dropdown"
                              x-data="navDropdown()"
@@ -197,7 +234,7 @@
                             </div>
                         </div>
 
-                        @if(($brands ?? collect())->isNotEmpty())
+                        @if(($trustedBrands ?? $brands ?? collect())->isNotEmpty())
                         <div class="gaget-nav-dropdown"
                              x-data="navDropdown()"
                                  :class="{ 'is-open': open }"
@@ -215,27 +252,9 @@
                                 Brands
                                 <svg class="gaget-nav-chevron" :class="{ 'is-open': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </button>
-                            <div class="gaget-nav-dropdown-menu gaget-nav-dropdown-menu--end" @mouseover="track($event)" @focusin="track($event)" @mouseleave="untrack()">
+                            <div class="gaget-nav-dropdown-menu gaget-nav-dropdown-menu--end gaget-nav-dropdown-menu--brands" @mouseover="track($event)" @focusin="track($event)" @mouseleave="untrack()">
                                 <span class="gaget-nav-dropdown-glow" aria-hidden="true" :class="{ 'is-on': hl.on, 'is-snap': hl.snap }" :style="`--hl-y:${hl.y}px;--hl-h:${hl.h}px`"></span>
-                                <a href="{{ route('home').'#brands' }}" class="gaget-nav-dropdown-item gaget-nav-dropdown-item--all">
-                                    <span>All brands</span>
-                                    <span class="gaget-nav-dropdown-cta">View all @include('website.partials.nav-dropdown-arrow', ['class' => ''])</span>
-                                </a>
-                                @php $brandTints = [['#f7f3fe', '#6a4bb8'], ['#fdf3ea', '#db6f4a'], ['#eef1e4', '#6f8560'], ['#fff6dc', '#b98a14'], ['#fdeef1', '#c9506d'], ['#eaf4fb', '#3f7fae']]; @endphp
-                                @foreach($brands as $brand)
-                                    @php $tint = $brandTints[$loop->index % count($brandTints)]; @endphp
-                                    <a href="{{ route('website.brand', \Illuminate\Support\Str::slug($brand->name)) }}" class="gaget-nav-dropdown-item" style="--i: {{ min($loop->index + 1, 14) }}">
-                                        <span class="gaget-nav-dropdown-icon" style="--dd-bg: {{ $tint[0] }}; --dd-fg: {{ $tint[1] }};">
-                                            @if($brand->logo_url)
-                                                <img src="{{ $brand->logo_url }}" alt="" loading="lazy" decoding="async">
-                                            @else
-                                                {{ mb_strtoupper(mb_substr($brand->name, 0, 1)) }}
-                                            @endif
-                                        </span>
-                                        <span class="gaget-nav-dropdown-label">{{ $brand->name }}</span>
-                                        @include('website.partials.nav-dropdown-arrow')
-                                    </a>
-                                @endforeach
+                                @include('website.partials.nav-dropdown-brands', ['allUrl' => route('website.brands')])
                             </div>
                         </div>
                         @endif
@@ -263,7 +282,7 @@
                                x-model="q"
                                x-ref="searchInput"
                                value="{{ request('search') }}"
-                               placeholder="Search for products, brands..."
+                               placeholder="Search for products..."
                                class="gaget-search-input"
                                autocomplete="off"
                                @focus="onFocus()"
@@ -317,18 +336,15 @@
                         aria-label="Search">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </button>
-                <a href="{{ route('website.track') }}"
-                   class="gaget-track-pill {{ request()->routeIs('website.track') ? 'is-active' : '' }}"
-                   title="Track my order"
-                   aria-label="Track my order">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                    <span class="gaget-track-pill__label">Track order</span>
-                </a>
                 <div class="gaget-action-wrap" x-data="{ open: false }" @mouseenter="open=true" @mouseleave="open=false">
                     <a href="{{ route('website.wishlist') }}" class="gaget-action-btn" aria-label="Wishlist">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
                         <span class="gaget-action-label">Wishlist</span>
-                        <span x-show="wishlistCount>0" x-text="wishlistCount" class="gaget-cart-badge" x-cloak></span>
+                        <span class="gaget-cart-badge"
+                              :class="{ 'is-empty': wishlistCount < 1 }"
+                              x-show="wishlistCount > 0"
+                              x-text="wishlistCount"
+                              x-cloak></span>
                     </a>
                     <div class="gaget-hover-panel" x-show="open" x-cloak x-transition.opacity.duration.150ms>
                         <div class="gaget-hover-panel__head">
@@ -364,12 +380,10 @@
                         <svg class="gaget-cart-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                         <span class="gaget-action-label">Cart</span>
                         <span class="gaget-cart-badge"
+                              :class="{ 'is-empty': cartCount < 1 }"
                               x-show="cartCount > 0"
-                              x-cloak
                               x-text="cartCount"
-                              x-transition:enter="transition ease-out duration-200"
-                              x-transition:enter-start="opacity-0 scale-50"
-                              x-transition:enter-end="opacity-100 scale-100"></span>
+                              x-cloak></span>
                     </button>
                     <div class="gaget-hover-panel gaget-hover-panel--cart" x-show="open" x-cloak x-transition.opacity.duration.150ms>
                         <div class="gaget-hover-panel__head">
@@ -532,15 +546,19 @@
     <div x-show="mobileOpen" x-cloak class="gaget-mobile-drawer" @click.self="mobileOpen = false; mobileCatsOpen = false; mobileBrandsOpen = false">
         <div class="gaget-mobile-drawer-panel" x-show="mobileOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full">
             <div class="gaget-mobile-drawer-head">
-                <a href="{{ route('home') }}" class="gaget-mobile-drawer-brand" @click="mobileOpen = false">
+                <a href="{{ route('home') }}" class="gaget-mobile-drawer-brand" @click="mobileOpen = false" aria-label="{{ $headerName }}">
                     @if($headerIcon)
                         <img src="{{ $headerIcon }}?v={{ $headerIconVer }}" alt="" class="gaget-mobile-drawer-brand-mark">
                     @else
-                        <span class="gaget-mobile-drawer-brand-mark gaget-mobile-drawer-brand-mark--text">{{ mb_substr($headerName, 0, 1) }}</span>
+                        <span class="gaget-mobile-drawer-brand-mark gaget-mobile-drawer-brand-mark--text" style="background:#3A0F32;color:#E91E63;border-radius:10px;display:flex;align-items:center;justify-content:center;">
+                            <svg viewBox="0 0 36 36" fill="none" width="28" height="28"><circle cx="18" cy="18" r="18" fill="rgba(233,30,99,.2)"/><path d="M18 8c0 0-6 3-6 8s6 8 6 8 6-3 6-8-6-8-6-8z" fill="#E91E63" opacity=".8"/><circle cx="18" cy="18" r="3" fill="#E91E63"/></svg>
+                        </span>
                     @endif
                     <span class="gaget-mobile-drawer-brand-text">
-                        <span class="gaget-mobile-drawer-brand-name">{{ $headerName }}</span>
-                        <span class="gaget-mobile-drawer-brand-sub">Browse the store</span>
+                        <span class="gaget-mobile-drawer-brand-name">{{ $headerWordmark }}</span>
+                        <span class="gaget-mobile-drawer-brand-sub">
+                            glow naturally, <em>Define you</em>
+                        </span>
                     </span>
                 </a>
                 <button type="button"
@@ -591,7 +609,8 @@
                         <a href="{{ $link->url ?: route('website.shop') }}" class="gaget-mobile-drawer-link" @click="mobileOpen = false">{{ $link->label }}</a>
                     @endif
                 @elseif(strcasecmp($navLabel, 'Brands') === 0 || strcasecmp($navLabel, 'Brand') === 0)
-                    @if(($brands ?? collect())->isNotEmpty())
+                    @php $mobileBrandList = ($trustedBrands ?? null); if (! $mobileBrandList || (method_exists($mobileBrandList, 'isEmpty') && $mobileBrandList->isEmpty())) { $mobileBrandList = collect($brands ?? [])->map(fn ($b) => (object) ['name' => $b->name, 'slug' => \Illuminate\Support\Str::slug($b->name)]); } @endphp
+                    @if($mobileBrandList->isNotEmpty())
                         <div class="gaget-mobile-accordion">
                             <button type="button"
                                     class="gaget-mobile-accordion-btn"
@@ -602,9 +621,9 @@
                                 <svg class="gaget-mobile-accordion-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </button>
                             <div class="gaget-mobile-accordion-panel" x-show="mobileBrandsOpen" x-cloak x-transition.opacity.duration.150ms>
-                                <a href="{{ $link->url ?: route('home').'#brands' }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub" @click="mobileOpen = false">All brands</a>
-                                @foreach(($brands ?? []) as $brand)
-                                    <a href="{{ route('website.brand', \Illuminate\Support\Str::slug($brand->name)) }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub" @click="mobileOpen = false">
+                                <a href="{{ route('website.brands') }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub" @click="mobileOpen = false">All brands</a>
+                                @foreach($mobileBrandList as $brand)
+                                    <a href="{{ route('website.brand', $brand->slug) }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub" @click="mobileOpen = false">
                                         <span>{{ $brand->name }}</span>
                                     </a>
                                 @endforeach
@@ -641,7 +660,8 @@
                 </div>
             @endif
 
-            @if(($brands ?? collect())->isNotEmpty())
+            @php $fallbackBrandList = ($trustedBrands ?? null); if (! $fallbackBrandList || (method_exists($fallbackBrandList, 'isEmpty') && $fallbackBrandList->isEmpty())) { $fallbackBrandList = collect($brands ?? [])->map(fn ($b) => (object) ['name' => $b->name, 'slug' => \Illuminate\Support\Str::slug($b->name)]); } @endphp
+            @if($fallbackBrandList->isNotEmpty())
                 <div class="gaget-mobile-accordion">
                     <button type="button"
                             class="gaget-mobile-accordion-btn"
@@ -652,9 +672,9 @@
                         <svg class="gaget-mobile-accordion-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </button>
                     <div class="gaget-mobile-accordion-panel" x-show="mobileBrandsOpen" x-cloak x-transition.opacity.duration.150ms>
-                        <a href="{{ route('home').'#brands' }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub" @click="mobileOpen = false">All brands</a>
-                        @foreach($brands as $brand)
-                            <a href="{{ route('website.brand', \Illuminate\Support\Str::slug($brand->name)) }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub" @click="mobileOpen = false">
+                        <a href="{{ route('website.brands') }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub" @click="mobileOpen = false">All brands</a>
+                        @foreach($fallbackBrandList as $brand)
+                            <a href="{{ route('website.brand', $brand->slug) }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub" @click="mobileOpen = false">
                                 <span>{{ $brand->name }}</span>
                             </a>
                         @endforeach

@@ -1,36 +1,37 @@
 /* GAGET STORE ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ exact mockup match */
 :root {
-    --g-blue: #ec8560;
-    --g-blue-hover: #db6f4a;
-    --g-navy: #3a2a24;
-    --g-navy-2: #4a372f;
-    --g-bg: #fffaf5;
-    --g-bg-soft: #fffaf5;
-    --g-bg-hero: #fcf3ec;
-    --g-border: #f2e6dc;
-    --g-text: #3a2a24;
-    --g-muted: #8c776d;
-    --g-sale: #ef7f56;
+    /* Cosmetic blush/magenta palette — overridden further by website-glow.css */
+    --g-blue: #E91E63;
+    --g-blue-hover: #C2185B;
+    --g-navy: #2B0A26;
+    --g-navy-2: #3A0F32;
+    --g-bg: #FFF5F8;
+    --g-bg-soft: #FDF2F7;
+    --g-bg-hero: #FFF0F5;
+    --g-border: #F5D6E5;
+    --g-text: #2A1524;
+    --g-muted: #8A6B7A;
+    --g-sale: #E91E63;
     --g-radius: 14px;
     --g-radius-lg: 22px;
 
-    --bb-font-body: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
-    --bb-font-display: 'Fredoka', 'Nunito', system-ui, sans-serif;
-    --bb-cream: #fffaf5;
-    --bb-peach: #fcebdd;
-    --bb-peach-soft: #fdf3ea;
-    --bb-coral: #ec8560;
-    --bb-coral-deep: #db6f4a;
-    --bb-purple: #8b6fd6;
-    --bb-purple-deep: #6a4bb8;
-    --bb-lavender: #efe9fc;
-    --bb-lavender-soft: #f7f3fe;
-    --bb-sage: #eef1e4;
-    --bb-sage-deep: #8fa37e;
-    --bb-ink: #3a2a24;
-    --bb-muted: #8c776d;
-    --bb-line: #f2e6dc;
-    --bb-star: #f4b740;
+    --bb-font-body: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --bb-font-display: 'Cormorant Garamond', Georgia, serif;
+    --bb-cream: #FFF5F8;
+    --bb-peach: #FCE4EC;
+    --bb-peach-soft: #FADCE8;
+    --bb-coral: #E91E63;
+    --bb-coral-deep: #C2185B;
+    --bb-purple: #AD1457;
+    --bb-purple-deep: #880E4F;
+    --bb-lavender: #FCE4EC;
+    --bb-lavender-soft: #FFF5F8;
+    --bb-sage: #FCE4EC;
+    --bb-sage-deep: #E91E63;
+    --bb-ink: #2A1524;
+    --bb-muted: #8A6B7A;
+    --bb-line: #F5D6E5;
+    --bb-star: #F5B942;
 }
 
 .gaget-store {
@@ -336,6 +337,56 @@ body.gaget-store {
 .gaget-nav-dropdown-menu--wide {
     min-width: 260px;
     max-width: 320px;
+}
+.gaget-nav-dropdown-menu--brands {
+    min-width: 440px;
+    width: min(520px, 94vw);
+    max-width: min(520px, 94vw);
+}
+.gaget-nav-brands-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+.gaget-nav-brand-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 96px;
+    padding: 14px 12px 12px;
+    border-radius: 16px;
+    text-decoration: none;
+    background: #fff;
+    border: 1px solid rgba(242, 230, 220, .95);
+    color: #3a2a24;
+}
+.gaget-nav-brand-card-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 42px;
+}
+.gaget-nav-brand-card-logo img,
+.gaget-nav-brand-card-logo .gaget-nav-brand-logo {
+    width: auto;
+    max-width: 132px;
+    height: auto;
+    max-height: 40px;
+    object-fit: contain;
+    display: block;
+}
+.gaget-nav-brand-card-name {
+    display: block;
+    width: 100%;
+    text-align: center;
+    font-size: 12.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .gaget-nav-dropdown-menu--end {
     left: auto;
@@ -5238,7 +5289,7 @@ body.gaget-store {
 
 .gs-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 14px;
 }
 .gs-grid--list {
@@ -5295,7 +5346,7 @@ body.gaget-store {
 .gs-page-nav { padding: 0 12px; }
 
 @media (max-width: 1100px) {
-    .gs-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .gs-grid:not(.gs-grid--list) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 @media (max-width: 900px) {
     .gs-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
@@ -7357,7 +7408,7 @@ body.gaget-store,
 }
 
 /* Don't let this global rule blow up brand/product logos (height:auto + full width). */
-.gaget-store img:not(.tn-brand-logo):not(.tn-blog-img):not(.tn-trending-img):not(.tn-hero-img):not(.mg-cover-img):not(.mg-cats-img):not(.gaget-cart-line__img):not(.pd-brand-logo):not(.pd-color-thumb):not(.pd-related-img):not(.pd-zoom-img):not(.gaget-logo-mark):not(.gaget-logo-wordmark):not(.bb-fill):not(.bb-blog-img),
+.gaget-store img:not(.tn-brand-logo):not(.tn-blog-img):not(.tn-trending-img):not(.tn-hero-img):not(.mg-cover-img):not(.mg-cats-img):not(.gaget-cart-line__img):not(.pd-brand-logo):not(.pd-color-thumb):not(.pd-related-img):not(.pd-zoom-img):not(.gaget-logo-mark):not(.gaget-logo-wordmark):not(.bb-fill):not(.bb-blog-img):not(.gaget-nav-brand-logo):not(.gw-brand-logo),
 .gaget-store video {
     max-width: 100%;
     height: auto;

@@ -1,0 +1,495 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\Brand;
+use App\Models\Category;
+use App\Models\Product;
+use App\Models\ProductImage;
+use App\Models\Shop;
+use App\Models\SiteSetting;
+use App\Services\WebsiteService;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
+/**
+ * Cosmetics storefront catalog: trusted beauty brands + relevant products only.
+ * Idempotent via barcode keys HM-BTY-0001…
+ */
+class CosmeticsCatalogSeeder extends Seeder
+{
+    private const PHOTO = 'https://images.unsplash.com/%s?w=900&h=900&fit=crop&q=80';
+
+    public function run(): void
+    {
+        $shop = SiteSetting::query()->first()?->defaultShop
+            ?? Shop::query()->orderBy('id')->first();
+
+        if (! $shop) {
+            $this->command?->warn('No shop found — skip CosmeticsCatalogSeeder.');
+
+            return;
+        }
+
+        $website = app(WebsiteService::class);
+        $website->ensureTrustedBrands($shop->id);
+        $this->syncTrustedBrandLogos($shop->id);
+
+        $categories = $this->ensureCategories($shop->id);
+        $brands = $this->trustedBrandMap($shop->id);
+
+        $this->purgeIrrelevantCatalog($shop->id, array_keys($brands));
+
+        $count = $this->seedProducts($shop->id, $categories, $brands);
+
+        $this->command?->info("Cosmetics catalog ready: {$count} products across ".count($brands).' trusted brands.');
+    }
+
+    /** @return array<string, Brand> keyed by brand name */
+    private function trustedBrandMap(int $shopId): array
+    {
+        $map = [];
+        foreach (app(WebsiteService::class)->trustedBrandDefs() as $def) {
+            $brand = Brand::where('shop_id', $shopId)
+                ->get()
+                ->first(fn (Brand $b) => Str::slug($b->name) === $def['slug']
+                    || strcasecmp($b->name, $def['name']) === 0);
+
+            if ($brand) {
+                $brand->forceFill([
+                    'name' => $def['name'],
+                    'is_active' => true,
+                    'sort_order' => $def['sort'] ?? ($brand->sort_order ?: 10),
+                ])->save();
+                $map[$def['name']] = $brand->fresh();
+            }
+        }
+
+        return $map;
+    }
+
+    private function syncTrustedBrandLogos(int $shopId): void
+    {
+        foreach (app(WebsiteService::class)->trustedBrandDefs() as $def) {
+            $brand = Brand::where('shop_id', $shopId)
+                ->get()
+                ->first(fn (Brand $b) => Str::slug($b->name) === $def['slug']
+                    || strcasecmp($b->name, $def['name']) === 0);
+
+            if (! $brand) {
+                continue;
+            }
+
+            $source = public_path('images/brands/'.$def['file']);
+            if (! is_file($source)) {
+                continue;
+            }
+
+            $dest = 'brands/'.$def['file'];
+            if (! Storage::disk('public')->exists($dest) || Storage::disk('public')->size($dest) < 100) {
+                Storage::disk('public')->put($dest, file_get_contents($source));
+            }
+
+            if ($brand->logo_path !== $dest) {
+                $brand->update(['logo_path' => $dest]);
+            }
+        }
+    }
+
+    /** @return array<string, Category> */
+    private function ensureCategories(int $shopId): array
+    {
+        $defs = [
+            ['name' => 'Skincare', 'icon' => 'sparkles', 'description' => 'Serums, creams and daily glow essentials', 'photo' => 'photo-1556228720-195a672e8a03'],
+            ['name' => 'Makeup', 'icon' => 'lipstick', 'description' => 'Lips, face and eye makeup favourites', 'photo' => 'photo-1596462502278-27bfdc403348'],
+            ['name' => 'Hair Care', 'icon' => 'hair', 'description' => 'Shampoo, conditioner and hair treatments', 'photo' => 'photo-1522338140262-f46f5913618a'],
+            ['name' => 'Body Care', 'icon' => 'body', 'description' => 'Lotions, washes and body moisturisers', 'photo' => 'photo-1570194065650-d99fb4b38b17'],
+            ['name' => 'Fragrance', 'icon' => 'perfume', 'description' => 'Light scents and everyday fragrance', 'photo' => 'photo-1541643600914-78b084683601'],
+            ['name' => 'Beauty Tools', 'icon' => 'brush', 'description' => 'Brushes, sponges and beauty tools', 'photo' => 'photo-1512496015851-a90fb38ba796'],
+            ['name' => 'Nail Care', 'icon' => 'nail', 'description' => 'Polishes, care oils and nail essentials', 'photo' => 'photo-1604654894610-df63bc536371'],
+            ['name' => "Men's Grooming", 'icon' => 'grooming', 'description' => 'Face wash, beard care and men’s essentials', 'photo' => 'photo-1621607512214-68297480165e'],
+        ];
+
+        $map = [];
+        foreach ($defs as $i => $def) {
+            $slug = Str::slug($def['name']);
+            $image = $this->storeRemoteImage(sprintf(self::PHOTO, $def['photo']), 'categories', $slug.'.jpg');
+
+            $map[$def['name']] = Category::updateOrCreate(
+                ['shop_id' => $shopId, 'slug' => $slug],
+                [
+                    'name' => $def['name'],
+                    'icon' => $def['icon'],
+                    'description' => $def['description'],
+                    'is_featured' => true,
+                    'image_path' => $image,
+                ]
+            );
+        }
+
+        return $map;
+    }
+
+    /** @param  list<string>  $keepBrandNames */
+    private function purgeIrrelevantCatalog(int $shopId, array $keepBrandNames): void
+    {
+        $seedBarcodes = collect($this->catalog())
+            ->values()
+            ->map(fn ($row, $i) => 'HM-BTY-'.str_pad((string) ($i + 1), 4, '0', STR_PAD_LEFT))
+            ->all();
+
+        // Remove every product that is not part of the cosmetics barcode set.
+        $ids = Product::where('shop_id', $shopId)
+            ->where(function ($q) use ($seedBarcodes) {
+                $q->whereNull('barcode')
+                    ->orWhere('barcode', '')
+                    ->orWhereNotIn('barcode', $seedBarcodes);
+            })
+            ->pluck('id');
+
+        if ($ids->isNotEmpty()) {
+            if (Schema::hasTable('product_variant_values')) {
+                DB::table('product_variant_values')->whereIn('product_id', $ids)->delete();
+            }
+            ProductImage::whereIn('product_id', $ids)->delete();
+            Product::whereIn('id', $ids)->delete();
+            $this->command?->info('Removed '.$ids->count().' irrelevant products.');
+        }
+
+        Brand::where('shop_id', $shopId)
+            ->whereNotIn('name', $keepBrandNames)
+            ->each(function (Brand $brand) {
+                if ($brand->products()->exists()) {
+                    return;
+                }
+                $brand->delete();
+            });
+    }
+
+    /** @param  array<string, Category>  $categories @param  array<string, Brand>  $brands */
+    private function seedProducts(int $shopId, array $categories, array $brands): int
+    {
+        $n = 0;
+
+        foreach ($this->catalog() as $index => $item) {
+            $n++;
+            $barcode = 'HM-BTY-'.str_pad((string) $n, 4, '0', STR_PAD_LEFT);
+            $brand = $brands[$item['brand']] ?? null;
+            $category = $categories[$item['category']] ?? null;
+
+            if (! $brand || ! $category) {
+                $this->command?->warn("Skip {$item['name']} — missing brand/category.");
+                $n--;
+
+                continue;
+            }
+
+            $images = [];
+            foreach ($item['photos'] as $k => $photoId) {
+                $path = $this->storeRemoteImage(
+                    sprintf(self::PHOTO, $photoId),
+                    'products/beauty',
+                    Str::slug($item['name']).'-'.($k + 1).'.jpg'
+                );
+                if ($path) {
+                    $images[] = $path;
+                }
+            }
+
+            if ($images === []) {
+                $images[] = $this->storePlaceholder($item['name'], $item['accent'] ?? '#E91E63');
+            }
+
+            $seed = crc32($barcode);
+            $product = Product::updateOrCreate(
+                ['shop_id' => $shopId, 'barcode' => $barcode],
+                [
+                    'name' => $item['name'],
+                    'sku' => 'HM-'.strtoupper(Str::limit(Str::slug($item['brand'], ''), 4, '')).'-'.str_pad((string) $n, 3, '0', STR_PAD_LEFT),
+                    'category_id' => $category->id,
+                    'brand_id' => $brand->id,
+                    'brand_name' => $brand->name,
+                    'variant_group' => null,
+                    'cost_price' => $item['cost'],
+                    'selling_price' => $item['price'],
+                    'original_price' => $item['original'] ?? $item['price'],
+                    'stock_quantity' => 18 + ($seed % 40),
+                    'reserved_stock' => 0,
+                    'alert_quantity' => 5,
+                    'availability' => 'in_stock',
+                    'short_description' => $item['summary'],
+                    'description' => $item['description'],
+                    'seo_title' => $item['name'].' | '.$brand->name.' | Hira Moni',
+                    'meta_description' => Str::limit($item['summary'].' Shop '.$brand->name.' at Hira Moni.', 155, ''),
+                    'image' => $images[0] ?? null,
+                    'image_2' => $images[1] ?? null,
+                    'image_3' => $images[2] ?? null,
+                    'rating' => $item['rating'] ?? round(4.3 + ($seed % 6) / 10, 1),
+                    'review_count' => $item['reviews'] ?? 24 + ($seed % 160),
+                    'is_published' => true,
+                    'is_new_arrival' => (bool) ($item['new'] ?? false),
+                    'is_best_seller' => (bool) ($item['best'] ?? false),
+                    'is_featured' => (bool) ($item['featured'] ?? false),
+                ]
+            );
+
+            $product->galleryImages()->delete();
+            foreach ($images as $sort => $path) {
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'path' => $path,
+                    'sort_order' => $sort,
+                ]);
+            }
+        }
+
+        return $n;
+    }
+
+    private function storePlaceholder(string $name, string $color): string
+    {
+        $slug = Str::slug($name) ?: 'product';
+        $path = 'products/beauty/'.$slug.'-placeholder.svg';
+        $label = htmlspecialchars(Str::limit($name, 28, '…'), ENT_QUOTES, 'UTF-8');
+
+        Storage::disk('public')->put($path, <<<SVG
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF5F8"/><stop offset="1" stop-color="#FCE4EC"/></linearGradient></defs>
+  <rect width="800" height="800" fill="url(#g)"/>
+  <circle cx="400" cy="360" r="120" fill="{$color}" opacity=".18"/>
+  <rect x="300" y="280" width="200" height="260" rx="28" fill="{$color}" opacity=".85"/>
+  <text x="400" y="620" text-anchor="middle" font-family="Georgia, serif" font-size="28" fill="#3A1528">{$label}</text>
+</svg>
+SVG);
+
+        return $path;
+    }
+
+    private function storeRemoteImage(string $url, string $directory, string $filename): ?string
+    {
+        $relative = trim($directory, '/').'/'.$filename;
+
+        try {
+            if (Storage::disk('public')->exists($relative) && Storage::disk('public')->size($relative) > 1000) {
+                return $relative;
+            }
+
+            $response = Http::timeout(25)
+                ->withHeaders(['User-Agent' => 'HiraMoniCosmeticsSeeder/1.0'])
+                ->get($url);
+
+            if (! $response->successful() || strlen($response->body()) < 500) {
+                return null;
+            }
+
+            Storage::disk('public')->put($relative, $response->body());
+
+            return $relative;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    /** @return list<array<string, mixed>> */
+    private function catalog(): array
+    {
+        return [
+            // L'Oréal Paris
+            [
+                'brand' => "L'Oréal Paris", 'category' => 'Skincare', 'name' => 'Revitalift Hyaluronic Serum',
+                'cost' => 920, 'price' => 1850, 'original' => 2200, 'best' => true, 'featured' => true,
+                'accent' => '#1a1a2e', 'photos' => ['photo-1620916562805-4d887089db82', 'photo-1556228578-0d85b1a4d571'],
+                'summary' => '1.5% hyaluronic acid serum for plump, hydrated skin.',
+                'description' => "L'Oréal Paris Revitalift serum with pure hyaluronic acid.\n\n• Visibly plumps fine lines\n• Lightweight, fast-absorbing texture\n• Suitable for daily AM/PM use",
+            ],
+            [
+                'brand' => "L'Oréal Paris", 'category' => 'Makeup', 'name' => 'True Match Foundation',
+                'cost' => 680, 'price' => 1450, 'original' => 1690, 'featured' => true,
+                'accent' => '#c49a6c', 'photos' => ['photo-1631214524020-7e18db9a8fbd', 'photo-1522335789203-aabd1fc54bc9'],
+                'summary' => 'Natural coverage foundation that blends like your skin.',
+                'description' => "True Match foundation with blendable medium coverage.\n\n• Matches skin undertone\n• Breathable finish\n• Buildable for day-to-night looks",
+            ],
+            [
+                'brand' => "L'Oréal Paris", 'category' => 'Hair Care', 'name' => 'Elvive Total Repair Shampoo',
+                'cost' => 320, 'price' => 690, 'original' => 850, 'new' => true,
+                'accent' => '#6a1b9a', 'photos' => ['photo-1527799820374-dcf8d9d57a0a', 'photo-1519735777090-ec97162dc266'],
+                'summary' => 'Repairing shampoo for weak, tired hair.',
+                'description' => "Elvive Total Repair cleanses while helping restore strength.\n\n• Reduces breakage feel\n• Soft, shiny finish\n• For daily wash routines",
+            ],
+
+            // Maybelline
+            [
+                'brand' => 'Maybelline New York', 'category' => 'Makeup', 'name' => 'Fit Me Matte + Poreless Foundation',
+                'cost' => 520, 'price' => 1200, 'original' => 1390, 'best' => true, 'featured' => true,
+                'accent' => '#0096d6', 'photos' => ['photo-1596462502278-27bfdc403348', 'photo-1512496015851-a90fb38ba796'],
+                'summary' => 'Oil-control foundation for a natural matte look.',
+                'description' => "Maybelline Fit Me foundation for normal to oily skin.\n\n• Soft matte finish\n• Helps blur pores\n• Lightweight everyday wear",
+            ],
+            [
+                'brand' => 'Maybelline New York', 'category' => 'Makeup', 'name' => 'SuperStay Matte Ink Lipstick',
+                'cost' => 280, 'price' => 890, 'original' => 990, 'best' => true,
+                'accent' => '#c2185b', 'photos' => ['photo-1586495777744-4413f21067fa', 'photo-1631214524020-7e18db9a8fbd'],
+                'summary' => 'Long-wear liquid lipstick with intense matte colour.',
+                'description' => "SuperStay Matte Ink stays put through the day.\n\n• Up to 16-hour wear feel\n• Arrow applicator for precise lips\n• Highly pigmented shades",
+            ],
+            [
+                'brand' => 'Maybelline New York', 'category' => 'Makeup', 'name' => 'Lash Sensational Mascara',
+                'cost' => 260, 'price' => 780, 'original' => 920, 'new' => true,
+                'accent' => '#111827', 'photos' => ['photo-1631214524020-7e18db9a8fbd', 'photo-1512496015851-a90fb38ba796'],
+                'summary' => 'Fan-effect mascara for fuller-looking lashes.',
+                'description' => "Lash Sensational coats from root to tip.\n\n• Soft brush fan effect\n• Buildable volume\n• Everyday black finish",
+            ],
+
+            // Pond's
+            [
+                'brand' => "Pond's", 'category' => 'Skincare', 'name' => 'Bright Beauty Spot-less Cream',
+                'cost' => 280, 'price' => 680, 'original' => 790, 'best' => true, 'featured' => true,
+                'accent' => '#f4c430', 'photos' => ['photo-1556228720-195a672e8a03', 'photo-1570172619644-dfd03ed5d881'],
+                'summary' => 'Daily brightening cream for a spot-less looking glow.',
+                'description' => "Pond's Bright Beauty cream for everyday radiance.\n\n• Helps even skin tone look\n• Lightweight moisturising feel\n• Day cream for all skin types",
+            ],
+            [
+                'brand' => "Pond's", 'category' => 'Skincare', 'name' => 'Cold Cream Moisture Whip',
+                'cost' => 220, 'price' => 520, 'original' => 620,
+                'accent' => '#fff8e7', 'photos' => ['photo-1570194065650-d99fb4b38b17', 'photo-1556228578-0d85b1a4d571'],
+                'summary' => 'Classic cold cream for soft, moisturised skin.',
+                'description' => "Pond's Cold Cream deeply moisturises dry skin.\n\n• Rich cream texture\n• Softens dry patches\n• Trusted daily care",
+            ],
+            [
+                'brand' => "Pond's", 'category' => 'Skincare', 'name' => 'Age Miracle Day Cream',
+                'cost' => 540, 'price' => 1250, 'original' => 1490, 'featured' => true,
+                'accent' => '#b71c1c', 'photos' => ['photo-1620916562805-4d887089db82', 'photo-1556228720-195a672e8a03'],
+                'summary' => 'Anti-ageing day cream for firmer-looking skin.',
+                'description' => "Age Miracle day cream with SPF feel protection routine.\n\n• Reduces appearance of fine lines\n• Softens skin texture\n• Morning moisturiser",
+            ],
+
+            // Dove
+            [
+                'brand' => 'Dove', 'category' => 'Body Care', 'name' => 'Nourishing Body Lotion',
+                'cost' => 240, 'price' => 520, 'original' => 650, 'best' => true, 'featured' => true,
+                'accent' => '#ffffff', 'photos' => ['photo-1570194065650-d99fb4b38b17', 'photo-1556228453-efd6c1ff04f6'],
+                'summary' => '24h moisture body lotion with gentle cleansers care.',
+                'description' => "Dove body lotion with ¼ moisturising cream.\n\n• Soft, non-greasy feel\n• Suitable for everyday use\n• Leaves skin smooth",
+            ],
+            [
+                'brand' => 'Dove', 'category' => 'Hair Care', 'name' => 'Hair Fall Rescue Shampoo',
+                'cost' => 260, 'price' => 590, 'original' => 720, 'new' => true,
+                'accent' => '#0d47a1', 'photos' => ['photo-1527799820374-dcf8d9d57a0a', 'photo-1522338140262-f46f5913618a'],
+                'summary' => 'Shampoo to help reduce hair fall from breakage.',
+                'description' => "Dove Hair Fall Rescue strengthens from wash one.\n\n• Cleanses gently\n• Helps reduce breakage\n• Soft, manageable hair",
+            ],
+            [
+                'brand' => 'Dove', 'category' => 'Body Care', 'name' => 'Beauty Moisture Cream Bar',
+                'cost' => 90, 'price' => 180, 'original' => 220,
+                'accent' => '#e3f2fd', 'photos' => ['photo-1608571423902-eed4a9abdd0d', 'photo-1570194065650-d99fb4b38b17'],
+                'summary' => 'Moisturising beauty bar for soft, clean skin.',
+                'description' => "Dove Beauty Bar is milder than ordinary soap.\n\n• ¼ moisturising cream\n• Gentle on skin\n• Fresh clean feel",
+            ],
+
+            // NYX
+            [
+                'brand' => 'NYX Professional Makeup', 'category' => 'Makeup', 'name' => 'Soft Matte Lip Cream',
+                'cost' => 320, 'price' => 890, 'original' => 1050, 'best' => true, 'featured' => true,
+                'accent' => '#000000', 'photos' => ['photo-1586495777744-4413f21067fa', 'photo-1631214524020-7e18db9a8fbd'],
+                'summary' => 'Creamy matte lip colour with a soft-blur finish.',
+                'description' => "NYX Soft Matte Lip Cream is a cult favourite.\n\n• Lightweight creamy formula\n• Soft matte payoff\n• Buildable colour",
+            ],
+            [
+                'brand' => 'NYX Professional Makeup', 'category' => 'Makeup', 'name' => 'Setting Spray Matte Finish',
+                'cost' => 380, 'price' => 980, 'original' => 1150,
+                'accent' => '#212121', 'photos' => ['photo-1512496015851-a90fb38ba796', 'photo-1596462502278-27bfdc403348'],
+                'summary' => 'Matte setting spray to lock makeup in place.',
+                'description' => "NYX setting spray for long-lasting makeup looks.\n\n• Matte finish mist\n• Helps control shine\n• Easy all-over spray",
+            ],
+            [
+                'brand' => 'NYX Professional Makeup', 'category' => 'Makeup', 'name' => 'Epic Ink Waterproof Liner',
+                'cost' => 240, 'price' => 720, 'original' => 850, 'new' => true,
+                'accent' => '#111111', 'photos' => ['photo-1522335789203-aabd1fc54bc9', 'photo-1512496015851-a90fb38ba796'],
+                'summary' => 'Precision waterproof liquid eyeliner.',
+                'description' => "Epic Ink Liner for sharp, smudge-resistant lines.\n\n• Flex tip applicator\n• Intense black pigment\n• Waterproof formula",
+            ],
+
+            // Olay
+            [
+                'brand' => 'Olay', 'category' => 'Skincare', 'name' => 'Regenerist Micro-Sculpting Cream',
+                'cost' => 780, 'price' => 1690, 'original' => 1990, 'best' => true, 'featured' => true,
+                'accent' => '#c62828', 'photos' => ['photo-1570172619644-dfd03ed5d881', 'photo-1556228720-195a672e8a03'],
+                'summary' => 'Firming moisturiser for smoother-looking skin.',
+                'description' => "Olay Regenerist cream with amino-peptides & hyaluronic acid.\n\n• Hydrates deeply\n• Improves firmness look\n• Rich yet absorbent texture",
+            ],
+            [
+                'brand' => 'Olay', 'category' => 'Skincare', 'name' => 'Total Effects 7-in-1 Day Cream',
+                'cost' => 620, 'price' => 1450, 'original' => 1690,
+                'accent' => '#ad1457', 'photos' => ['photo-1620916562805-4d887089db82', 'photo-1556228578-0d85b1a4d571'],
+                'summary' => 'Multi-benefit day cream against 7 signs of ageing.',
+                'description' => "Total Effects day cream for complete daily care.\n\n• Moisturises & brightens look\n• Smooths rough texture\n• Morning skincare staple",
+            ],
+            [
+                'brand' => 'Olay', 'category' => 'Skincare', 'name' => 'Whip Active Moisturiser',
+                'cost' => 480, 'price' => 1190, 'original' => 1390, 'new' => true,
+                'accent' => '#f8bbd0', 'photos' => ['photo-1556228453-efd6c1ff04f6', 'photo-1570194065650-d99fb4b38b17'],
+                'summary' => 'Air-light whipped moisturiser for a fresh finish.',
+                'description' => "Olay Whip feels light but hydrates all day.\n\n• Whipped texture\n• Non-greasy feel\n• Ideal under makeup",
+            ],
+
+            // Nivea
+            [
+                'brand' => 'Nivea', 'category' => 'Body Care', 'name' => 'Soft Moisturising Cream',
+                'cost' => 160, 'price' => 380, 'original' => 450, 'best' => true, 'featured' => true,
+                'accent' => '#1565c0', 'photos' => ['photo-1556228453-efd6c1ff04f6', 'photo-1570194065650-d99fb4b38b17'],
+                'summary' => 'Light moisturising cream for face, body and hands.',
+                'description' => "Nivea Soft with Vitamin E and jojoba oil.\n\n• Fast-absorbing\n• For face & body\n• Fresh soft scent",
+            ],
+            [
+                'brand' => 'Nivea', 'category' => 'Body Care', 'name' => 'Rich Nourishing Body Milk',
+                'cost' => 220, 'price' => 520, 'original' => 640,
+                'accent' => '#0d47a1', 'photos' => ['photo-1570194065650-d99fb4b38b17', 'photo-1608571423902-eed4a9abdd0d'],
+                'summary' => 'Rich body milk for very dry skin.',
+                'description' => "Nivea Body Milk deeply nourishes dry skin.\n\n• 48h moisture feel\n• Almond oil care\n• Smooth after-bath ritual",
+            ],
+            [
+                'brand' => 'Nivea', 'category' => 'Skincare', 'name' => 'Care Lip Balm Duo',
+                'cost' => 90, 'price' => 220, 'original' => 280, 'new' => true,
+                'accent' => '#1976d2', 'photos' => ['photo-1631214524020-7e18db9a8fbd', 'photo-1586495777744-4413f21067fa'],
+                'summary' => 'Classic Nivea lip care for soft, protected lips.',
+                'description' => "Nivea Lip Balm keeps lips smooth all day.\n\n• Shea butter care\n• Pocket-friendly tin/stick\n• Everyday essential",
+            ],
+
+            // Nail Care
+            [
+                'brand' => 'NYX Professional Makeup', 'category' => 'Nail Care', 'name' => 'Shine Loud Nail Lacquer',
+                'cost' => 180, 'price' => 450, 'original' => 520, 'best' => true, 'featured' => true, 'new' => true,
+                'accent' => '#c2185b', 'photos' => ['photo-1604654894610-df63bc536371', 'photo-1519014816548-bf5fe059798b'],
+                'summary' => 'High-shine nail colour with a smooth, even finish.',
+                'description' => "NYX Shine Loud lacquer for bold, glossy nails.\n\n• Buildable colour\n• Quick-dry feel\n• Everyday glam shades",
+            ],
+            [
+                'brand' => "L'Oréal Paris", 'category' => 'Nail Care', 'name' => 'Color Riche Nail Care Oil',
+                'cost' => 220, 'price' => 590, 'original' => 690, 'featured' => true,
+                'accent' => '#f8bbd0', 'photos' => ['photo-1519014816548-bf5fe059798b', 'photo-1604654894610-df63bc536371'],
+                'summary' => 'Nourishing nail & cuticle oil for softer tips.',
+                'description' => "L'Oréal nail care oil hydrates cuticles daily.\n\n• Softens dry cuticles\n• Lightweight oil texture\n• Perfect prep before polish",
+            ],
+
+            // Men's Grooming
+            [
+                'brand' => 'Nivea', 'category' => "Men's Grooming", 'name' => 'Men Deep Clean Face Wash',
+                'cost' => 160, 'price' => 390, 'original' => 480, 'best' => true, 'featured' => true, 'new' => true,
+                'accent' => '#0d47a1', 'photos' => ['photo-1621607512214-68297480165e', 'photo-1620916297397-a4a3352a2790'],
+                'summary' => 'Deep-cleansing face wash for men’s everyday skincare.',
+                'description' => "Nivea Men face wash removes dirt and excess oil.\n\n• Fresh clean feel\n• For normal to oily skin\n• Morning & night use",
+            ],
+            [
+                'brand' => 'Dove', 'category' => "Men's Grooming", 'name' => 'Men+Care Hydrate Face Cream',
+                'cost' => 280, 'price' => 690, 'original' => 820, 'featured' => true,
+                'accent' => '#1565c0', 'photos' => ['photo-1620916297397-a4a3352a2790', 'photo-1621607512214-68297480165e'],
+                'summary' => 'Lightweight hydrating cream for men’s skin.',
+                'description' => "Dove Men+Care moisturises without a heavy feel.\n\n• Non-greasy finish\n• Helps reduce dryness\n• Daily post-wash cream",
+            ],
+        ];
+    }
+}

@@ -301,8 +301,6 @@
             @endif
         </div>
 
-        @include('website.partials.product-share')
-
         @php
             $trustItems = collect($features ?? [])->map(fn ($f) => [$f->title, (string) $f->subtitle]);
         @endphp

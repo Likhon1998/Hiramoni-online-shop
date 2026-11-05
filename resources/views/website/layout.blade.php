@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600;1,700&family=Great+Vibes&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script>
         // Available before Vite loads — prevents CSRF mismatch on fast register/login/checkout.
         (function () {
@@ -71,8 +71,22 @@
                 160,
                 '…'
             );
-            $defaultOgImage = trim($__env->yieldContent('og_image'))
-                ?: (! empty($settings->logo_path) ? public_storage_url($settings->logo_path) : '');
+            $defaultOgImage = trim($__env->yieldContent('og_image'));
+            if ($defaultOgImage === '' && ! empty($settings->logo_path)) {
+                $defaultOgImage = public_storage_url($settings->logo_path);
+            }
+            if ($defaultOgImage === '' && ! empty($settings->favicon_path)) {
+                $defaultOgImage = public_storage_url($settings->favicon_path);
+            }
+            if ($defaultOgImage === '') {
+                $defaultOgImage = asset('favicon.svg');
+            }
+            if ($defaultOgImage !== '' && ! str_starts_with($defaultOgImage, 'http')) {
+                $defaultOgImage = url($defaultOgImage);
+            }
+            $defaultMetaDescription = $defaultMetaDescription !== ''
+                ? $defaultMetaDescription
+                : 'Premium cosmetics & skincare for your natural glow — shop beauty essentials at '.($settings->store_name ?? config('app.name', 'Hira Moni')).'.';
         @endphp
         @if($defaultMetaDescription !== '')
             <meta name="description" content="{{ $defaultMetaDescription }}">
@@ -829,25 +843,9 @@
             };
         };
     </script>
-    @vite(['resources/css/app.css', 'resources/css/website.css', 'resources/css/website-mobile.css', 'resources/css/website-theme.css', 'resources/js/app.js', 'resources/js/website-lottie.js'])
+    @vite(['resources/css/app.css', 'resources/css/website.css', 'resources/css/website-mobile.css', 'resources/css/website-theme.css', 'resources/css/website-glow.css', 'resources/js/app.js'])
     <style>
         [x-cloak]{display:none!important}
-        /* Critical first-paint loader (before Vite CSS) */
-        .gaget-page-loader{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#fffaf5;opacity:1;visibility:visible;pointer-events:auto;transition:opacity .32s ease,visibility 0s linear 0s}
-        .gaget-page-loader.is-hidden{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .32s ease,visibility 0s linear .32s}
-        .gaget-page-loader__inner{display:flex;flex-direction:column;align-items:center;gap:10px}
-        .gaget-page-loader__balls{display:flex;align-items:flex-end;gap:7px;height:30px}
-        .gaget-page-loader__balls i{display:block;width:11px;height:11px;border-radius:50%;background:#ec8560;box-shadow:inset -2px -2px 0 rgba(0,0,0,.08);transform-origin:50% 100%;animation:gaget-ball-hop .8s cubic-bezier(.45,0,.55,1) infinite}
-        .gaget-page-loader__balls i:nth-child(2){background:#8b6fd6;animation-delay:.13s}
-        .gaget-page-loader__balls i:nth-child(3){background:#f4b740;animation-delay:.26s}
-        .gaget-page-loader__text{margin:0;font-family:'Fredoka','Nunito',sans-serif;font-size:13px;font-weight:600;letter-spacing:.02em;color:#8c776d}
-        .gaget-page-loader__msg{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-        .gaget-page-loader__bar{position:absolute;top:0;left:0;height:2px;width:0;background:linear-gradient(90deg,#ec8560,#b39cf0)}
-        .gaget-page-loader.is-active:not(.is-hidden) .gaget-page-loader__bar{animation:gaget-bar-run 1.35s ease-in-out infinite}
-        .gaget-page-loader.is-hidden .gaget-page-loader__balls i{animation:none}
-        @keyframes gaget-ball-hop{0%,100%{transform:translateY(0) scale(1.25,.75)}18%{transform:translateY(0) scale(1)}50%{transform:translateY(-18px) scale(.92,1.08)}82%{transform:translateY(0) scale(1)}}
-        @keyframes gaget-bar-run{0%{width:0;left:0}45%{width:55%;left:0}100%{width:0;left:100%}}
-        @media (prefers-reduced-motion:reduce){.gaget-page-loader__balls i{animation:none}}
 
         /* Critical cart fly + drawer animations (always available) */
         .gaget-cart-flyer{position:fixed;z-index:100060;width:64px;height:64px;margin:0;padding:0;border:0;border-radius:18px;overflow:hidden;pointer-events:none;background:#fff;box-shadow:0 16px 36px rgba(74, 48, 38,.28),0 0 0 3px rgba(236, 133, 96,.25);opacity:1;will-change:left,top,transform,opacity}
@@ -877,10 +875,14 @@
         @keyframes gaget-cart-sheet-out{0%{transform:translate3d(0,0,0)}100%{transform:translate3d(100%,0,0)}}
         .tn-product-add.is-adding,.gaget-btn-primary.is-adding,[data-add-to-cart].is-adding{animation:gaget-add-press .45s cubic-bezier(.34,1.45,.64,1)}
         @keyframes gaget-add-press{0%{transform:scale(1)}35%{transform:scale(.92)}70%{transform:scale(1.04)}100%{transform:scale(1)}}
-        /* Fixed header: announcement strip + flat white bar */
-        .gaget-sticky-header{position:fixed!important;top:0;left:0;right:0;width:100%;z-index:80;background:#fff!important;box-shadow:0 1px 0 #f2e6dc!important;pointer-events:none;padding:0;box-sizing:border-box;overflow:visible!important}
+        /* Fixed header: announcement strip + float pill */
+        .gaget-sticky-header{position:fixed!important;top:0;left:0;right:0;width:100%;z-index:80;background:#fff!important;box-shadow:0 1px 0 #F5D6E5!important;pointer-events:none;padding:0;box-sizing:border-box;overflow:visible!important}
         .gaget-sticky-header>*{pointer-events:auto}
-        .gaget-header-spacer{display:block;width:100%;height:var(--g-header-h,100px);pointer-events:none;background:#fffaf5}
+        .gaget-header-spacer{display:block;width:100%;height:var(--g-header-h,100px);pointer-events:none;background:#FFF5F8}
+        /* Home: transparent shell so hero silk shows through; pill floats over image */
+        body.gw-home .gaget-sticky-header{background:transparent!important;box-shadow:none!important}
+        body.gw-home .gaget-sticky-header::before{display:none!important;background:transparent!important}
+        body.gw-home .gaget-header-spacer{background:transparent!important;height:var(--g-header-h,118px)}
 
         /* Safety: brand logos must never render at intrinsic SVG/PNG size */
         .gaget-store .tn-brand-logo{height:44px!important;max-height:44px!important;max-width:120px!important;width:auto!important;object-fit:contain!important}
@@ -893,17 +895,8 @@
         .powered-by strong,.powered-by--footer strong{color:#3a2a24;font-weight:800}
     </style>
 </head>
-<body class="gaget-store antialiased" id="storefront-root" x-data="storefrontCart()" :class="{ 'is-nav-open': mobileOpen, 'is-cart-open': cartOpen || checkoutOpen }" @keydown.escape.window="cartOpen && closeCart(); checkoutOpen=false; mobileOpen=false; mobileCatsOpen=false; mobileBrandsOpen=false">
+<body class="gaget-store antialiased {{ request()->routeIs('home') ? 'gw-home' : '' }}" id="storefront-root" x-data="storefrontCart()" :class="{ 'is-nav-open': mobileOpen, 'is-cart-open': cartOpen || checkoutOpen }" @keydown.escape.window="cartOpen && closeCart(); checkoutOpen=false; mobileOpen=false; mobileCatsOpen=false; mobileBrandsOpen=false">
 
-{{-- Simple branded page loader --}}
-<div id="gaget-page-loader" class="gaget-page-loader is-active" role="status" aria-live="polite" aria-busy="true" aria-label="Loading">
-    <div class="gaget-page-loader__bar" aria-hidden="true"></div>
-    <div class="gaget-page-loader__inner">
-        <div class="gaget-page-loader__balls" aria-hidden="true"><i></i><i></i><i></i></div>
-        <p class="gaget-page-loader__text">{{ $settings->store_name ?? config('app.name', 'Hira Moni') }}</p>
-        <span class="gaget-page-loader__msg" id="gaget-loader-msg">Loading</span>
-    </div>
-</div>
 
 @include('website.partials.header')
 <script>
@@ -969,8 +962,13 @@
         <div class="gaget-cart-panel__body">
             <template x-if="cart.length === 0">
                 <div class="gaget-cart-empty">
-                    <div class="gaget-cart-empty__icon bb-cart-empty-lottie" aria-hidden="true">
-                        @include('website.partials.lottie', ['name' => 'sleepy'])
+                    <div class="gaget-cart-empty__icon" aria-hidden="true">
+                        <svg viewBox="0 0 64 64" fill="none" stroke="#E91E63" stroke-width="2.2" width="64" height="64" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 20h40l-5 24H17L12 20z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M22 20v-4a10 10 0 0120 0v4"/>
+                            <circle cx="24" cy="52" r="3" fill="#E91E63" stroke="none"/>
+                            <circle cx="40" cy="52" r="3" fill="#E91E63" stroke="none"/>
+                        </svg>
                     </div>
                     <p class="gaget-cart-empty__title">Your cart is taking a nap</p>
                     <p class="gaget-cart-empty__text">Browse the shop and add something you like.</p>
@@ -1190,8 +1188,11 @@
             <div class="gaget-order-success__burst" aria-hidden="true">
                 <span></span><span></span><span></span><span></span><span></span><span></span>
             </div>
-            <div class="gaget-order-success__check bb-success-lottie mx-auto mb-3">
-                @include('website.partials.lottie', ['name' => 'party'])
+            <div class="gaget-order-success__check mx-auto mb-3" aria-hidden="true" style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#FCE4EC,#F8BBD0);display:flex;align-items:center;justify-content:center;">
+                <svg viewBox="0 0 48 48" fill="none" width="40" height="40" aria-hidden="true">
+                    <circle cx="24" cy="24" r="22" fill="#E91E63" opacity=".15"/>
+                    <path d="M14 25l7 7 13-13" stroke="#E91E63" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
             </div>
             <h3 class="text-xl font-extrabold text-slate-900">Order placed successfully!</h3>
             <p class="mt-2 text-sm text-slate-500">Thank you — we’ve received your order and will contact you to confirm it.</p>
@@ -1403,144 +1404,6 @@ document.addEventListener('click', function (event) {
         }
     }, 40);
 });
-</script>
-<script>
-(function () {
-    const el = document.getElementById('gaget-page-loader');
-    const msgEl = document.getElementById('gaget-loader-msg');
-    if (!el) return;
-
-    const messages = [
-        'Loading',
-        'Just a moment',
-        'Almost ready',
-    ];
-    let shownAt = Date.now();
-    let msgTimer = null;
-    let msgIndex = 0;
-    let hideTimer = null;
-    const MIN_MS = 420;
-
-    function setMessage(text) {
-        if (msgEl && text) msgEl.textContent = text;
-    }
-
-    function startMessages() {
-        stopMessages();
-        msgIndex = Math.floor(Math.random() * messages.length);
-        setMessage(messages[msgIndex]);
-        msgTimer = setInterval(function () {
-            msgIndex = (msgIndex + 1) % messages.length;
-            setMessage(messages[msgIndex]);
-        }, 1400);
-    }
-
-    function stopMessages() {
-        if (msgTimer) {
-            clearInterval(msgTimer);
-            msgTimer = null;
-        }
-    }
-
-    function show(message) {
-        if (hideTimer) {
-            clearTimeout(hideTimer);
-            hideTimer = null;
-        }
-        shownAt = Date.now();
-        el.classList.add('is-active');
-        el.classList.remove('is-hidden');
-        el.setAttribute('aria-busy', 'true');
-        el.removeAttribute('aria-hidden');
-        // Force reflow so opacity/visibility transition runs when re-showing
-        void el.offsetWidth;
-        if (message) setMessage(message);
-        else startMessages();
-    }
-
-    function hide() {
-        const wait = Math.max(0, MIN_MS - (Date.now() - shownAt));
-        if (hideTimer) clearTimeout(hideTimer);
-        hideTimer = setTimeout(function () {
-            stopMessages();
-            el.classList.add('is-hidden');
-            el.classList.remove('is-active');
-            el.setAttribute('aria-busy', 'false');
-            el.setAttribute('aria-hidden', 'true');
-            hideTimer = null;
-        }, wait);
-    }
-
-    window.GagetLoader = { show: show, hide: hide };
-
-    // First paint: hide after page is ready (DOM + assets)
-    function onReady() {
-        if (document.readyState === 'complete') {
-            hide();
-            return;
-        }
-        window.addEventListener('load', hide, { once: true });
-        // Safety: never leave the overlay stuck if load is delayed/broken
-        setTimeout(function () {
-            if (!el.classList.contains('is-hidden')) hide();
-        }, 8000);
-    }
-    onReady();
-
-    // Back/forward cache
-    window.addEventListener('pageshow', function (e) {
-        if (e.persisted) hide();
-    });
-
-    function shouldInterceptLink(a, event) {
-        if (!a || !a.href) return false;
-        if (a.target && a.target !== '_self') return false;
-        if (a.hasAttribute('download')) return false;
-        if (a.dataset.noLoader !== undefined) return false;
-        if (event.defaultPrevented) return false;
-        if (event.button !== 0) return false;
-        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return false;
-
-        let url;
-        try { url = new URL(a.href, window.location.href); }
-        catch (e) { return false; }
-
-        if (url.origin !== window.location.origin) return false;
-        if (url.pathname === window.location.pathname && url.search === window.location.search && url.hash) return false;
-        // Same URL (no navigation)
-        if (url.href.split('#')[0] === window.location.href.split('#')[0]) return false;
-
-        return true;
-    }
-
-    document.addEventListener('click', function (event) {
-        const a = event.target.closest('a[href]');
-        if (!shouldInterceptLink(a, event)) return;
-        show();
-    }, true);
-
-    document.addEventListener('submit', function (event) {
-        const form = event.target;
-        if (!(form instanceof HTMLFormElement)) return;
-        if (form.dataset.noLoader !== undefined) return;
-        if (form.target && form.target !== '_self') return;
-        // AJAX forms often preventDefault — skip those
-        // We show anyway; if submit is cancelled shortly after, pageshow won't fire — use short timeout fallback
-        show('Saving your request');
-        setTimeout(function () {
-            // If still on same page after a short wait (AJAX / validation stay), hide
-            if (!el.classList.contains('is-hidden')) hide();
-        }, 3500);
-    }, true);
-
-    // Soft loader for in-page fetch (checkout / auth) via custom events
-    window.addEventListener('gaget:loading', function (e) {
-        show((e && e.detail && e.detail.message) || 'Working on it');
-    });
-    window.addEventListener('gaget:loaded', function () {
-        hide();
-    });
-})();
 </script>
 @include('website.partials.promo-popup')
 @stack('scripts')

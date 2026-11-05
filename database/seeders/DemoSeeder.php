@@ -14,11 +14,11 @@ class DemoSeeder extends Seeder
     {
         $this->call([
             WebsiteSeeder::class,
-            GeneralCatalogSeeder::class,
+            CosmeticsCatalogSeeder::class,
             BlogSeeder::class,
             DemoStorefrontSeeder::class,
         ]);
 
-        $this->command?->info('Demo storefront + catalog seeded for local development.');
+        $this->command?->info('Demo cosmetics storefront + catalog seeded for local development.');
     }
 }
