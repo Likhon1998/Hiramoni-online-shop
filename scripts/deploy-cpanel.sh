@@ -30,14 +30,19 @@ link_web_root() {
 require '$REPO/public/index.php';
 EOF
   cp -f "$REPO/public/.htaccess" "$WEB_ROOT/.htaccess"
-  # LiteSpeed often 404s symlinked asset dirs — copy build, symlink the rest.
-  rm -rf "$WEB_ROOT/build"
-  if [[ -d "$REPO/public/build" ]]; then
-    cp -a "$REPO/public/build" "$WEB_ROOT/build"
+  # LiteSpeed 404s most symlinks outside docroot — copy static dirs/files.
+  rm -rf "$WEB_ROOT/build" "$WEB_ROOT/images" "$WEB_ROOT/storage"
+  [[ -d "$REPO/public/build" ]] && cp -a "$REPO/public/build" "$WEB_ROOT/build"
+  [[ -d "$REPO/public/images" ]] && cp -a "$REPO/public/images" "$WEB_ROOT/images"
+  # Prefer real storage files (public/storage → storage/app/public)
+  if [[ -d "$REPO/storage/app/public" ]]; then
+    cp -a "$REPO/storage/app/public" "$WEB_ROOT/storage"
+  elif [[ -d "$REPO/public/storage" ]]; then
+    cp -aL "$REPO/public/storage" "$WEB_ROOT/storage"
   fi
-  for item in images storage favicon.ico favicon.png favicon.svg favicon-32.png favicon-64.png robots.txt; do
+  for item in favicon.ico favicon.png favicon.svg favicon-32.png favicon-64.png robots.txt; do
     if [[ -e "$REPO/public/$item" ]]; then
-      ln -sfn "$REPO/public/$item" "$WEB_ROOT/$item"
+      cp -aL "$REPO/public/$item" "$WEB_ROOT/$item"
     fi
   done
   rm -f "$WEB_ROOT/hot" "$REPO/public/hot"
