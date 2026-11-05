@@ -332,6 +332,19 @@ if (! function_exists('website_nav_label')) {
             'blog' => 'website.nav.blog',
             'contact' => 'website.nav.contact',
             'beauty journal' => 'website.nav.beauty_journal',
+            'deals' => 'website.nav.deals',
+            'new arrivals' => 'website.nav.new_arrivals',
+            'new arrival' => 'website.nav.new_arrivals',
+            'best sellers' => 'website.nav.best_sellers',
+            'bestsellers' => 'website.nav.best_sellers',
+            'best seller' => 'website.nav.best_sellers',
+            'combo deals' => 'website.nav.combo_deals',
+            'combo' => 'website.nav.combo_deals',
+            'help' => 'website.topbar.help',
+            'track order' => 'website.topbar.track_order',
+            'my account' => 'website.topbar.my_account',
+            'faqs' => 'website.footer.faqs',
+            'faq' => 'website.faqs.faq',
         ];
 
         $key = strtolower($raw);

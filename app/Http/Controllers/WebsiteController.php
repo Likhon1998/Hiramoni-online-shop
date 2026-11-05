@@ -96,11 +96,11 @@ class WebsiteController extends Controller
         $products = $query->paginate(12)->withQueryString();
 
         $pageTitle = match ($request->filter) {
-            'deals' => 'Deals',
-            'new' => 'New Arrivals',
-            'combo' => 'Combo Deals',
-            'bestsellers', 'best' => 'Best Sellers',
-            default => 'Shop',
+            'deals' => __('website.nav.deals'),
+            'new' => __('website.nav.new_arrivals'),
+            'combo' => __('website.nav.combo_deals'),
+            'bestsellers', 'best' => __('website.nav.best_sellers'),
+            default => __('website.shop.title'),
         };
 
         if ($request->boolean('ajax') || $request->ajax()) {
@@ -111,7 +111,11 @@ class WebsiteController extends Controller
 
             return response()->json([
                 'html' => view('website.partials.shop-results', compact('products', 'settings'))->render(),
-                'count_text' => "Showing {$countFrom}–{$countTo} of ".format_taka_number($countTotal).' products',
+                'count_text' => __('website.shop.showing_range', [
+                    'from' => $countFrom,
+                    'to' => $countTo,
+                    'total' => format_taka_number($countTotal),
+                ]),
                 'title' => $pageTitle,
                 'url' => $request->fullUrlWithoutQuery(['ajax']),
             ]);
