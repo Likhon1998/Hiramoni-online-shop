@@ -159,9 +159,9 @@
             </div>
         </div>
 
-        <a href="{{ route('website.shop') }}" class="gw-hero-spot gw-hero-spot--serum" aria-label="Shop serum"></a>
-        <a href="{{ route('website.shop') }}" class="gw-hero-spot gw-hero-spot--lipstick" aria-label="Shop lipstick"></a>
-        <a href="{{ route('website.shop') }}" class="gw-hero-spot gw-hero-spot--cream" aria-label="Shop cream"></a>
+        <a href="{{ route('website.shop') }}" class="gw-hero-spot gw-hero-spot--serum" aria-label="{{ __('website.home.shop_serum') }}"></a>
+        <a href="{{ route('website.shop') }}" class="gw-hero-spot gw-hero-spot--lipstick" aria-label="{{ __('website.home.shop_lipstick') }}"></a>
+        <a href="{{ route('website.shop') }}" class="gw-hero-spot gw-hero-spot--cream" aria-label="{{ __('website.home.shop_cream') }}"></a>
     </div>
 </section>
 
@@ -173,15 +173,15 @@
             <div class="gw-cats-head-copy">
                 <p class="gw-cats-eyebrow">
                     <span class="gw-cats-eyebrow-rule" aria-hidden="true"></span>
-                    Shop by Category
+                    {{ __('website.home.shop_by_category') }}
                 </p>
                 <h2 id="gw-cats-heading" class="gw-section-title">
-                    {{ $homeCopy['categories_title'] ?? 'Explore Our' }}
-                    <span>{{ $homeCopy['categories_title_accent'] ?? 'Categories' }}</span>
+                    {{ $homeCopy['categories_title'] ?? __('website.home.explore_our') }}
+                    <span>{{ $homeCopy['categories_title_accent'] ?? __('website.home.categories') }}</span>
                 </h2>
             </div>
             <a href="{{ route('website.shop') }}" class="gw-cats-view-all">
-                View All Categories
+                {{ __('website.home.view_all_categories') }}
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 12h14m-6-6 6 6-6 6"/></svg>
             </a>
         </header>
@@ -280,7 +280,7 @@
 @endif
 
 {{-- 3b. DUAL BANNERS --}}
-<section class="gw-section gw-dual-banners" aria-label="Featured beauty promotions">
+<section class="gw-section gw-dual-banners" aria-label="{{ __('website.home.featured_promos') }}">
     <div class="gw-dual-grid">
         @foreach($dualBanners->take(2) as $index => $banner)
             @php
@@ -331,14 +331,14 @@
     <div class="tn-container gw-best-inner">
         <header class="gw-best-head">
             <div class="gw-best-head-copy">
-                <p class="gw-best-eyebrow">Our Best Sellers</p>
+                <p class="gw-best-eyebrow">{{ __('website.home.our_best_sellers') }}</p>
                 <h2 id="gw-best-heading" class="gw-best-title">
-                    Loved by <em>Thousands</em>
+                    {{ __('website.home.loved_by') }} <em>{{ __('website.home.thousands') }}</em>
                 </h2>
-                <p class="gw-best-sub">Real beauty. Real people. Our most loved products.</p>
+                <p class="gw-best-sub">{{ __('website.home.best_sub') }}</p>
             </div>
             <a href="{{ route('website.shop') }}" class="gw-best-view-all">
-                View All Products
+                {{ __('website.home.view_all_products') }}
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 12h14m-6-6 6 6-6 6"/></svg>
             </a>
         </header>
@@ -360,19 +360,19 @@
     $brandMarquee = collect($trustedBrands ?? []);
 @endphp
 @if($brandMarquee->isNotEmpty())
-<section class="gw-section gw-brands" id="brands" aria-label="Trusted brands">
+<section class="gw-section gw-brands" id="brands" aria-label="{{ __('website.home.trusted_brands') }}">
     <div class="tn-container">
         <header class="gw-brands-head">
             <h2 class="gw-brands-title">
                 <span class="gw-brands-rule" aria-hidden="true"></span>
-                Our Trusted Brands
+                {{ __('website.home.trusted_brands') }}
             </h2>
-            <p class="gw-brands-sub">{{ $homeCopy['brands_subtitle'] ?? "The world's most loved beauty brands" }}</p>
+            <p class="gw-brands-sub">{{ $homeCopy['brands_subtitle'] ?? __('website.home.brands_subtitle') }}</p>
         </header>
     </div>
 
     <div class="gw-brands-edge">
-        <button type="button" class="gw-brands-nav gw-brands-nav--prev" data-brands-prev aria-label="Previous brands">
+        <button type="button" class="gw-brands-nav gw-brands-nav--prev" data-brands-prev aria-label="{{ __('website.home.previous_brands') }}">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 19l-7-7 7-7"/></svg>
         </button>
 
@@ -394,7 +394,7 @@
             </div>
         </div>
 
-        <button type="button" class="gw-brands-nav gw-brands-nav--next" data-brands-next aria-label="Next brands">
+        <button type="button" class="gw-brands-nav gw-brands-nav--next" data-brands-next aria-label="{{ __('website.home.next_brands') }}">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 5l7 7-7 7"/></svg>
         </button>
     </div>

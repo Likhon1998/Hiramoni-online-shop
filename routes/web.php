@@ -65,6 +65,9 @@ Route::get('/favicon.ico', function () {
 })->name('favicon');
 Route::get('/robots.txt', [\App\Http\Controllers\SeoController::class, 'robots'])->name('robots');
 Route::get('/sitemap.xml', [\App\Http\Controllers\SeoController::class, 'sitemap'])->name('sitemap');
+Route::get('/locale/{locale}', \App\Http\Controllers\LocaleController::class)
+    ->whereIn('locale', ['bn', 'en'])
+    ->name('locale.switch');
 /*
 | Customer auth entry — storefront uses a modal, so /login opens home + sign-in.
 | Staff login lives at /admin/login (route: admin.login). Never collide names.

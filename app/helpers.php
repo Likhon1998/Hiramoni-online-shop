@@ -309,3 +309,34 @@ if (! function_exists('normalize_map_embed_url')) {
     }
 }
 
+if (! function_exists('website_nav_label')) {
+    /**
+     * Translate common storefront nav labels; leave custom CMS labels as-is.
+     */
+    function website_nav_label(?string $label): string
+    {
+        $raw = trim((string) $label);
+        if ($raw === '') {
+            return '';
+        }
+
+        $map = [
+            'home' => 'website.nav.home',
+            'shop' => 'website.nav.shop',
+            'categories' => 'website.nav.categories',
+            'category' => 'website.nav.category',
+            'brands' => 'website.nav.brands',
+            'brand' => 'website.nav.brand',
+            'about us' => 'website.nav.about_us',
+            'about' => 'website.nav.about_us',
+            'blog' => 'website.nav.blog',
+            'contact' => 'website.nav.contact',
+            'beauty journal' => 'website.nav.beauty_journal',
+        ];
+
+        $key = strtolower($raw);
+
+        return isset($map[$key]) ? __($map[$key]) : $raw;
+    }
+}
+

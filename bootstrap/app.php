@@ -26,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Drop leftover staff sessions from the customer (web) guard on every request.
         $middleware->appendToGroup('web', [
+            \App\Http\Middleware\SetLocale::class,
             \App\Http\Middleware\EnsureStorefrontWebGuardIsCustomer::class,
             \App\Http\Middleware\CaptureCampaignAttribution::class,
         ]);

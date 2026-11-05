@@ -19,8 +19,8 @@
     --gw-white: #FFFFFF;
     --gw-shadow: 0 8px 28px rgba(233, 30, 99, 0.08);
     --gw-shadow-lg: 0 20px 50px rgba(43, 10, 38, 0.12);
-    --bb-font-body: 'DM Sans', system-ui, sans-serif;
-    --bb-font-display: 'Cormorant Garamond', Georgia, serif;
+    --bb-font-body: 'DM Sans', 'Noto Sans Bengali', system-ui, sans-serif;
+    --bb-font-display: 'Cormorant Garamond', 'Noto Sans Bengali', Georgia, serif;
     --gw-font-brand: 'Cinzel', 'Cormorant Garamond', Georgia, serif;
     --gw-brand-ink: #3E5F4F;
     --bb-font-script: 'Great Vibes', cursive;
@@ -117,6 +117,35 @@
 }
 .gw-topbar-right a:hover,
 .gw-topbar-right button:hover { opacity: .85; }
+
+.gw-lang-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 2px;
+}
+.gw-lang-link {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    letter-spacing: .04em;
+    opacity: .72;
+    text-transform: none !important;
+}
+.gw-lang-link.is-active {
+    opacity: 1;
+    text-decoration: underline !important;
+    text-underline-offset: 3px;
+}
+.gw-lang-divider {
+    opacity: .45;
+    font-size: 11px;
+    line-height: 1;
+}
+html[lang="bn"] .gaget-store,
+html[lang="bn"] .gw-topbar,
+html[lang="bn"] .gw-footer {
+    font-family: 'Noto Sans Bengali', 'DM Sans', system-ui, sans-serif !important;
+}
 
 .gaget-sticky-header.gw-header-soft,
 .gaget-sticky-header {

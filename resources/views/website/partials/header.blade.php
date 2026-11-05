@@ -33,33 +33,47 @@
             <div class="gw-topbar-left">
                 <span class="gw-topbar-item">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 7h11v8H3V7zm11 2h4l3 3v3h-7V9zM6 18.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm10 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/></svg>
-                    Free Shipping on orders over ৳2000
+                    {{ __('website.topbar.free_shipping') }}
                 </span>
                 <span class="gw-topbar-sep" aria-hidden="true"></span>
                 <span class="gw-topbar-item">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 7h.01M7 3h5.5a2 2 0 011.4.6l6.5 6.5a2 2 0 010 2.8l-6.1 6.1a2 2 0 01-2.8 0L4.6 12A2 2 0 014 10.6V5a2 2 0 012-2h1z"/></svg>
-                    Get 10% OFF on your first order!
+                    {{ __('website.topbar.first_order') }}
                 </span>
                 <span class="gw-topbar-sep" aria-hidden="true"></span>
                 <span class="gw-topbar-item">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-                    Beauty begins with you ♡
+                    {{ __('website.topbar.beauty_begins') }}
                 </span>
             </div>
             <div class="gw-topbar-right">
-                <a href="{{ route('website.track') }}">Track Order</a>
+                <a href="{{ route('website.track') }}">{{ __('website.topbar.track_order') }}</a>
                 <span class="gw-topbar-sep" aria-hidden="true"></span>
-                <a href="{{ route('website.faqs') }}">Help</a>
+                <a href="{{ route('website.faqs') }}">{{ __('website.topbar.help') }}</a>
                 <span class="gw-topbar-sep" aria-hidden="true"></span>
                 @auth('web')
                     @if(auth('web')->user()->isStorefrontCustomer())
-                        <a href="{{ route('website.account') }}">My Account</a>
+                        <a href="{{ route('website.account') }}">{{ __('website.topbar.my_account') }}</a>
                     @else
-                        <button type="button" @click="openSignIn('login')">Login / Register</button>
+                        <button type="button" @click="openSignIn('login')">{{ __('website.topbar.login_register') }}</button>
                     @endif
                 @else
-                    <button type="button" @click="openSignIn('login')">Login / Register</button>
+                    <button type="button" @click="openSignIn('login')">{{ __('website.topbar.login_register') }}</button>
                 @endauth
+                <span class="gw-topbar-sep" aria-hidden="true"></span>
+                <div class="gw-lang-switch" role="group" aria-label="{{ __('website.lang.aria') }}">
+                    <a href="{{ route('locale.switch', 'bn') }}"
+                       class="gw-lang-link {{ app()->getLocale() === 'bn' ? 'is-active' : '' }}"
+                       hreflang="bn"
+                       lang="bn"
+                       @if(app()->getLocale() === 'bn') aria-current="true" @endif>বাং</a>
+                    <span class="gw-lang-divider" aria-hidden="true">|</span>
+                    <a href="{{ route('locale.switch', 'en') }}"
+                       class="gw-lang-link {{ app()->getLocale() === 'en' ? 'is-active' : '' }}"
+                       hreflang="en"
+                       lang="en"
+                       @if(app()->getLocale() === 'en') aria-current="true" @endif>EN</a>
+                </div>
             </div>
         </div>
     </div>
@@ -72,7 +86,7 @@
                         class="gaget-mobile-menu-btn"
                         @click="mobileOpen = !mobileOpen; if (!mobileOpen) { mobileCatsOpen = false; mobileBrandsOpen = false; }"
                         :aria-expanded="mobileOpen"
-                        aria-label="Menu">
+                        aria-label="{{ __('website.nav.menu') }}">
                     <svg x-show="!mobileOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                     <svg x-show="mobileOpen" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
@@ -106,7 +120,7 @@
             </div>
 
             {{-- Desktop nav --}}
-            <nav class="gaget-floatbar-nav" aria-label="Main">
+            <nav class="gaget-floatbar-nav" aria-label="{{ __('website.nav.main') }}">
                 <div class="gaget-nav-links">
                     @forelse($navLinks as $link)
                         @php $navLabel = trim((string) $link->label); @endphp
@@ -125,7 +139,7 @@
                                         @click="toggle()"
                                         :aria-expanded="open"
                                         aria-haspopup="true">
-                                    {{ $link->label }}
+                                    {{ website_nav_label($link->label) }}
                                     <svg class="gaget-nav-chevron" :class="{ 'is-open': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
                                 <div class="gaget-nav-dropdown-menu" @mouseover="track($event)" @focusin="track($event)" @mouseleave="untrack()">
@@ -148,7 +162,7 @@
                                         @click="toggle()"
                                         :aria-expanded="open"
                                         aria-haspopup="true">
-                                    {{ $link->label }}
+                                    {{ website_nav_label($link->label) }}
                                     <svg class="gaget-nav-chevron" :class="{ 'is-open': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
                                 <div class="gaget-nav-dropdown-menu gaget-nav-dropdown-menu--end gaget-nav-dropdown-menu--brands" @mouseover="track($event)" @focusin="track($event)" @mouseleave="untrack()">
@@ -171,7 +185,7 @@
                                         @click="toggle()"
                                         :aria-expanded="open"
                                         aria-haspopup="true">
-                                    Shop
+                                    {{ __('website.nav.shop') }}
                                     <svg class="gaget-nav-chevron" :class="{ 'is-open': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
                                 <div class="gaget-nav-dropdown-menu" @mouseover="track($event)" @focusin="track($event)" @mouseleave="untrack()">
@@ -187,16 +201,16 @@
                             @if(strcasecmp($navLabel, 'Home') === 0)
                                 <a href="{{ $link->url }}" class="gaget-nav-link gaget-nav-link--home {{ $isActive ? 'is-active' : '' }}">
                                     <svg class="gw-nav-home-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1v-9.5z"/></svg>
-                                    {{ $link->label }}
+                                    {{ website_nav_label($link->label) }}
                                 </a>
                             @else
-                                <a href="{{ $link->url }}" class="gaget-nav-link {{ $isActive ? 'is-active' : '' }}">{{ $link->label }}</a>
+                                <a href="{{ $link->url }}" class="gaget-nav-link {{ $isActive ? 'is-active' : '' }}">{{ website_nav_label($link->label) }}</a>
                             @endif
                         @endif
                     @empty
                         <a href="{{ route('home') }}" class="gaget-nav-link gaget-nav-link--home {{ request()->routeIs('home') ? 'is-active' : '' }}">
                             <svg class="gw-nav-home-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1v-9.5z"/></svg>
-                            Home
+                            {{ __('website.nav.home') }}
                         </a>
 
                         <div class="gaget-nav-dropdown"
@@ -213,7 +227,7 @@
                                     @click="toggle()"
                                     :aria-expanded="open"
                                     aria-haspopup="true">
-                                Shop
+                                {{ __('website.nav.shop') }}
                                 <svg class="gaget-nav-chevron" :class="{ 'is-open': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </button>
                             <div class="gaget-nav-dropdown-menu" @mouseover="track($event)" @focusin="track($event)" @mouseleave="untrack()">
@@ -236,7 +250,7 @@
                                     @click="toggle()"
                                     :aria-expanded="open"
                                     aria-haspopup="true">
-                                Categories
+                                {{ __('website.nav.categories') }}
                                 <svg class="gaget-nav-chevron" :class="{ 'is-open': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </button>
                             <div class="gaget-nav-dropdown-menu" @mouseover="track($event)" @focusin="track($event)" @mouseleave="untrack()">
@@ -260,7 +274,7 @@
                                     @click="toggle()"
                                     :aria-expanded="open"
                                     aria-haspopup="true">
-                                Brands
+                                {{ __('website.nav.brands') }}
                                 <svg class="gaget-nav-chevron" :class="{ 'is-open': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </button>
                             <div class="gaget-nav-dropdown-menu gaget-nav-dropdown-menu--end gaget-nav-dropdown-menu--brands" @mouseover="track($event)" @focusin="track($event)" @mouseleave="untrack()">
@@ -271,10 +285,10 @@
                         @endif
 
                         @if($hasAboutPage)
-                            <a href="{{ route('website.page', 'about-us') }}" class="gaget-nav-link {{ request()->is('page/about-us') ? 'is-active' : '' }}">About Us</a>
+                            <a href="{{ route('website.page', 'about-us') }}" class="gaget-nav-link {{ request()->is('page/about-us') ? 'is-active' : '' }}">{{ __('website.nav.about_us') }}</a>
                         @endif
-                        <a href="{{ route('website.blogs') }}" class="gaget-nav-link {{ request()->routeIs('website.blogs*') ? 'is-active' : '' }}">Blog</a>
-                        <a href="{{ route('website.contact') }}" class="gaget-nav-link {{ request()->routeIs('website.contact') ? 'is-active' : '' }}">Contact</a>
+                        <a href="{{ route('website.blogs') }}" class="gaget-nav-link {{ request()->routeIs('website.blogs*') ? 'is-active' : '' }}">{{ __('website.nav.blog') }}</a>
+                        <a href="{{ route('website.contact') }}" class="gaget-nav-link {{ request()->routeIs('website.contact') ? 'is-active' : '' }}">{{ __('website.nav.contact') }}</a>
                     @endforelse
                 </div>
             </nav>
@@ -293,7 +307,7 @@
                                x-model="q"
                                x-ref="searchInput"
                                value="{{ request('search') }}"
-                               placeholder="Search for products..."
+                               placeholder="{{ __('website.search.placeholder') }}"
                                class="gaget-search-input"
                                autocomplete="off"
                                @focus="onFocus()"
@@ -302,18 +316,18 @@
                                @keydown.arrow-down.prevent="move(1)"
                                @keydown.arrow-up.prevent="move(-1)"
                                @keydown.enter="onEnter($event)">
-                        <button type="submit" class="gaget-search-btn" aria-label="Search" @click="if (!q) { $event.preventDefault(); $refs.searchInput.focus(); }">
+                        <button type="submit" class="gaget-search-btn" aria-label="{{ __('website.search.aria') }}" @click="if (!q) { $event.preventDefault(); $refs.searchInput.focus(); }">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                         </button>
                     </div>
 
                     <div class="gaget-search-suggest" x-show="open" x-cloak x-transition.opacity.duration.120ms>
                         <div class="gaget-search-suggest__head">
-                            <span x-text="mode === 'best' ? 'Best picks for you' : 'Matching products'"></span>
-                            <span class="gaget-search-suggest__hint" x-show="loading">Searching…</span>
+                            <span x-text="mode === 'best' ? @js(__('website.search.best_picks')) : @js(__('website.search.matching'))"></span>
+                            <span class="gaget-search-suggest__hint" x-show="loading">{{ __('website.search.searching') }}</span>
                         </div>
                         <template x-if="!loading && products.length === 0">
-                            <p class="gaget-search-suggest__empty" x-text="q ? 'No products found' : 'No products available yet'"></p>
+                            <p class="gaget-search-suggest__empty" x-text="q ? @js(__('website.search.no_products')) : @js(__('website.search.no_products_yet'))"></p>
                         </template>
                         <div class="gaget-search-suggest__list" x-show="products.length > 0">
                             <template x-for="(item, index) in products" :key="item.id">
@@ -509,7 +523,7 @@
                            name="search"
                            x-model="q"
                            value="{{ request('search') }}"
-                           placeholder="Search products..."
+                           placeholder="{{ __('website.search.placeholder') }}"
                            class="gaget-search-input"
                            autocomplete="off"
                            @focus="onFocus()"
@@ -574,31 +588,31 @@
                 </a>
                 <button type="button"
                         class="gaget-mobile-drawer-close"
-                        aria-label="Close menu"
+                        aria-label="{{ __('website.nav.close_menu') }}"
                         @click="mobileOpen = false; mobileCatsOpen = false; mobileBrandsOpen = false">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
 
             <div class="gw-mobile-scroll">
-            <p class="gw-mobile-kicker">Discover beauty</p>
+            <p class="gw-mobile-kicker">{{ __('website.mobile.discover') }}</p>
             <div class="gaget-mobile-drawer-quick gw-mobile-quick">
                 <a href="{{ route('website.shop') }}" class="gaget-mobile-quick" @click="mobileOpen = false">
                     <span class="gw-mobile-quick-ico" aria-hidden="true">✦</span>
-                    <span>Shop all</span>
+                    <span>{{ __('website.mobile.shop_all') }}</span>
                 </a>
                 <a href="{{ route('website.shop', ['filter' => 'new']) }}" class="gaget-mobile-quick" @click="mobileOpen = false">
                     <span class="gw-mobile-quick-ico" aria-hidden="true">♡</span>
-                    <span>New in</span>
+                    <span>{{ __('website.mobile.new_in') }}</span>
                 </a>
                 <a href="{{ route('website.shop', ['filter' => 'bestseller']) }}" class="gaget-mobile-quick" @click="mobileOpen = false">
                     <span class="gw-mobile-quick-ico" aria-hidden="true">★</span>
-                    <span>Best sellers</span>
+                    <span>{{ __('website.mobile.best_sellers') }}</span>
                 </a>
             </div>
 
             @if(($allCategories ?? collect())->isNotEmpty())
-                <div class="gw-mobile-cats" aria-label="Shop by category">
+                <div class="gw-mobile-cats" aria-label="{{ __('website.mobile.shop_by_category') }}">
                     @foreach(($allCategories ?? collect())->take(6) as $cat)
                         <a href="{{ route('website.category', $cat->slug) }}" class="gw-mobile-cat" @click="mobileOpen = false">
                             @if(filled($cat->image_path ?? null))
@@ -612,8 +626,8 @@
                 </div>
             @endif
 
-            <p class="gw-mobile-kicker">Menu</p>
-            <nav class="gw-mobile-nav" aria-label="Mobile">
+            <p class="gw-mobile-kicker">{{ __('website.nav.menu') }}</p>
+            <nav class="gw-mobile-nav" aria-label="{{ __('website.nav.mobile') }}">
             @forelse($navLinks as $link)
                 @php $navLabel = trim((string) $link->label); @endphp
                 @if(strcasecmp($navLabel, 'Categories') === 0 || strcasecmp($navLabel, 'Category') === 0)
@@ -624,11 +638,11 @@
                                     @click="mobileCatsOpen = !mobileCatsOpen; if (mobileCatsOpen) mobileBrandsOpen = false"
                                     :aria-expanded="mobileCatsOpen"
                                     :class="{ 'is-open': mobileCatsOpen }">
-                                <span>{{ $link->label }}</span>
+                                <span>{{ website_nav_label($link->label) }}</span>
                                 <svg class="gaget-mobile-accordion-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </button>
                             <div class="gaget-mobile-accordion-panel" x-show="mobileCatsOpen" x-cloak x-transition.opacity.duration.150ms>
-                                <a href="{{ $link->url ?: route('website.shop') }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub" @click="mobileOpen = false">All categories</a>
+                                <a href="{{ $link->url ?: route('website.shop') }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub" @click="mobileOpen = false">{{ __('website.mobile.all_categories') }}</a>
                                 @foreach(($allCategories ?? []) as $cat)
                                     <a href="{{ route('website.category', $cat->slug) }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub" @click="mobileOpen = false">
                                         <span>{{ $cat->name }}</span>
@@ -637,7 +651,7 @@
                             </div>
                         </div>
                     @else
-                        <a href="{{ $link->url ?: route('website.shop') }}" class="gaget-mobile-drawer-link" @click="mobileOpen = false">{{ $link->label }}</a>
+                        <a href="{{ $link->url ?: route('website.shop') }}" class="gaget-mobile-drawer-link" @click="mobileOpen = false">{{ website_nav_label($link->label) }}</a>
                     @endif
                 @elseif(strcasecmp($navLabel, 'Brands') === 0 || strcasecmp($navLabel, 'Brand') === 0)
                     @php $mobileBrandList = ($trustedBrands ?? null); if (! $mobileBrandList || (method_exists($mobileBrandList, 'isEmpty') && $mobileBrandList->isEmpty())) { $mobileBrandList = collect($brands ?? [])->map(fn ($b) => (object) ['name' => $b->name, 'slug' => \Illuminate\Support\Str::slug($b->name)]); } @endphp
@@ -648,11 +662,11 @@
                                     @click="mobileBrandsOpen = !mobileBrandsOpen; if (mobileBrandsOpen) mobileCatsOpen = false"
                                     :aria-expanded="mobileBrandsOpen"
                                     :class="{ 'is-open': mobileBrandsOpen }">
-                                <span>{{ $link->label }}</span>
+                                <span>{{ website_nav_label($link->label) }}</span>
                                 <svg class="gaget-mobile-accordion-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </button>
                             <div class="gaget-mobile-accordion-panel" x-show="mobileBrandsOpen" x-cloak x-transition.opacity.duration.150ms>
-                                <a href="{{ route('website.brands') }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub" @click="mobileOpen = false">All brands</a>
+                                <a href="{{ route('website.brands') }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub" @click="mobileOpen = false">{{ __('website.mobile.all_brands') }}</a>
                                 @foreach($mobileBrandList as $brand)
                                     <a href="{{ route('website.brand', $brand->slug) }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub" @click="mobileOpen = false">
                                         <span>{{ $brand->name }}</span>
@@ -661,14 +675,14 @@
                             </div>
                         </div>
                     @else
-                        <a href="{{ $link->url ?: route('home').'#brands' }}" class="gaget-mobile-drawer-link" @click="mobileOpen = false">{{ $link->label }}</a>
+                        <a href="{{ $link->url ?: route('home').'#brands' }}" class="gaget-mobile-drawer-link" @click="mobileOpen = false">{{ website_nav_label($link->label) }}</a>
                     @endif
                 @else
-                    <a href="{{ $link->url }}" class="gaget-mobile-drawer-link" @click="mobileOpen = false">{{ $link->label }}</a>
+                    <a href="{{ $link->url }}" class="gaget-mobile-drawer-link" @click="mobileOpen = false">{{ website_nav_label($link->label) }}</a>
                 @endif
             @empty
-            <a href="{{ route('home') }}" class="gaget-mobile-drawer-link" @click="mobileOpen = false">Home</a>
-            <a href="{{ route('website.shop') }}" class="gaget-mobile-drawer-link" @click="mobileOpen = false">Shop</a>
+            <a href="{{ route('home') }}" class="gaget-mobile-drawer-link" @click="mobileOpen = false">{{ __('website.nav.home') }}</a>
+            <a href="{{ route('website.shop') }}" class="gaget-mobile-drawer-link" @click="mobileOpen = false">{{ __('website.nav.shop') }}</a>
 
             @if(($allCategories ?? collect())->isNotEmpty())
                 <div class="gaget-mobile-accordion">
@@ -677,11 +691,11 @@
                             @click="mobileCatsOpen = !mobileCatsOpen; if (mobileCatsOpen) mobileBrandsOpen = false"
                             :aria-expanded="mobileCatsOpen"
                             :class="{ 'is-open': mobileCatsOpen }">
-                        <span>Categories</span>
+                        <span>{{ __('website.nav.categories') }}</span>
                         <svg class="gaget-mobile-accordion-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </button>
                     <div class="gaget-mobile-accordion-panel" x-show="mobileCatsOpen" x-cloak x-transition.opacity.duration.150ms>
-                        <a href="{{ route('website.shop') }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub" @click="mobileOpen = false">All categories</a>
+                        <a href="{{ route('website.shop') }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub" @click="mobileOpen = false">{{ __('website.mobile.all_categories') }}</a>
                         @foreach(($allCategories ?? []) as $cat)
                             <a href="{{ route('website.category', $cat->slug) }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub" @click="mobileOpen = false">
                                 <span>{{ $cat->name }}</span>
@@ -699,11 +713,11 @@
                             @click="mobileBrandsOpen = !mobileBrandsOpen; if (mobileBrandsOpen) mobileCatsOpen = false"
                             :aria-expanded="mobileBrandsOpen"
                             :class="{ 'is-open': mobileBrandsOpen }">
-                        <span>Brands</span>
+                        <span>{{ __('website.nav.brands') }}</span>
                         <svg class="gaget-mobile-accordion-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </button>
                     <div class="gaget-mobile-accordion-panel" x-show="mobileBrandsOpen" x-cloak x-transition.opacity.duration.150ms>
-                        <a href="{{ route('website.brands') }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub" @click="mobileOpen = false">All brands</a>
+                        <a href="{{ route('website.brands') }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub" @click="mobileOpen = false">{{ __('website.mobile.all_brands') }}</a>
                         @foreach($fallbackBrandList as $brand)
                             <a href="{{ route('website.brand', $brand->slug) }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub" @click="mobileOpen = false">
                                 <span>{{ $brand->name }}</span>
@@ -714,10 +728,10 @@
             @endif
 
             @if($hasAboutPage)
-                <a href="{{ route('website.page', 'about-us') }}" class="gaget-mobile-drawer-link" @click="mobileOpen = false">About Us</a>
+                <a href="{{ route('website.page', 'about-us') }}" class="gaget-mobile-drawer-link" @click="mobileOpen = false">{{ __('website.nav.about_us') }}</a>
             @endif
-            <a href="{{ route('website.blogs') }}" class="gaget-mobile-drawer-link" @click="mobileOpen = false">Beauty journal</a>
-            <a href="{{ route('website.contact') }}" class="gaget-mobile-drawer-link" @click="mobileOpen = false">Contact</a>
+            <a href="{{ route('website.blogs') }}" class="gaget-mobile-drawer-link" @click="mobileOpen = false">{{ __('website.nav.beauty_journal') }}</a>
+            <a href="{{ route('website.contact') }}" class="gaget-mobile-drawer-link" @click="mobileOpen = false">{{ __('website.nav.contact') }}</a>
             @endforelse
             </nav>
             </div>
@@ -725,17 +739,17 @@
             <div class="gaget-mobile-drawer-foot gw-mobile-foot">
                 @auth('web')
                     @if(auth('web')->user()->isStorefrontCustomer())
-                        <a href="{{ route('website.account') }}" class="gaget-mobile-drawer-cta" @click="mobileOpen = false">My Account</a>
+                        <a href="{{ route('website.account') }}" class="gaget-mobile-drawer-cta" @click="mobileOpen = false">{{ __('website.topbar.my_account') }}</a>
                         <button type="button"
                                 class="gaget-mobile-drawer-signout"
                                 @click="mobileOpen = false; typeof storefrontLogout === 'function' && storefrontLogout()">
-                            Sign out
+                            {{ __('website.mobile.sign_out') }}
                         </button>
                     @endif
                 @else
-                    <button type="button" class="gaget-mobile-drawer-cta" @click="mobileOpen = false; openSignIn('login')">Sign in / Register</button>
-                    <a href="{{ route('website.track') }}" class="gw-mobile-track" @click="mobileOpen = false">Track an order</a>
-                    <p class="gaget-mobile-drawer-note">Guest checkout welcome — track with Order ID + phone.</p>
+                    <button type="button" class="gaget-mobile-drawer-cta" @click="mobileOpen = false; openSignIn('login')">{{ __('website.mobile.sign_in_register') }}</button>
+                    <a href="{{ route('website.track') }}" class="gw-mobile-track" @click="mobileOpen = false">{{ __('website.mobile.track_an_order') }}</a>
+                    <p class="gaget-mobile-drawer-note">{{ __('website.mobile.guest_note') }}</p>
                 @endauth
             </div>
         </div>

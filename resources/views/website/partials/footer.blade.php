@@ -2,7 +2,7 @@
     $storeName = $settings->store_name ?? config('app.name', 'Hira Moni');
     $tagline = trim((string) ($settings->footer_tagline ?? ''));
     if ($tagline === '') {
-        $tagline = 'Premium cosmetics & skincare for your natural glow.';
+        $tagline = __('website.footer.default_tagline');
     }
     $footerCopy = data_get($settings, 'home_copy') ?: [];
     $footerLogoTagline = 'glow naturally, Define you';
@@ -68,7 +68,7 @@
     $lotusRight = asset('images/footer/blend-lotus-right.jpg');
     $lotusBed = asset('images/footer/blend-bed.jpg');
 @endphp
-<footer class="tn-footer bb-footer gw-footer" aria-label="Site footer" style="--gw-footer-bed:url('{{ $lotusBed }}')">
+<footer class="tn-footer bb-footer gw-footer" aria-label="{{ __('website.footer.site_footer') }}" style="--gw-footer-bed:url('{{ $lotusBed }}')">
     <div class="gw-footer-shell">
         <img class="gw-footer-bloom gw-footer-bloom--left" src="{{ $lotusLeft }}" alt="" aria-hidden="true" loading="lazy" decoding="async">
         <img class="gw-footer-bloom gw-footer-bloom--right" src="{{ $lotusRight }}" alt="" aria-hidden="true" loading="lazy" decoding="async">
@@ -117,57 +117,57 @@
                     </div>
 
                     <div class="gw-footer-col">
-                        <h4 class="gw-footer-heading">Quick Links</h4>
+                        <h4 class="gw-footer-heading">{{ __('website.footer.quick_links') }}</h4>
                         <ul class="gw-footer-links">
-                            <li><a href="{{ route('home') }}">Home</a></li>
-                            <li><a href="{{ route('website.shop') }}">Shop</a></li>
+                            <li><a href="{{ route('home') }}">{{ __('website.footer.home') }}</a></li>
+                            <li><a href="{{ route('website.shop') }}">{{ __('website.footer.shop') }}</a></li>
                             @if($aboutPage)
-                                <li><a href="{{ route('website.page', $aboutPage->slug) }}">About Us</a></li>
+                                <li><a href="{{ route('website.page', $aboutPage->slug) }}">{{ __('website.footer.about_us') }}</a></li>
                             @else
-                                <li><a href="{{ route('website.contact') }}">About Us</a></li>
+                                <li><a href="{{ route('website.contact') }}">{{ __('website.footer.about_us') }}</a></li>
                             @endif
-                            <li><a href="{{ route('website.blogs') }}">Blog</a></li>
-                            <li><a href="{{ route('website.contact') }}">Contact</a></li>
+                            <li><a href="{{ route('website.blogs') }}">{{ __('website.footer.blog') }}</a></li>
+                            <li><a href="{{ route('website.contact') }}">{{ __('website.footer.contact') }}</a></li>
                         </ul>
                     </div>
 
                     <div class="gw-footer-col">
-                        <h4 class="gw-footer-heading">Customer Care</h4>
+                        <h4 class="gw-footer-heading">{{ __('website.footer.customer_care') }}</h4>
                         <ul class="gw-footer-links">
-                            <li><a href="{{ route('website.faqs') }}">FAQs</a></li>
+                            <li><a href="{{ route('website.faqs') }}">{{ __('website.footer.faqs') }}</a></li>
                             @if($shippingPage)
-                                <li><a href="{{ route('website.page', $shippingPage->slug) }}">Shipping Policy</a></li>
+                                <li><a href="{{ route('website.page', $shippingPage->slug) }}">{{ __('website.footer.shipping_policy') }}</a></li>
                             @else
-                                <li><a href="{{ route('website.contact') }}">Shipping Policy</a></li>
+                                <li><a href="{{ route('website.contact') }}">{{ __('website.footer.shipping_policy') }}</a></li>
                             @endif
                             @if($returnsUrl)
-                                <li><a href="{{ $returnsUrl }}">Return Policy</a></li>
+                                <li><a href="{{ $returnsUrl }}">{{ __('website.footer.return_policy') }}</a></li>
                             @else
-                                <li><a href="{{ route('website.contact') }}">Return Policy</a></li>
+                                <li><a href="{{ route('website.contact') }}">{{ __('website.footer.return_policy') }}</a></li>
                             @endif
-                            <li><a href="{{ route('website.track') }}">Track Order</a></li>
-                            <li><a href="{{ route('website.contact') }}">Help Center</a></li>
+                            <li><a href="{{ route('website.track') }}">{{ __('website.footer.track_order') }}</a></li>
+                            <li><a href="{{ route('website.contact') }}">{{ __('website.footer.help_center') }}</a></li>
                         </ul>
                     </div>
 
                     <div class="gw-footer-col">
-                        <h4 class="gw-footer-heading">My Account</h4>
+                        <h4 class="gw-footer-heading">{{ __('website.footer.my_account') }}</h4>
                         <ul class="gw-footer-links">
-                            <li><a href="{{ route('website.account') }}">Login / Register</a></li>
-                            <li><a href="{{ route('website.account') }}">My Orders</a></li>
-                            <li><a href="{{ route('website.wishlist') }}">Wishlist</a></li>
-                            <li><a href="{{ route('website.shop', ['filter' => 'combo']) }}">Compare</a></li>
-                            <li><a href="#" @click.prevent="openCart()">Cart</a></li>
+                            <li><a href="{{ route('website.account') }}">{{ __('website.footer.login_register') }}</a></li>
+                            <li><a href="{{ route('website.account') }}">{{ __('website.footer.my_orders') }}</a></li>
+                            <li><a href="{{ route('website.wishlist') }}">{{ __('website.footer.wishlist') }}</a></li>
+                            <li><a href="{{ route('website.shop', ['filter' => 'combo']) }}">{{ __('website.footer.compare') }}</a></li>
+                            <li><a href="#" @click.prevent="openCart()">{{ __('website.footer.cart') }}</a></li>
                         </ul>
                     </div>
 
                     <div class="gw-footer-col gw-footer-connect">
-                        <h4 class="gw-footer-heading">Stay Connected</h4>
-                        <p class="gw-footer-connect-copy">Get updates on new products and special offers.</p>
+                        <h4 class="gw-footer-heading">{{ __('website.footer.stay_connected') }}</h4>
+                        <p class="gw-footer-connect-copy">{{ __('website.footer.newsletter_copy') }}</p>
                         <form class="gw-footer-news" action="{{ route('website.contact') }}" method="get" onsubmit="return false;">
-                            <label class="sr-only" for="gw-footer-email">Email address</label>
-                            <input id="gw-footer-email" type="email" name="email" placeholder="Your email address" autocomplete="email" required>
-                            <button type="button" class="gw-footer-news-btn" aria-label="Subscribe" onclick="window.location='{{ route('website.contact') }}'">
+                            <label class="sr-only" for="gw-footer-email">{{ __('website.footer.email') }}</label>
+                            <input id="gw-footer-email" type="email" name="email" placeholder="{{ __('website.footer.email_placeholder') }}" autocomplete="email" required>
+                            <button type="button" class="gw-footer-news-btn" aria-label="{{ __('website.footer.subscribe') }}" onclick="window.location='{{ route('website.contact') }}'">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
                             </button>
                         </form>
@@ -175,11 +175,11 @@
                 </div>
 
             <div class="gw-footer-credit">
-                <p class="gw-footer-copy">&copy; {{ date('Y') }} {{ $storeName }}. All rights reserved.</p>
-                <nav class="gw-footer-legal" aria-label="Legal">
-                    @if($privacyUrl)<a href="{{ $privacyUrl }}">Privacy Policy</a>@endif
-                    @if($termsUrl)<a href="{{ $termsUrl }}">Terms &amp; Conditions</a>@endif
-                    <a href="{{ route('website.contact') }}">Contact</a>
+                <p class="gw-footer-copy">&copy; {{ date('Y') }} {{ $storeName }}. {{ __('website.footer.rights') }}</p>
+                <nav class="gw-footer-legal" aria-label="{{ __('website.footer.legal') }}">
+                    @if($privacyUrl)<a href="{{ $privacyUrl }}">{{ __('website.footer.privacy') }}</a>@endif
+                    @if($termsUrl)<a href="{{ $termsUrl }}">{{ __('website.footer.terms') }}</a>@endif
+                    <a href="{{ route('website.contact') }}">{{ __('website.footer.contact') }}</a>
                 </nav>
             </div>
         </div>
