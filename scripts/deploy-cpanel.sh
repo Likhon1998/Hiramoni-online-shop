@@ -61,14 +61,53 @@ $set("SESSION_SECURE_COOKIE", "true");
 file_put_contents(".env", $env);
 ' APP_URL="$APP_URL" DB_DATABASE="$DB_DATABASE" DB_USERNAME="$DB_USERNAME"
 
-# If DB password is still empty, stop with a clear message
-if grep -qE '^DB_PASSWORD=\s*$' .env || grep -qE '^DB_PASSWORD=$' .env || grep -qE '^DB_PASSWORD=null$' .env; then
+# Ask for DB password in terminal (typed chars stay invisible)
+need_pw=0
+grep -qE '^DB_PASSWORD=\s*$' .env && need_pw=1
+grep -qE '^DB_PASSWORD=$' .env && need_pw=1
+grep -qE '^DB_PASSWORD=null$' .env && need_pw=1
+grep -qE '^DB_PASSWORD=' .env >/dev/null || need_pw=1
+
+if [[ -n "${DB_PASSWORD:-}" ]]; then
+  # Allow: DB_PASSWORD='...' bash scripts/deploy-cpanel.sh
+  php -r '
+    $env = file_get_contents(".env");
+    $pw = getenv("DB_PASSWORD");
+    $line = "DB_PASSWORD=\"".str_replace(["\\", "\""], ["\\\\", "\\\""], $pw)."\"";
+    if (preg_match("/^DB_PASSWORD=.*/m", $env)) {
+      $env = preg_replace("/^DB_PASSWORD=.*/m", $line, $env);
+    } else {
+      $env .= "\n".$line."\n";
+    }
+    file_put_contents(".env", $env);
+  '
+  need_pw=0
+fi
+
+if [[ "$need_pw" == "1" ]]; then
   echo ""
-  echo "ERROR: Set DB_PASSWORD in $REPO/.env then re-run this script."
-  echo "  Database : $DB_DATABASE"
-  echo "  Username : $DB_USERNAME"
-  echo "  Example  : DB_PASSWORD=your_cpanel_mysql_password"
-  exit 1
+  echo "Database : $DB_DATABASE"
+  echo "Username : $DB_USERNAME"
+  echo -n "Enter MySQL password (hidden): "
+  # shellcheck disable=SC2162
+  read -s DB_PASSWORD_INPUT
+  echo ""
+  if [[ -z "${DB_PASSWORD_INPUT}" ]]; then
+    echo "ERROR: password cannot be empty."
+    exit 1
+  fi
+  DB_PASSWORD="$DB_PASSWORD_INPUT" php -r '
+    $env = file_get_contents(".env");
+    $pw = getenv("DB_PASSWORD");
+    $line = "DB_PASSWORD=\"".str_replace(["\\", "\""], ["\\\\", "\\\""], $pw)."\"";
+    if (preg_match("/^DB_PASSWORD=.*/m", $env)) {
+      $env = preg_replace("/^DB_PASSWORD=.*/m", $line, $env);
+    } else {
+      $env .= "\n".$line."\n";
+    }
+    file_put_contents(".env", $env);
+  '
+  unset DB_PASSWORD_INPUT
 fi
 
 if ! grep -qE '^APP_KEY=base64:' .env; then
