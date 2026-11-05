@@ -186,39 +186,96 @@
             </a>
         </header>
 
-        <div class="gw-cat-grid">
-            @php
-                $beautyOrder = ['skincare', 'makeup', 'hair-care', 'body-care', 'nail-care', 'mens-grooming', 'fragrance', 'beauty-tools'];
-                $homeCategories = collect($categories ?? [])
-                    ->sortBy(function ($category) use ($beautyOrder) {
-                        $slug = (string) ($category->slug ?? '');
-                        $idx = array_search($slug, $beautyOrder, true);
+        @php
+            $beautyOrder = ['skincare', 'makeup', 'hair-care', 'body-care', 'nail-care', 'mens-grooming', 'fragrance', 'beauty-tools'];
+            $homeCategories = collect($categories ?? [])
+                ->sortBy(function ($category) use ($beautyOrder) {
+                    $slug = (string) ($category->slug ?? '');
+                    $idx = array_search($slug, $beautyOrder, true);
 
-                        return $idx === false ? 100 + (int) ($category->id ?? 0) : $idx;
-                    })
-                    ->take(6)
-                    ->values();
-            @endphp
-            @foreach($homeCategories as $category)
-                @php
-                    $img = $ws->categoryImageUrl($category) ?: $catFallback;
-                    if (filled($category->image_path ?? null)) {
-                        $full = public_storage_path($category->image_path);
-                        $img .= '?v='.(is_file($full) ? filemtime($full) : time());
-                    }
-                @endphp
-                <a href="{{ route('website.category', $category->slug ?? $category->id) }}" class="gw-cat-card">
-                    <span class="gw-cat-media">
-                        <span class="gw-cat-glow" aria-hidden="true"></span>
-                        <span class="gw-cat-ring">
-                            <img src="{{ $img }}" alt="{{ $category->name }}" loading="lazy" decoding="async">
-                        </span>
-                    </span>
-                    <span class="gw-cat-name">{{ $category->name }}</span>
-                </a>
-            @endforeach
+                    return $idx === false ? 100 + (int) ($category->id ?? 0) : $idx;
+                })
+                ->take(6)
+                ->values();
+        @endphp
+
+        <div class="gw-cat-edge">
+            <div class="gw-cat-viewport" data-cats-viewport>
+                <div class="gw-cat-track" data-cats-track>
+                    @foreach([1, 2] as $loopCopy)
+                        <div class="gw-cat-group" @if($loopCopy === 2) aria-hidden="true" @endif>
+                            @foreach($homeCategories as $category)
+                                @php
+                                    $img = $ws->categoryImageUrl($category) ?: $catFallback;
+                                    if (filled($category->image_path ?? null)) {
+                                        $full = public_storage_path($category->image_path);
+                                        $img .= '?v='.(is_file($full) ? filemtime($full) : time());
+                                    }
+                                @endphp
+                                <a href="{{ route('website.category', $category->slug ?? $category->id) }}" class="gw-cat-card" @if($loopCopy === 2) tabindex="-1" @endif>
+                                    <span class="gw-cat-media">
+                                        <span class="gw-cat-glow" aria-hidden="true"></span>
+                                        <span class="gw-cat-ring">
+                                            <img src="{{ $img }}" alt="{{ $category->name }}" loading="lazy" decoding="async">
+                                        </span>
+                                    </span>
+                                    <span class="gw-cat-name">{{ $category->name }}</span>
+                                </a>
+                            @endforeach
+                        </div>
+                    @endforeach
+                </div>
+            </div>
         </div>
     </div>
+
+    <script>
+        (() => {
+            const track = document.querySelector('[data-cats-track]');
+            const viewport = document.querySelector('[data-cats-viewport]');
+            if (!track || !viewport) return;
+
+            const mq = window.matchMedia('(max-width: 900px)');
+            let paused = false;
+            let offset = 0;
+            let half = 0;
+            let raf = 0;
+            const speed = 0.42;
+
+            const measure = () => {
+                const group = track.querySelector('.gw-cat-group');
+                half = group ? group.getBoundingClientRect().width : track.scrollWidth / 2;
+            };
+
+            const resetDesktop = () => {
+                offset = 0;
+                track.style.transform = '';
+            };
+
+            const tick = () => {
+                if (mq.matches && !paused && half > 0) {
+                    offset -= speed;
+                    if (Math.abs(offset) >= half) offset = 0;
+                    track.style.transform = `translate3d(${offset}px,0,0)`;
+                }
+                raf = requestAnimationFrame(tick);
+            };
+
+            const onChange = () => {
+                measure();
+                if (!mq.matches) resetDesktop();
+            };
+
+            viewport.addEventListener('pointerenter', () => { paused = true; });
+            viewport.addEventListener('pointerleave', () => { paused = false; });
+            viewport.addEventListener('touchstart', () => { paused = true; }, { passive: true });
+            viewport.addEventListener('touchend', () => { setTimeout(() => { paused = false; }, 900); }, { passive: true });
+            window.addEventListener('resize', onChange);
+            mq.addEventListener?.('change', onChange);
+            measure();
+            raf = requestAnimationFrame(tick);
+        })();
+    </script>
 </section>
 @endif
 
