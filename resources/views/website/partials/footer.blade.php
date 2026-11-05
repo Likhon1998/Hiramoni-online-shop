@@ -51,9 +51,18 @@
 
     $footerIconPath = $settings->logo_path ?: $settings->favicon_path;
     $footerIcon = $footerIconPath ? public_storage_url($footerIconPath) : null;
-    $footerIconVer = $footerIconPath
-        ? (@filemtime(public_storage_path($footerIconPath)) ?: time())
-        : time();
+    if (! $footerIcon || ($footerIconPath && ! is_file(public_storage_path($footerIconPath)))) {
+        $fallbackLogo = public_path('images/hiramoni-logo-round.png');
+        if (! is_file($fallbackLogo)) {
+            $fallbackLogo = public_path('images/hiramoni-logo.png');
+        }
+        $footerIcon = is_file($fallbackLogo)
+            ? asset('images/'.basename($fallbackLogo))
+            : null;
+        $footerIconVer = is_file($fallbackLogo) ? (filemtime($fallbackLogo) ?: time()) : time();
+    } else {
+        $footerIconVer = @filemtime(public_storage_path($footerIconPath)) ?: time();
+    }
 
     $lotusLeft = asset('images/footer/blend-lotus-left.jpg');
     $lotusRight = asset('images/footer/blend-lotus-right.jpg');

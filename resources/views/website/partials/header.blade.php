@@ -2,9 +2,20 @@
     $headerName = $settings->store_name ?? config('app.name', 'Hira Moni');
     $headerIconPath = $settings->logo_path ?: $settings->favicon_path;
     $headerIcon = $headerIconPath ? public_storage_url($headerIconPath) : null;
-    $headerIconVer = $headerIconPath
-        ? (@filemtime(public_storage_path($headerIconPath)) ?: time())
-        : time();
+    // Fallback to shipped brand mark when CMS logo is not set / missing on disk.
+    if (! $headerIcon || ($headerIconPath && ! is_file(public_storage_path($headerIconPath)))) {
+        $fallbackLogo = public_path('images/hiramoni-logo-round.png');
+        if (! is_file($fallbackLogo)) {
+            $fallbackLogo = public_path('images/hiramoni-logo.png');
+        }
+        $headerIcon = is_file($fallbackLogo)
+            ? asset('images/'.basename($fallbackLogo))
+            : null;
+        $headerIconPath = null;
+        $headerIconVer = is_file($fallbackLogo) ? (filemtime($fallbackLogo) ?: time()) : time();
+    } else {
+        $headerIconVer = @filemtime(public_storage_path($headerIconPath)) ?: time();
+    }
     $navLinks = $mainNav ?? collect();
     $headerCopy = data_get($settings, 'home_copy') ?: [];
     $headerTagline = trim((string) ($headerCopy['logo_tagline'] ?? ''));
