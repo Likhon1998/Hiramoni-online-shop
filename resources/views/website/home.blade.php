@@ -7,10 +7,20 @@
         ->all();
     $currency = $settings->currency_symbol ?? '৳';
 
-    $heroEyebrowDefault = 'THE ART OF EVERYDAY GLOW';
-    $heroTitleDefault = 'Beauty, Made Beautifully Simple.';
-    $heroSubtitleDefault = 'Discover skincare and beauty essentials chosen for your everyday ritual.';
-    $heroCtaDefault = 'Explore the Collection';
+    $heroEyebrowDefault = __('website.home.hero_eyebrow');
+    $heroTitleDefault = __('website.home.hero_title');
+    $heroSubtitleDefault = __('website.home.hero_subtitle');
+    $heroCtaDefault = __('website.home.hero_cta');
+    $heroTitleLine1 = __('website.home.hero_title_line1');
+    $heroTitleLine2 = __('website.home.hero_title_line2');
+
+    // Known English CMS defaults — localize these when the active locale is not English
+    $englishHero = [
+        'eyebrow' => ['THE ART OF EVERYDAY GLOW'],
+        'title' => ['Beauty, Made Beautifully Simple.', 'Beauty, Made Beautifully Simple'],
+        'subtitle' => ['Discover skincare and beauty essentials chosen for your everyday ritual.'],
+        'cta' => ['Explore the Collection', 'Shop Now', 'Shop the Collection'],
+    ];
 
     $heroEyebrow = trim((string) ($homeCopy['hero_eyebrow'] ?? $homeCopy['hero_badge'] ?? '')) ?: $heroEyebrowDefault;
     $heroTitle = trim((string) ($homeCopy['hero_title'] ?? '')) ?: $heroTitleDefault;
@@ -23,6 +33,22 @@
         $heroSubtitle = $heroSubtitleDefault;
     }
     $heroCta = trim((string) ($homeCopy['hero_cta'] ?? '')) ?: $heroCtaDefault;
+
+    if (app()->getLocale() !== 'en') {
+        if (in_array($heroEyebrow, $englishHero['eyebrow'], true)) {
+            $heroEyebrow = $heroEyebrowDefault;
+        }
+        if (in_array($heroTitle, $englishHero['title'], true) || preg_match('/^Beauty,\s*Made\s+Beautifully\s+Simple\.?$/ui', $heroTitle)) {
+            $heroTitle = $heroTitleDefault;
+        }
+        if (in_array($heroSubtitle, $englishHero['subtitle'], true)) {
+            $heroSubtitle = $heroSubtitleDefault;
+        }
+        if (in_array($heroCta, $englishHero['cta'], true)) {
+            $heroCta = $heroCtaDefault;
+        }
+    }
+
     $heroImages = ($heroSlides ?? collect())->filter(fn ($s) => filled($s->image_path))->map(function ($slide) {
         $src = public_storage_url($slide->image_path);
         $full = public_storage_path($slide->image_path);
@@ -35,12 +61,18 @@
     })->values();
 
     // Editorial split: first clause dark, second line italic magenta
-    $heroTitleHtml = e($heroTitle);
-    if (preg_match('/^(Beauty,\s*Made)\s+(Beautifully\s+Simple\.?)$/ui', $heroTitle, $m)) {
-        $heroTitleHtml = e($m[1]).'<br><em class="gw-hero-accent">'.e(rtrim($m[2], '.')).'.</em>';
-    } elseif (preg_match('/^(.*?Made)\s+(Beautifully.*)$/ui', $heroTitle, $m)) {
-        $heroTitleHtml = e(rtrim($m[1])).'<br><em class="gw-hero-accent">'.e($m[2]).'</em>';
-    } elseif (str_contains($heroTitle, ',')) {
+    $heroTitleHtml = e($heroTitleLine1).'<br><em class="gw-hero-accent">'.e(rtrim($heroTitleLine2, '.')).'.</em>';
+    if (app()->getLocale() === 'en' && $heroTitle !== $heroTitleDefault) {
+        $heroTitleHtml = e($heroTitle);
+        if (preg_match('/^(Beauty,\s*Made)\s+(Beautifully\s+Simple\.?)$/ui', $heroTitle, $m)) {
+            $heroTitleHtml = e($m[1]).'<br><em class="gw-hero-accent">'.e(rtrim($m[2], '.')).'.</em>';
+        } elseif (preg_match('/^(.*?Made)\s+(Beautifully.*)$/ui', $heroTitle, $m)) {
+            $heroTitleHtml = e(rtrim($m[1])).'<br><em class="gw-hero-accent">'.e($m[2]).'</em>';
+        } elseif (str_contains($heroTitle, ',')) {
+            [$a, $b] = array_map('trim', explode(',', $heroTitle, 2));
+            $heroTitleHtml = e($a).',<br><em class="gw-hero-accent">'.e($b).'</em>';
+        }
+    } elseif (app()->getLocale() !== 'en' && $heroTitle !== $heroTitleDefault && str_contains($heroTitle, ',')) {
         [$a, $b] = array_map('trim', explode(',', $heroTitle, 2));
         $heroTitleHtml = e($a).',<br><em class="gw-hero-accent">'.e($b).'</em>';
     }

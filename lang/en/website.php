@@ -86,6 +86,12 @@ return [
         'shop_cream' => 'Shop cream',
         'previous_brands' => 'Previous brands',
         'next_brands' => 'Next brands',
+        'hero_eyebrow' => 'THE ART OF EVERYDAY GLOW',
+        'hero_title' => 'Beauty, Made Beautifully Simple.',
+        'hero_title_line1' => 'Beauty, Made',
+        'hero_title_line2' => 'Beautifully Simple.',
+        'hero_subtitle' => 'Discover skincare and beauty essentials chosen for your everyday ritual.',
+        'hero_cta' => 'Explore the Collection',
     ],
 
     'footer' => [
