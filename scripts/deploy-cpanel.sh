@@ -7,11 +7,37 @@
 set -euo pipefail
 
 REPO="/home/bynnsuou/repositories/Hiramoni-online-shop"
-WEB_PUBLIC="/home/bynnsuou/public_html/gadget/maks-gadget/public"
+# Real cPanel document root for this subdomain (NOT a whole-dir symlink — LiteSpeed 404s those)
+WEB_ROOT="/home/bynnsuou/hiramoni.bynnas.com"
 APP_URL="https://hiramoni.bynnas.com"
 DB_DATABASE="bynnsuou_hiramoni"
 DB_USERNAME="${DB_USERNAME:-bynnsuou_hiramoni}"
 SEED="${SEED:-0}"
+
+link_web_root() {
+  echo "==> Link $WEB_ROOT → app public (LiteSpeed-safe)"
+  if [[ -L "$WEB_ROOT" ]]; then
+    rm -f "$WEB_ROOT"
+  elif [[ -d "$WEB_ROOT" ]]; then
+    # Keep first-time backup only if it still looks like an empty cPanel stub
+    if [[ ! -f "$WEB_ROOT/index.php" ]]; then
+      mv "$WEB_ROOT" "${WEB_ROOT}.bak-$(date +%Y%m%d%H%M%S)"
+    fi
+  fi
+  mkdir -p "$WEB_ROOT"
+  cat > "$WEB_ROOT/index.php" <<EOF
+<?php
+require '$REPO/public/index.php';
+EOF
+  cp -f "$REPO/public/.htaccess" "$WEB_ROOT/.htaccess"
+  # Static assets (file symlinks are OK; whole-root symlink is not on this host)
+  for item in build images storage favicon.ico favicon.png favicon.svg favicon-32.png favicon-64.png robots.txt; do
+    if [[ -e "$REPO/public/$item" ]]; then
+      ln -sfn "$REPO/public/$item" "$WEB_ROOT/$item"
+    fi
+  done
+  ls -la "$WEB_ROOT" | head -20
+}
 
 # Safe .env key setter (no multiline php -r — that breaks cPanel ea-php-cli)
 env_set() {
@@ -110,15 +136,7 @@ if [[ "$SEED" == "1" ]]; then
   php artisan db:seed --class=BlogSeeder --force || true
 fi
 
-echo "==> Point domain document root at this app"
-if [[ -d "$WEB_PUBLIC" && ! -L "$WEB_PUBLIC" ]]; then
-  BACKUP="${WEB_PUBLIC}.bak-$(date +%Y%m%d%H%M%S)"
-  echo "    Moving old public → $BACKUP"
-  mv "$WEB_PUBLIC" "$BACKUP"
-fi
-mkdir -p "$(dirname "$WEB_PUBLIC")"
-ln -sfn "$REPO/public" "$WEB_PUBLIC"
-echo "    $WEB_PUBLIC → $REPO/public"
+link_web_root
 
 echo "==> Optimize"
 php artisan config:clear
