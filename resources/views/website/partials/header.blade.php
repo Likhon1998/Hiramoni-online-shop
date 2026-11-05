@@ -553,16 +553,16 @@
         </div>
     </div>
 
-    {{-- Mobile nav drawer --}}
-    <div x-show="mobileOpen" x-cloak class="gaget-mobile-drawer" @click.self="mobileOpen = false; mobileCatsOpen = false; mobileBrandsOpen = false">
-        <div class="gaget-mobile-drawer-panel" x-show="mobileOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full">
-            <div class="gaget-mobile-drawer-head">
+    {{-- Mobile beauty menu --}}
+    <div x-show="mobileOpen" x-cloak class="gaget-mobile-drawer gw-mobile-drawer" @click.self="mobileOpen = false; mobileCatsOpen = false; mobileBrandsOpen = false">
+        <div class="gaget-mobile-drawer-panel gw-mobile-panel" x-show="mobileOpen" x-transition:enter="transition ease-out duration-220" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-160" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full">
+            <div class="gaget-mobile-drawer-head gw-mobile-head">
                 <a href="{{ route('home') }}" class="gaget-mobile-drawer-brand" @click="mobileOpen = false" aria-label="{{ $headerName }}">
                     @if($headerIcon)
                         <img src="{{ $headerIcon }}?v={{ $headerIconVer }}" alt="" class="gaget-mobile-drawer-brand-mark">
                     @else
-                        <span class="gaget-mobile-drawer-brand-mark gaget-mobile-drawer-brand-mark--text" style="background:#3A0F32;color:#E91E63;border-radius:10px;display:flex;align-items:center;justify-content:center;">
-                            <svg viewBox="0 0 36 36" fill="none" width="28" height="28"><circle cx="18" cy="18" r="18" fill="rgba(233,30,99,.2)"/><path d="M18 8c0 0-6 3-6 8s6 8 6 8 6-3 6-8-6-8-6-8z" fill="#E91E63" opacity=".8"/><circle cx="18" cy="18" r="3" fill="#E91E63"/></svg>
+                        <span class="gaget-mobile-drawer-brand-mark gaget-mobile-drawer-brand-mark--text">
+                            <svg viewBox="0 0 36 36" fill="none" width="28" height="28" aria-hidden="true"><circle cx="18" cy="18" r="18" fill="rgba(233,30,99,.16)"/><path d="M18 8c0 0-6 3-6 8s6 8 6 8 6-3 6-8-6-8-6-8z" fill="#E91E63" opacity=".85"/><circle cx="18" cy="18" r="3" fill="#C2185B"/></svg>
                         </span>
                     @endif
                     <span class="gaget-mobile-drawer-brand-text">
@@ -580,20 +580,40 @@
                 </button>
             </div>
 
-            <div class="gaget-mobile-drawer-quick">
+            <div class="gw-mobile-scroll">
+            <p class="gw-mobile-kicker">Discover beauty</p>
+            <div class="gaget-mobile-drawer-quick gw-mobile-quick">
                 <a href="{{ route('website.shop') }}" class="gaget-mobile-quick" @click="mobileOpen = false">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6h16M4 12h16M4 18h10"/></svg>
+                    <span class="gw-mobile-quick-ico" aria-hidden="true">✦</span>
                     <span>Shop all</span>
                 </a>
                 <a href="{{ route('website.shop', ['filter' => 'new']) }}" class="gaget-mobile-quick" @click="mobileOpen = false">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 4v16m8-8H4"/></svg>
+                    <span class="gw-mobile-quick-ico" aria-hidden="true">♡</span>
                     <span>New in</span>
                 </a>
-                <a href="{{ route('website.shop', ['filter' => 'combo']) }}" class="gaget-mobile-quick" @click="mobileOpen = false">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 12v8H4v-8M2 7h20v5H2zM12 22V7m0 0H7.5a2.5 2.5 0 110-5C11 2 12 7 12 7zm0 0h4.5a2.5 2.5 0 100-5C13 2 12 7 12 7z"/></svg>
-                    <span>Combos</span>
+                <a href="{{ route('website.shop', ['filter' => 'bestseller']) }}" class="gaget-mobile-quick" @click="mobileOpen = false">
+                    <span class="gw-mobile-quick-ico" aria-hidden="true">★</span>
+                    <span>Best sellers</span>
                 </a>
             </div>
+
+            @if(($allCategories ?? collect())->isNotEmpty())
+                <div class="gw-mobile-cats" aria-label="Shop by category">
+                    @foreach(($allCategories ?? collect())->take(6) as $cat)
+                        <a href="{{ route('website.category', $cat->slug) }}" class="gw-mobile-cat" @click="mobileOpen = false">
+                            @if(filled($cat->image_path ?? null))
+                                <img src="{{ public_storage_url($cat->image_path) }}" alt="" loading="lazy" decoding="async">
+                            @else
+                                <span class="gw-mobile-cat-fallback" aria-hidden="true">{{ mb_strtoupper(mb_substr($cat->name, 0, 1)) }}</span>
+                            @endif
+                            <span>{{ $cat->name }}</span>
+                        </a>
+                    @endforeach
+                </div>
+            @endif
+
+            <p class="gw-mobile-kicker">Menu</p>
+            <nav class="gw-mobile-nav" aria-label="Mobile">
             @forelse($navLinks as $link)
                 @php $navLabel = trim((string) $link->label); @endphp
                 @if(strcasecmp($navLabel, 'Categories') === 0 || strcasecmp($navLabel, 'Category') === 0)
@@ -696,11 +716,13 @@
             @if($hasAboutPage)
                 <a href="{{ route('website.page', 'about-us') }}" class="gaget-mobile-drawer-link" @click="mobileOpen = false">About Us</a>
             @endif
-            <a href="{{ route('website.blogs') }}" class="gaget-mobile-drawer-link" @click="mobileOpen = false">Blog</a>
+            <a href="{{ route('website.blogs') }}" class="gaget-mobile-drawer-link" @click="mobileOpen = false">Beauty journal</a>
             <a href="{{ route('website.contact') }}" class="gaget-mobile-drawer-link" @click="mobileOpen = false">Contact</a>
             @endforelse
+            </nav>
+            </div>
 
-            <div class="gaget-mobile-drawer-foot">
+            <div class="gaget-mobile-drawer-foot gw-mobile-foot">
                 @auth('web')
                     @if(auth('web')->user()->isStorefrontCustomer())
                         <a href="{{ route('website.account') }}" class="gaget-mobile-drawer-cta" @click="mobileOpen = false">My Account</a>
@@ -711,9 +733,9 @@
                         </button>
                     @endif
                 @else
-                    <button type="button" class="gaget-mobile-drawer-cta" @click="mobileOpen = false; openSignIn('login')">Sign in</button>
-                    <a href="{{ route('website.track') }}" class="gaget-mobile-drawer-link">Track an order</a>
-                    <p class="gaget-mobile-drawer-note">No account needed to order — track with your Order ID and phone.</p>
+                    <button type="button" class="gaget-mobile-drawer-cta" @click="mobileOpen = false; openSignIn('login')">Sign in / Register</button>
+                    <a href="{{ route('website.track') }}" class="gw-mobile-track" @click="mobileOpen = false">Track an order</a>
+                    <p class="gaget-mobile-drawer-note">Guest checkout welcome — track with Order ID + phone.</p>
                 @endauth
             </div>
         </div>

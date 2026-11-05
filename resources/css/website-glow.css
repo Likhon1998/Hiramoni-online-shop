@@ -3561,3 +3561,226 @@ body.gaget-store {
     border-color: #E91E63 !important;
 }
 
+/* ═══════════════ MOBILE BEAUTY DRAWER ═══════════════ */
+.gaget-store .gw-mobile-drawer,
+.gaget-store .gaget-mobile-drawer.gw-mobile-drawer {
+    background: rgba(43, 10, 38, .48) !important;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+.gaget-store .gw-mobile-panel,
+.gaget-store .gaget-mobile-drawer-panel.gw-mobile-panel {
+    width: min(100vw, 390px) !important;
+    max-width: 100vw !important;
+    height: 100% !important;
+    max-height: 100dvh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background:
+        radial-gradient(ellipse 80% 40% at 0% 0%, rgba(248, 187, 208, .55), transparent 55%),
+        linear-gradient(180deg, #FFF8FB 0%, #FFF5F8 42%, #FFFFFF 100%) !important;
+    color: var(--gw-ink) !important;
+    box-shadow: 18px 0 50px rgba(43, 10, 38, .22) !important;
+    border-right: 1px solid rgba(245, 214, 229, .9);
+}
+.gaget-store .gw-mobile-head,
+.gaget-store .gaget-mobile-drawer-head.gw-mobile-head {
+    flex-shrink: 0;
+    margin: 0 !important;
+    padding: 16px 16px 14px !important;
+    border-bottom: 1px solid rgba(245, 214, 229, .95) !important;
+    background: linear-gradient(135deg, rgba(255,245,248,.98), rgba(252,228,236,.88));
+}
+.gaget-store .gaget-mobile-drawer-close {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    border: 1px solid #F8BBD0 !important;
+    background: #fff !important;
+    color: #C2185B !important;
+}
+.gaget-store .gw-mobile-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 14px 14px 18px;
+}
+.gaget-store .gw-mobile-kicker {
+    margin: 4px 2px 10px;
+    font-family: var(--bb-font-display), Georgia, serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: #C2185B;
+}
+.gaget-store .gw-mobile-quick,
+.gaget-store .gaget-mobile-drawer-quick.gw-mobile-quick {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    margin: 0 0 16px !important;
+}
+.gaget-store .gw-mobile-quick .gaget-mobile-quick {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    min-height: 72px !important;
+    padding: 10px 6px !important;
+    border-radius: 16px !important;
+    border: 1px solid #F8BBD0 !important;
+    background: linear-gradient(180deg, #FFFFFF, #FFF0F5) !important;
+    color: #3A1528 !important;
+    text-decoration: none !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    box-shadow: 0 8px 18px rgba(233, 30, 99, .07);
+}
+.gaget-store .gw-mobile-quick-ico {
+    color: #E91E63;
+    font-size: 15px;
+    line-height: 1;
+}
+.gaget-store .gw-mobile-cats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px 8px;
+    margin: 0 0 18px;
+}
+.gaget-store .gw-mobile-cat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    color: #3A1528;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.25;
+}
+.gaget-store .gw-mobile-cat img,
+.gaget-store .gw-mobile-cat-fallback {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #FCE4EC;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px #F8BBD0, 0 8px 16px rgba(233, 30, 99, .12);
+}
+.gaget-store .gw-mobile-cat-fallback {
+    display: grid;
+    place-items: center;
+    color: #C2185B;
+    font-family: var(--bb-font-display), Georgia, serif;
+    font-size: 1.1rem;
+}
+.gaget-store .gw-mobile-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background: rgba(255,255,255,.72);
+    border: 1px solid #F5D6E5;
+    border-radius: 18px;
+    padding: 6px;
+    box-shadow: 0 10px 24px rgba(136, 14, 79, .05);
+}
+.gaget-store .gw-mobile-nav .gaget-mobile-drawer-link,
+.gaget-store .gw-mobile-nav .gaget-mobile-accordion-btn {
+    color: #2A1524 !important;
+    font-size: 14.5px !important;
+    font-weight: 650 !important;
+    border-radius: 12px !important;
+    padding: 13px 12px !important;
+}
+.gaget-store .gw-mobile-nav .gaget-mobile-drawer-link:hover,
+.gaget-store .gw-mobile-nav .gaget-mobile-drawer-link:active,
+.gaget-store .gw-mobile-nav .gaget-mobile-accordion-btn:hover,
+.gaget-store .gw-mobile-nav .gaget-mobile-accordion-btn.is-open {
+    background: #FFF0F5 !important;
+    color: #C2185B !important;
+}
+.gaget-store .gw-mobile-nav .gaget-mobile-accordion {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+}
+.gaget-store .gw-mobile-nav .gaget-mobile-accordion-panel {
+    background: #FFF8FB;
+    border-radius: 12px;
+    margin: 0 4px 6px;
+    padding: 4px;
+}
+.gaget-store .gw-mobile-nav .gaget-mobile-drawer-link--sub {
+    color: #5C4650 !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+}
+.gaget-store .gw-mobile-nav .gaget-mobile-accordion-chevron {
+    color: #E91E63;
+}
+.gaget-store .gw-mobile-foot,
+.gaget-store .gaget-mobile-drawer-foot.gw-mobile-foot {
+    flex-shrink: 0;
+    margin: 0 !important;
+    padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+    border-top: 1px solid #F5D6E5 !important;
+    background: linear-gradient(180deg, #FFFFFF, #FFF5F8);
+}
+.gaget-store .gw-mobile-foot .gaget-mobile-drawer-cta {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    min-height: 48px !important;
+    border: 0 !important;
+    border-radius: 999px !important;
+    background: linear-gradient(135deg, #E91E63, #C2185B) !important;
+    color: #fff !important;
+    font-size: 14.5px !important;
+    font-weight: 800 !important;
+    text-decoration: none !important;
+    box-shadow: 0 12px 24px rgba(194, 24, 91, .28) !important;
+}
+.gaget-store .gw-mobile-track {
+    display: block;
+    margin-top: 10px;
+    text-align: center;
+    color: #C2185B !important;
+    font-size: 13.5px;
+    font-weight: 700;
+    text-decoration: none;
+}
+.gaget-store .gw-mobile-foot .gaget-mobile-drawer-note {
+    margin: 8px 0 0 !important;
+    text-align: center;
+    color: #8A6B7A !important;
+    font-size: 11.5px !important;
+    line-height: 1.45 !important;
+}
+.gaget-store .gw-mobile-foot .gaget-mobile-drawer-signout {
+    margin-top: 8px;
+    width: 100%;
+    min-height: 42px;
+    border-radius: 999px;
+    border: 1px solid #F8BBD0;
+    background: #fff;
+    color: #C2185B;
+    font-weight: 700;
+}
+
+@media (max-width: 420px) {
+    .gaget-store .gw-mobile-panel,
+    .gaget-store .gaget-mobile-drawer-panel.gw-mobile-panel {
+        width: 100vw !important;
+        border-right: 0 !important;
+        border-radius: 0 !important;
+    }
+}
+
