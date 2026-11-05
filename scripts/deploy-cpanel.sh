@@ -149,14 +149,18 @@ fi
 link_web_root
 
 echo "==> Optimize"
+php artisan optimize:clear || true
 php artisan config:clear
 php artisan route:clear
 php artisan view:clear
 php artisan cache:clear || true
+php artisan event:clear || true
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 rm -f public/hot
+# Ensure locale route exists in cached routes (storefront header depends on it)
+php artisan route:list --name=locale.switch >/dev/null
 
 echo ""
 echo "Deploy complete → $APP_URL"

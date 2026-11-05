@@ -61,14 +61,22 @@
                     <button type="button" @click="openSignIn('login')">{{ __('website.topbar.login_register') }}</button>
                 @endauth
                 <span class="gw-topbar-sep" aria-hidden="true"></span>
+                @php
+                    $localeBnUrl = \Illuminate\Support\Facades\Route::has('locale.switch')
+                        ? route('locale.switch', 'bn')
+                        : url('/locale/bn');
+                    $localeEnUrl = \Illuminate\Support\Facades\Route::has('locale.switch')
+                        ? route('locale.switch', 'en')
+                        : url('/locale/en');
+                @endphp
                 <div class="gw-lang-switch" role="group" aria-label="{{ __('website.lang.aria') }}">
-                    <a href="{{ route('locale.switch', 'bn') }}"
+                    <a href="{{ $localeBnUrl }}"
                        class="gw-lang-link {{ app()->getLocale() === 'bn' ? 'is-active' : '' }}"
                        hreflang="bn"
                        lang="bn"
                        @if(app()->getLocale() === 'bn') aria-current="true" @endif>বাং</a>
                     <span class="gw-lang-divider" aria-hidden="true">|</span>
-                    <a href="{{ route('locale.switch', 'en') }}"
+                    <a href="{{ $localeEnUrl }}"
                        class="gw-lang-link {{ app()->getLocale() === 'en' ? 'is-active' : '' }}"
                        hreflang="en"
                        lang="en"
