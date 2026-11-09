@@ -1,7 +1,12 @@
 @php
     $ws = app(\App\Services\WebsiteService::class);
     $images = $ws->productImageUrls($product);
-    $img = $images[0];
+    $comboPreviews = $product->is_combo ? $ws->comboItemPreviews($product) : [];
+    $comboGallery = collect($comboPreviews)->pluck('image')->filter()->unique()->values()->all();
+    if ($comboGallery !== []) {
+        $images = $comboGallery;
+    }
+    $img = $images[0] ?? $ws->placeholderImageUrl();
     $reviews = $reviews ?? collect();
     $variantOptions = $variantOptions ?? ['groups' => [], 'specs' => []];
     $variantGroups = $variantOptions['groups'] ?? [];
@@ -58,7 +63,7 @@
      }">
 
     {{-- Gallery --}}
-    <div class="pd-gallery">
+    <div class="pd-gallery {{ $product->is_combo ? 'pd-gallery--combo' : '' }}">
         <div class="pd-zoom-stage"
              @mouseenter="onZoomEnter()"
              @mouseleave="onZoomLeave()"
@@ -209,9 +214,17 @@
                     <p class="pd-combo-subtitle">{{ __('website.product.whats_included') }}</p>
                     <ol class="pd-combo-list">
                         @foreach($comboItems as $item)
+                            @php
+                                $qty = 1;
+                                $text = $item;
+                                if (preg_match('/^\s*(\d+)\s*[x×]\s*(.+)$/u', $item, $m)) {
+                                    $qty = (int) $m[1];
+                                    $text = trim($m[2]);
+                                }
+                            @endphp
                             <li>
-                                <span class="pd-combo-num" aria-hidden="true">{{ $loop->iteration }}</span>
-                                <span>{{ $item }}</span>
+                                <span class="pd-combo-qty">{{ $qty }}x</span>
+                                <span class="pd-combo-text">{{ $text }}</span>
                             </li>
                         @endforeach
                     </ol>

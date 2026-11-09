@@ -652,6 +652,126 @@ class WebsiteService
         return asset('images/placeholder-product.svg');
     }
 
+    /** @var array<int, \Illuminate\Support\Collection<int, Product>> */
+    private array $comboMatchCatalog = [];
+
+    /**
+     * One preview tile per combo line: matched catalog photo when the item exists in the shop.
+     *
+     * @return list<array{label: string, name: string, image: ?string, url: ?string}>
+     */
+    public function comboItemPreviews($product): array
+    {
+        $items = $product instanceof Product ? $product->comboItemList() : [];
+        if ($items === []) {
+            $name = $product instanceof Product ? $product->storefrontDisplayName() : 'Combo';
+
+            return [[
+                'label' => $name,
+                'name' => $name,
+                'image' => $this->productImageUrl($product),
+                'url' => null,
+            ]];
+        }
+
+        $catalog = $this->comboMatchCatalogFor((int) $product->shop_id);
+        $used = [];
+        $previews = [];
+
+        foreach ($items as $label) {
+            $match = $this->bestComboItemMatch((string) $label, $catalog, $product, $used);
+            if ($match) {
+                $used[(int) $match->id] = true;
+            }
+            $previews[] = [
+                'label' => $label,
+                'name' => $match ? $match->storefrontDisplayName() : $label,
+                'image' => $match ? $this->productImageUrl($match) : null,
+                'url' => $match ? route('website.product', $match) : null,
+            ];
+        }
+
+        return $previews;
+    }
+
+    /** @return \Illuminate\Support\Collection<int, Product> */
+    private function comboMatchCatalogFor(int $shopId)
+    {
+        if ($shopId < 1) {
+            return collect();
+        }
+
+        return $this->comboMatchCatalog[$shopId] ??= Product::query()
+            ->with('galleryImages')
+            ->where('shop_id', $shopId)
+            ->where(function ($q) {
+                $q->where('is_combo', false)->orWhereNull('is_combo');
+            })
+            ->availableForSale()
+            ->get();
+    }
+
+    /**
+     * @param  \Illuminate\Support\Collection<int, Product>  $catalog
+     * @param  array<int, true>  $used
+     */
+    private function bestComboItemMatch(string $label, $catalog, Product $combo, array $used): ?Product
+    {
+        $best = null;
+        $bestScore = 0.0;
+        $needleTokens = $this->comboItemTokens($label);
+        $needleKey = $this->comboItemKey($label);
+
+        foreach ($catalog as $candidate) {
+            if ((int) $candidate->id === (int) $combo->id || isset($used[(int) $candidate->id])) {
+                continue;
+            }
+
+            $name = $candidate->storefrontDisplayName();
+            $hayTokens = $this->comboItemTokens($name);
+            $hayKey = $this->comboItemKey($name);
+            $shared = count(array_intersect($needleTokens, $hayTokens));
+            if ($shared === 0 && $needleKey === '') {
+                continue;
+            }
+
+            $union = max(count($needleTokens), count($hayTokens), 1);
+            $score = $shared / $union;
+            $contained = $needleKey !== '' && $hayKey !== '' && (str_contains($hayKey, $needleKey) || str_contains($needleKey, $hayKey));
+            if ($contained) {
+                $score = max($score, 0.9);
+            }
+            if ((int) $candidate->brand_id && (int) $candidate->brand_id === (int) $combo->brand_id) {
+                $score += 0.08;
+            }
+            if ($score > $bestScore && ($contained || ($shared >= 2 && $score >= 0.5))) {
+                $best = $candidate;
+                $bestScore = $score;
+            }
+        }
+
+        return $best;
+    }
+
+    /** @return list<string> */
+    private function comboItemTokens(string $label): array
+    {
+        $label = strtolower($label);
+        $label = preg_replace('/^\s*\d+\s*[x×]\s*/u', '', $label) ?? $label;
+        $label = preg_replace('/\b\d+([.,]\d+)?\s*(ml|g|gm|kg|oz|mm|cm)\b/i', '', $label) ?? $label;
+        $words = preg_split('/[^a-z0-9]+/i', $label) ?: [];
+
+        return array_values(array_unique(array_filter(
+            $words,
+            fn ($word) => strlen((string) $word) > 2
+        )));
+    }
+
+    private function comboItemKey(string $label): string
+    {
+        return implode('', $this->comboItemTokens($label));
+    }
+
     /** All product gallery URLs (uploaded images, then a local placeholder). */
     public function productImageUrls($product): array
     {

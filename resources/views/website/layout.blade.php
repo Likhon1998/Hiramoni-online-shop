@@ -1029,8 +1029,8 @@
 @endphp
 <div x-show="checkoutOpen" x-cloak class="fixed inset-0 z-[130] flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bb-modal-backdrop absolute inset-0 bg-black/50" @click="checkoutStep !== 'success' && (checkoutOpen=false)"></div>
-    <div class="bb-modal gw-auth-modal relative bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md max-h-[92vh] overflow-y-auto"
-         :class="checkoutStep === 'success' && 'overflow-hidden'">
+    <div class="bb-modal gw-auth-modal relative bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full"
+         :class="checkoutStep === 'order' ? 'gw-checkout-modal' : (checkoutStep === 'success' ? 'max-w-md overflow-hidden' : 'max-w-md max-h-[92vh] overflow-y-auto')">
         <button type="button" x-show="checkoutStep !== 'success'" @click="checkoutOpen=false" class="gw-auth-close" aria-label="Close">&times;</button>
 
         {{-- Auth step (standalone account OR checkout) --}}
@@ -1102,11 +1102,15 @@
         </div>
 
         {{-- Order step --}}
-        <div x-show="checkoutStep==='order'" x-cloak class="p-4 sm:p-6">
-            <h3 class="text-xl font-bold text-slate-900 pr-8">{{ __('website.checkout.place_order') }}</h3>
-            <p class="text-sm text-slate-500 mt-1 mb-4"><span x-text="cartCount"></span> item(s) · Subtotal <span class="font-semibold text-slate-800" x-text="currency + Math.round(Number(cartTotal) || 0).toLocaleString()"></span></p>
+        <div x-show="checkoutStep==='order'" x-cloak class="gw-checkout">
+            <div class="gw-checkout-head">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-900 pr-8">{{ __('website.checkout.place_order') }}</h3>
+                    <p class="text-sm text-slate-500 mt-1"><span x-text="cartCount"></span> item(s) · Subtotal <span class="font-semibold text-slate-800" x-text="currency + Math.round(Number(cartTotal) || 0).toLocaleString()"></span></p>
+                </div>
+            </div>
 
-            <div x-show="!isLoggedIn" class="bb-guest-note mb-4">
+            <div x-show="!isLoggedIn" class="bb-guest-note gw-checkout-guest">
                 <span class="bb-guest-note__icon" aria-hidden="true">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                 </span>
@@ -1117,97 +1121,102 @@
                 <button type="button" @click="signInForCheckout()" class="bb-guest-note__link">{{ __('website.checkout.sign_in') }}</button>
             </div>
 
-            <div class="space-y-3">
-                <div>
-                    <label class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">{{ __('website.checkout.full_name') }} <span class="text-rose-500">*</span></label>
-                    <input x-model="checkout.name" type="text" required autocomplete="name" placeholder="{{ __('website.checkout.full_name_ph') }}" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm">
-                </div>
-                <div>
-                    <label class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">{{ __('website.checkout.phone') }} <span class="text-rose-500">*</span></label>
-                    <input x-model="checkout.phone" @change="syncCart({ silent: true })" type="tel" required autocomplete="tel" placeholder="01XXXXXXXXX" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm">
-                </div>
-                <div>
-                    <label class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">{{ __('website.checkout.address') }} <span class="text-rose-500">*</span></label>
-                    <textarea x-model="checkout.address"
-                              required
-                              autocomplete="street-address"
-                              placeholder="{{ __('website.checkout.address_ph') }}"
-                              class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm"
-                              :class="!String(checkout.address || '').trim() && orderMessage && orderMessage.toLowerCase().includes('address') ? 'border-rose-400 ring-1 ring-rose-200' : ''"
-                              rows="3"></textarea>
-                    <p class="mt-1 text-[11px] text-slate-500">{{ __('website.checkout.address_hint') }}</p>
-                </div>
-
-                <div>
-                    <p class="mb-1.5 text-xs font-bold uppercase tracking-wide text-slate-500">{{ __('website.checkout.delivery_area') }}</p>
-                    <div class="grid grid-cols-2 gap-2">
-                        <template x-for="zone in deliveryZones" :key="zone.code">
-                            <button type="button" @click="checkout.zone = zone.code"
-                                    class="rounded-xl border px-3 py-2.5 text-left text-xs font-semibold transition"
-                                    :class="deliveryQuote.zone === zone.code ? 'border-orange-500 bg-orange-50 text-slate-900 ring-1 ring-orange-200' : 'border-slate-200 bg-white text-slate-600'">
-                                <span class="block" x-text="zone.name"></span>
-                                <span class="mt-0.5 block text-[11px] font-medium text-slate-500" x-text="currency + Number(zone.fee || 0).toFixed(0)"></span>
-                                <span x-show="zone.note" class="mt-0.5 block text-[10px] font-medium text-slate-400" x-text="zone.note"></span>
-                            </button>
-                        </template>
+            <div class="gw-checkout-grid">
+                <div class="gw-checkout-col space-y-3">
+                    <div class="gw-checkout-pair">
+                        <div>
+                            <label class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">{{ __('website.checkout.full_name') }} <span class="text-rose-500">*</span></label>
+                            <input x-model="checkout.name" type="text" required autocomplete="name" placeholder="{{ __('website.checkout.full_name_ph') }}" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">{{ __('website.checkout.phone') }} <span class="text-rose-500">*</span></label>
+                            <input x-model="checkout.phone" @change="syncCart({ silent: true })" type="tel" required autocomplete="tel" placeholder="01XXXXXXXXX" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm">
+                        </div>
                     </div>
-                </div>
-
-                <div class="rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-xs space-y-1.5">
-                    <div class="flex justify-between"><span class="text-slate-500">{{ __('website.checkout.subtotal') }}</span><span class="font-semibold" x-text="currency + Math.round(Number(deliveryQuote.subtotal) || 0).toLocaleString()"></span></div>
-                    <div class="flex justify-between">
-                        <span class="text-slate-500">{{ __('website.checkout.delivery') }} (<span x-text="deliveryQuote.zoneLabel"></span>)</span>
-                        <span class="font-semibold" x-text="deliveryQuote.isFree ? @js(__('website.checkout.free')) : (currency + Math.round(Number(deliveryQuote.deliveryFee) || 0).toLocaleString())"></span>
+                    <div>
+                        <label class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">{{ __('website.checkout.address') }} <span class="text-rose-500">*</span></label>
+                        <textarea x-model="checkout.address"
+                                  required
+                                  autocomplete="street-address"
+                                  placeholder="{{ __('website.checkout.address_ph') }}"
+                                  class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm"
+                                  :class="!String(checkout.address || '').trim() && orderMessage && orderMessage.toLowerCase().includes('address') ? 'border-rose-400 ring-1 ring-rose-200' : ''"
+                                  rows="2"></textarea>
+                        <p class="mt-1 text-[11px] text-slate-500">{{ __('website.checkout.address_hint') }}</p>
                     </div>
-                    <p x-show="deliveryQuote.freeReason" x-text="deliveryQuote.freeReason" class="text-[11px] text-emerald-600 font-medium"></p>                    <div class="flex justify-between border-t border-slate-200 pt-1.5 text-sm">
-                        <span class="font-bold text-slate-800">{{ __('website.checkout.total') }}</span>
-                        <span class="font-bold text-slate-900" x-text="currency + Math.round(Number(deliveryQuote.grandTotal) || 0).toLocaleString()"></span>
-                    </div>
-                </div>
-
-                <div x-show="deliveryQuote.codEnabled || deliveryQuote.confirmationEnabled">
-                    <p class="mb-1.5 text-xs font-bold uppercase tracking-wide text-slate-500">{{ __('website.checkout.payment') }}</p>
-                    <div class="space-y-2">
-                        <label x-show="deliveryQuote.codEnabled" class="flex items-start gap-2.5 rounded-xl border px-3 py-2.5 cursor-pointer"
-                               :class="checkout.payment_method==='cash_on_delivery' ? 'border-orange-500 bg-orange-50/70' : 'border-slate-200 bg-white'">
-                            <input type="radio" class="mt-0.5" value="cash_on_delivery" x-model="checkout.payment_method">
-                            <span>
-                                <span class="block text-xs font-bold text-slate-900">{{ __('website.checkout.cod') }}</span>
-                                <span class="block text-[11px] text-slate-500">{{ __('website.checkout.cod_hint') }}</span>
-                            </span>
-                        </label>
-                        <label x-show="deliveryQuote.confirmationEnabled" class="flex items-start gap-2.5 rounded-xl border px-3 py-2.5 cursor-pointer"
-                               :class="checkout.payment_method==='confirmation_charge' ? 'border-orange-500 bg-orange-50/70' : 'border-slate-200 bg-white'">
-                            <input type="radio" class="mt-0.5" value="confirmation_charge" x-model="checkout.payment_method">
-                            <span>
-                                <span class="block text-xs font-bold text-slate-900">{{ __('website.checkout.confirmation_charge') }}</span>
-                                <span class="block text-[11px] text-slate-500">
-                                    Pay <span class="font-semibold" x-text="currency+Number(deliveryConfig.confirmation_amount||0).toFixed(0)"></span> now ·
-                                    balance <span class="font-semibold" x-text="currency + Math.round(Number(deliveryQuote.amountDueLater) || 0).toLocaleString()"></span> on delivery
-                                </span>
-                            </span>
-                        </label>
-                        <div x-show="deliveryQuote.paymentMethod === 'confirmation_charge'" x-cloak class="rounded-xl border border-orange-200 bg-orange-50/60 px-3 py-2.5 space-y-2">
-                            <p x-show="deliveryConfig.confirmation_instructions" class="text-[11.5px] leading-relaxed text-slate-700 whitespace-pre-line" x-text="deliveryConfig.confirmation_instructions"></p>
-                            <label class="block">
-                                <span class="mb-1 block text-[11px] font-bold uppercase tracking-wide text-slate-500">{{ __('website.checkout.txn_id') }} <span class="text-rose-500">*</span></span>
-                                <input x-model="checkout.payment_reference" type="text" maxlength="100" autocomplete="off" placeholder="e.g. 9A7B6C5D4E"
-                                       class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-white">
-                            </label>
+                    <div>
+                        <p class="mb-1.5 text-xs font-bold uppercase tracking-wide text-slate-500">{{ __('website.checkout.delivery_area') }}</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <template x-for="zone in deliveryZones" :key="zone.code">
+                                <button type="button" @click="checkout.zone = zone.code"
+                                        class="rounded-xl border px-3 py-2.5 text-left text-xs font-semibold transition"
+                                        :class="deliveryQuote.zone === zone.code ? 'border-rose-400 bg-rose-50 text-slate-900 ring-1 ring-rose-200' : 'border-slate-200 bg-white text-slate-600'">
+                                    <span class="block" x-text="zone.name"></span>
+                                    <span class="mt-0.5 block text-[11px] font-medium text-slate-500" x-text="currency + Number(zone.fee || 0).toFixed(0)"></span>
+                                    <span x-show="zone.note" class="mt-0.5 block text-[10px] font-medium text-slate-400" x-text="zone.note"></span>
+                                </button>
+                            </template>
                         </div>
                     </div>
                 </div>
 
-                <button type="button" @click="placeOrder()" :disabled="ordering" class="w-full gaget-btn-primary text-center disabled:opacity-50">
-                    <span x-text="ordering
-                        ? @js(__('website.checkout.placing'))
-                        : (deliveryQuote.paymentMethod==='confirmation_charge'
-                            ? ('Confirm · pay ' + currency + deliveryQuote.confirmationAmount.toFixed(0) + ' now')
-                            : @js(__('website.checkout.confirm_cod')))"></span>
-                </button>
-            </div>
+                <div class="gw-checkout-col space-y-3">
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-xs space-y-1.5">
+                        <div class="flex justify-between"><span class="text-slate-500">{{ __('website.checkout.subtotal') }}</span><span class="font-semibold" x-text="currency + Math.round(Number(deliveryQuote.subtotal) || 0).toLocaleString()"></span></div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">{{ __('website.checkout.delivery') }} (<span x-text="deliveryQuote.zoneLabel"></span>)</span>
+                            <span class="font-semibold" x-text="deliveryQuote.isFree ? @js(__('website.checkout.free')) : (currency + Math.round(Number(deliveryQuote.deliveryFee) || 0).toLocaleString())"></span>
+                        </div>
+                        <p x-show="deliveryQuote.freeReason" x-text="deliveryQuote.freeReason" class="text-[11px] text-emerald-600 font-medium"></p>
+                        <div class="flex justify-between border-t border-slate-200 pt-1.5 text-sm">
+                            <span class="font-bold text-slate-800">{{ __('website.checkout.total') }}</span>
+                            <span class="font-bold text-slate-900" x-text="currency + Math.round(Number(deliveryQuote.grandTotal) || 0).toLocaleString()"></span>
+                        </div>
+                    </div>
 
-            <p x-show="orderMessage" x-text="orderMessage" class="mt-3 text-sm text-center" :class="orderSuccess ? 'text-green-600' : 'text-red-600'"></p>
+                    <div x-show="deliveryQuote.codEnabled || deliveryQuote.confirmationEnabled">
+                        <p class="mb-1.5 text-xs font-bold uppercase tracking-wide text-slate-500">{{ __('website.checkout.payment') }}</p>
+                        <div class="space-y-2">
+                            <label x-show="deliveryQuote.codEnabled" class="flex items-start gap-2.5 rounded-xl border px-3 py-2.5 cursor-pointer"
+                                   :class="checkout.payment_method==='cash_on_delivery' ? 'border-rose-400 bg-rose-50/70' : 'border-slate-200 bg-white'">
+                                <input type="radio" class="mt-0.5" value="cash_on_delivery" x-model="checkout.payment_method">
+                                <span>
+                                    <span class="block text-xs font-bold text-slate-900">{{ __('website.checkout.cod') }}</span>
+                                    <span class="block text-[11px] text-slate-500">{{ __('website.checkout.cod_hint') }}</span>
+                                </span>
+                            </label>
+                            <label x-show="deliveryQuote.confirmationEnabled" class="flex items-start gap-2.5 rounded-xl border px-3 py-2.5 cursor-pointer"
+                                   :class="checkout.payment_method==='confirmation_charge' ? 'border-rose-400 bg-rose-50/70' : 'border-slate-200 bg-white'">
+                                <input type="radio" class="mt-0.5" value="confirmation_charge" x-model="checkout.payment_method">
+                                <span>
+                                    <span class="block text-xs font-bold text-slate-900">{{ __('website.checkout.confirmation_charge') }}</span>
+                                    <span class="block text-[11px] text-slate-500">
+                                        Pay <span class="font-semibold" x-text="currency+Number(deliveryConfig.confirmation_amount||0).toFixed(0)"></span> now ·
+                                        balance <span class="font-semibold" x-text="currency + Math.round(Number(deliveryQuote.amountDueLater) || 0).toLocaleString()"></span> on delivery
+                                    </span>
+                                </span>
+                            </label>
+                            <div x-show="deliveryQuote.paymentMethod === 'confirmation_charge'" x-cloak class="rounded-xl border border-rose-200 bg-rose-50/60 px-3 py-2.5 space-y-2">
+                                <p x-show="deliveryConfig.confirmation_instructions" class="text-[11.5px] leading-relaxed text-slate-700 whitespace-pre-line" x-text="deliveryConfig.confirmation_instructions"></p>
+                                <label class="block">
+                                    <span class="mb-1 block text-[11px] font-bold uppercase tracking-wide text-slate-500">{{ __('website.checkout.txn_id') }} <span class="text-rose-500">*</span></span>
+                                    <input x-model="checkout.payment_reference" type="text" maxlength="100" autocomplete="off" placeholder="e.g. 9A7B6C5D4E"
+                                           class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-white">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" @click="placeOrder()" :disabled="ordering" class="w-full gaget-btn-primary text-center disabled:opacity-50">
+                        <span x-text="ordering
+                            ? @js(__('website.checkout.placing'))
+                            : (deliveryQuote.paymentMethod==='confirmation_charge'
+                                ? ('Confirm · pay ' + currency + deliveryQuote.confirmationAmount.toFixed(0) + ' now')
+                                : @js(__('website.checkout.confirm_cod')))"></span>
+                    </button>
+                    <p x-show="orderMessage" x-text="orderMessage" class="text-sm text-center" :class="orderSuccess ? 'text-green-600' : 'text-red-600'"></p>
+                </div>
+            </div>
         </div>
 
         {{-- Success step --}}

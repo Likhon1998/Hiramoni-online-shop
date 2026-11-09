@@ -126,213 +126,199 @@
     {{-- All KPIs: 7 + 7 = exactly 2 rows on xl+ --}}
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 {{ $retail ? 'xl:grid-cols-7' : 'xl:grid-cols-6' }} gap-2.5">
         @if($retail)
-        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#7657c9] to-[#553a9e] px-3 py-2.5 text-white shadow-md shadow-[#4a3026]/15">
-            <div class="pointer-events-none absolute -right-5 -top-6 h-16 w-16 rounded-full bg-white/10"></div>
+        <div class="relative rounded-2xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
             <div class="relative pr-8">
                 <div class="min-w-0">
-                    <p class="text-[10px] font-semibold uppercase tracking-wide text-white/95">POS Sales</p>
-                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words">{{ $money($bs['pos_sales'] ?? 0) }}</p>
-                    <p class="mt-0.5 text-[10px] leading-snug text-white/95">Today (counter)</p>
+                    <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">POS Sales</p>
+                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words text-slate-900">{{ $money($bs['pos_sales'] ?? 0) }}</p>
+                    <p class="mt-0.5 text-[10px] leading-snug text-slate-400">Today (counter)</p>
                 </div>
-                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-white/15">
+                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                 </div>
             </div>
         </div>
         @endif
 
-        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#b84f2c] to-[#963d20] px-3 py-2.5 text-white shadow-md shadow-[#4a3026]/15">
-            <div class="pointer-events-none absolute -right-5 -top-6 h-16 w-16 rounded-full bg-white/10"></div>
+        <div class="relative rounded-2xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
             <div class="relative pr-8">
                 <div class="min-w-0">
-                    <p class="text-[10px] font-semibold uppercase tracking-wide text-white/95">Online Sales</p>
-                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words">{{ $money($bs['online_sales'] ?? 0) }}</p>
-                    <p class="mt-0.5 text-[10px] leading-snug text-white/95">Today (website)</p>
+                    <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Online Sales</p>
+                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words text-slate-900">{{ $money($bs['online_sales'] ?? 0) }}</p>
+                    <p class="mt-0.5 text-[10px] leading-snug text-slate-400">Today (website)</p>
                 </div>
-                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-white/15">
+                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
                 </div>
             </div>
         </div>
 
         @if($retail)
-        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1d7c6f] to-[#145c52] px-3 py-2.5 text-white shadow-md shadow-[#4a3026]/15">
-            <div class="pointer-events-none absolute -right-5 -top-6 h-16 w-16 rounded-full bg-white/10"></div>
+        <div class="relative rounded-2xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
             <div class="relative pr-8">
                 <div class="min-w-0">
-                    <p class="text-[10px] font-semibold uppercase tracking-wide text-white/95">POS Lifetime</p>
-                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words">{{ $money($bs['pos_lifetime_sales'] ?? 0) }}</p>
-                    <p class="mt-0.5 text-[10px] leading-snug text-white/95">All-time POS</p>
+                    <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">POS Lifetime</p>
+                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words text-slate-900">{{ $money($bs['pos_lifetime_sales'] ?? 0) }}</p>
+                    <p class="mt-0.5 text-[10px] leading-snug text-slate-400">All-time POS</p>
                 </div>
-                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-white/15">
+                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
             </div>
         </div>
         @endif
 
-        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#557a41] to-[#3f5c2f] px-3 py-2.5 text-white shadow-md shadow-[#4a3026]/15">
-            <div class="pointer-events-none absolute -right-5 -top-6 h-16 w-16 rounded-full bg-white/10"></div>
+        <div class="relative rounded-2xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
             <div class="relative pr-8">
                 <div class="min-w-0">
-                    <p class="text-[10px] font-semibold uppercase tracking-wide text-white/95">Online Lifetime</p>
-                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words">{{ $money($bs['online_lifetime_sales'] ?? 0) }}</p>
-                    <p class="mt-0.5 text-[10px] leading-snug text-white/95">All-time website</p>
+                    <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Online Lifetime</p>
+                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words text-slate-900">{{ $money($bs['online_lifetime_sales'] ?? 0) }}</p>
+                    <p class="mt-0.5 text-[10px] leading-snug text-slate-400">All-time website</p>
                 </div>
-                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-white/15">
+                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
                 </div>
             </div>
         </div>
 
-        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#c43d63] to-[#9c2e4e] px-3 py-2.5 text-white shadow-md shadow-[#4a3026]/15">
-            <div class="pointer-events-none absolute -right-5 -top-6 h-16 w-16 rounded-full bg-white/10"></div>
+        <div class="relative rounded-2xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
             <div class="relative pr-8">
                 <div class="min-w-0">
-                    <p class="text-[10px] font-semibold uppercase tracking-wide text-white/95">Returns</p>
-                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words">{{ $money($bs['returns'] ?? 0) }}</p>
-                    <p class="mt-0.5 text-[10px] leading-snug text-white/95">Revenue reversed today</p>
+                    <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Returns</p>
+                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words text-slate-900">{{ $money($bs['returns'] ?? 0) }}</p>
+                    <p class="mt-0.5 text-[10px] leading-snug text-slate-400">Revenue reversed today</p>
                 </div>
-                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-white/15">
+                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-red-50 text-red-700">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
                 </div>
             </div>
         </div>
 
-        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#2a74a4] to-[#1d5a82] px-3 py-2.5 text-white shadow-md shadow-[#4a3026]/15">
-            <div class="pointer-events-none absolute -right-5 -top-6 h-16 w-16 rounded-full bg-white/10"></div>
+        <div class="relative rounded-2xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
             <div class="relative pr-8">
                 <div class="min-w-0">
-                    <p class="text-[10px] font-semibold uppercase tracking-wide text-white/95">Expenses</p>
-                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words">{{ $money($bs['expenses'] ?? 0) }}</p>
-                    <p class="mt-0.5 text-[10px] leading-snug text-white/95">{{ $retail ? 'Petty spend + till shortage' : 'Petty cash spend' }}</p>
+                    <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Expenses</p>
+                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words text-slate-900">{{ $money($bs['expenses'] ?? 0) }}</p>
+                    <p class="mt-0.5 text-[10px] leading-snug text-slate-400">{{ $retail ? 'Petty spend + till shortage' : 'Petty cash spend' }}</p>
                 </div>
-                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-white/15">
+                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50 text-amber-800">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/></svg>
                 </div>
             </div>
         </div>
 
-        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#7a5f53] to-[#4a3830] px-3 py-2.5 text-white shadow-md shadow-[#4a3026]/15">
-            <div class="pointer-events-none absolute -right-5 -top-6 h-16 w-16 rounded-full bg-white/10"></div>
+        <div class="relative rounded-2xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
             <div class="relative pr-8">
                 <div class="min-w-0">
-                    <p class="text-[10px] font-semibold uppercase tracking-wide text-white/95">Net Amount</p>
-                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words">{{ $money($bs['net_amount'] ?? 0) }}</p>
-                    <p class="mt-0.5 text-[10px] leading-snug text-white/95">Sales − returns − expenses</p>
+                    <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Net Amount</p>
+                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words text-slate-900">{{ $money($bs['net_amount'] ?? 0) }}</p>
+                    <p class="mt-0.5 text-[10px] leading-snug text-slate-400">Sales − returns − expenses</p>
                 </div>
-                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-white/15">
+                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-800">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
                 </div>
             </div>
         </div>
 
         @if($retail)
-        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#a8620c] to-[#7f4a08] px-3 py-2.5 text-white shadow-md shadow-[#4a3026]/15">
+        <div class="relative rounded-2xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
             @if(!empty($isAdmin))
                 <a href="{{ route('customers.baki.index') }}" class="absolute inset-0 z-10" aria-label="Customer baki"></a>
             @endif
-            <div class="pointer-events-none absolute -right-5 -top-6 h-16 w-16 rounded-full bg-white/10"></div>
             <div class="relative pr-8">
                 <div class="min-w-0">
-                    <p class="text-[10px] font-semibold uppercase tracking-wide text-white/95">Baki Collection</p>
-                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words">{{ $money($bs['baki_collected'] ?? 0) }}</p>
-                    <p class="mt-0.5 text-[10px] leading-snug text-white/95">Credit paid today</p>
+                    <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Baki Collection</p>
+                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words text-slate-900">{{ $money($bs['baki_collected'] ?? 0) }}</p>
+                    <p class="mt-0.5 text-[10px] leading-snug text-slate-400">Credit paid today</p>
                 </div>
-                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-white/15">
+                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                 </div>
             </div>
         </div>
 
-        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#8a4fc2] to-[#6a3fa3] px-3 py-2.5 text-white shadow-md shadow-[#4a3026]/15">
+        <div class="relative rounded-2xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
             @if(!empty($isAdmin))
                 <a href="{{ route('customers.emi.index') }}" class="absolute inset-0 z-10" aria-label="Customer EMI"></a>
             @endif
-            <div class="pointer-events-none absolute -right-5 -top-6 h-16 w-16 rounded-full bg-white/10"></div>
             <div class="relative pr-8">
                 <div class="min-w-0">
-                    <p class="text-[10px] font-semibold uppercase tracking-wide text-white/95">EMI Collection</p>
-                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words">{{ $money($bs['emi_collected'] ?? 0) }}</p>
-                    <p class="mt-0.5 text-[10px] leading-snug text-white/95">Installments paid today</p>
+                    <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">EMI Collection</p>
+                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words text-slate-900">{{ $money($bs['emi_collected'] ?? 0) }}</p>
+                    <p class="mt-0.5 text-[10px] leading-snug text-slate-400">Installments paid today</p>
                 </div>
-                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-white/15">
+                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                 </div>
             </div>
         </div>
         @endif
 
-        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1d7c6f] to-[#145c52] px-3 py-2.5 text-white shadow-md shadow-[#4a3026]/15">
+        <div class="relative rounded-2xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
             @if(Auth::user()->can('manage accounts'))
                 <a href="{{ route('accounts.petty-cash') }}" class="absolute inset-0 z-10" aria-label="Petty cash"></a>
             @endif
-            <div class="pointer-events-none absolute -right-5 -top-6 h-16 w-16 rounded-full bg-white/10"></div>
             <div class="relative pr-8">
                 <div class="min-w-0">
-                    <p class="text-[10px] font-semibold uppercase tracking-wide text-white/95">Petty Cash</p>
-                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words">{{ $money($bs['petty_cash'] ?? 0) }}</p>
-                    <p class="mt-0.5 text-[10px] leading-snug text-white/95">Safe cash on hand</p>
+                    <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Petty Cash</p>
+                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words text-slate-900">{{ $money($bs['petty_cash'] ?? 0) }}</p>
+                    <p class="mt-0.5 text-[10px] leading-snug text-slate-400">Safe cash on hand</p>
                 </div>
-                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-white/15">
+                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
             </div>
         </div>
 
         @if($retail)
-        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#a8620c] to-[#7f4a08] px-3 py-2.5 text-white shadow-md shadow-[#4a3026]/15">
+        <div class="relative rounded-2xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
             <a href="{{ route('counters.sessions.index') }}" class="absolute inset-0 z-10" aria-label="Cash sessions"></a>
-            <div class="pointer-events-none absolute -right-5 -top-6 h-16 w-16 rounded-full bg-white/10"></div>
             <div class="relative pr-8">
                 <div class="min-w-0">
-                    <p class="text-[10px] font-semibold uppercase tracking-wide text-white/95">Opening Balance</p>
-                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words">{{ $money($bs['opening_balance'] ?? 0) }}</p>
-                    <p class="mt-0.5 text-[10px] leading-snug text-white/95">{{ $openingHint }}</p>
+                    <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Opening Balance</p>
+                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words text-slate-900">{{ $money($bs['opening_balance'] ?? 0) }}</p>
+                    <p class="mt-0.5 text-[10px] leading-snug text-slate-400">{{ $openingHint }}</p>
                 </div>
-                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-white/15">
+                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
                 </div>
             </div>
         </div>
 
-        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#557a41] to-[#3f5c2f] px-3 py-2.5 text-white shadow-md shadow-[#4a3026]/15">
-            <div class="pointer-events-none absolute -right-5 -top-6 h-16 w-16 rounded-full bg-white/10"></div>
+        <div class="relative rounded-2xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
             <div class="relative pr-8">
                 <div class="min-w-0">
-                    <p class="text-[10px] font-semibold uppercase tracking-wide text-white/95">Cash In</p>
-                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words">{{ $money($bs['cash_in'] ?? 0) }}</p>
-                    <p class="mt-0.5 text-[10px] leading-snug text-white/95">{{ $cashInHint }}</p>
+                    <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Cash In</p>
+                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words text-slate-900">{{ $money($bs['cash_in'] ?? 0) }}</p>
+                    <p class="mt-0.5 text-[10px] leading-snug text-slate-400">{{ $cashInHint }}</p>
                 </div>
-                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-white/15">
+                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-800">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
                 </div>
             </div>
         </div>
 
-        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#c43d63] to-[#9c2e4e] px-3 py-2.5 text-white shadow-md shadow-[#4a3026]/15">
-            <div class="pointer-events-none absolute -right-5 -top-6 h-16 w-16 rounded-full bg-white/10"></div>
+        <div class="relative rounded-2xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
             <div class="relative pr-8">
                 <div class="min-w-0">
-                    <p class="text-[10px] font-semibold uppercase tracking-wide text-white/95">Cash Out</p>
-                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words">{{ $money($bs['cash_out'] ?? 0) }}</p>
-                    <p class="mt-0.5 text-[10px] leading-snug text-white/95">{{ $cashOutHint }}</p>
+                    <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Cash Out</p>
+                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words text-slate-900">{{ $money($bs['cash_out'] ?? 0) }}</p>
+                    <p class="mt-0.5 text-[10px] leading-snug text-slate-400">{{ $cashOutHint }}</p>
                 </div>
-                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-white/15">
+                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-red-50 text-red-700">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
                 </div>
             </div>
         </div>
 
-        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1d7c6f] to-[#145c52] px-3 py-2.5 text-white shadow-md shadow-[#4a3026]/15">
-            <div class="pointer-events-none absolute -right-5 -top-6 h-16 w-16 rounded-full bg-white/10"></div>
+        <div class="relative rounded-2xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
             <div class="relative pr-8">
                 <div class="min-w-0">
-                    <p class="text-[10px] font-semibold uppercase tracking-wide text-white/95">Closing Balance</p>
-                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words">{{ $money($bs['closing_balance'] ?? 0) }}</p>
-                    <p class="mt-0.5 text-[10px] leading-snug text-white/95">{{ $closingHint }}</p>
+                    <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Closing Balance</p>
+                    <p class="mt-0.5 text-[15px] sm:text-[16px] font-bold tracking-tight tabular-nums leading-tight break-words text-slate-900">{{ $money($bs['closing_balance'] ?? 0) }}</p>
+                    <p class="mt-0.5 text-[10px] leading-snug text-slate-400">{{ $closingHint }}</p>
                 </div>
-                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-white/15">
+                <div class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
                 </div>
             </div>

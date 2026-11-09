@@ -387,6 +387,34 @@
 </section>
 @endif
 
+{{-- 5. COMBO PACKS --}}
+@php $homeCombos = collect($comboProducts ?? [])->take(6); @endphp
+@if($homeCombos->isNotEmpty())
+<section class="gw-section gw-combos" aria-labelledby="gw-combo-heading">
+    <div class="tn-container">
+        <header class="gw-best-head gw-combo-head">
+            <div class="gw-best-head-copy">
+                <p class="gw-best-eyebrow">{{ __('website.home.combo_eyebrow') }}</p>
+                <h2 id="gw-combo-heading" class="gw-best-title">
+                    {{ __('website.home.combo_title') }} <em>{{ __('website.home.combo_title_accent') }}</em>
+                </h2>
+                <p class="gw-best-sub">{{ $homeCopy['combo_subtitle'] ?? __('website.home.combo_sub') }}</p>
+            </div>
+            <a href="{{ route('website.shop', ['filter' => 'combo']) }}" class="gw-best-view-all">
+                {{ __('website.home.view_all_combos') }}
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 12h14m-6-6 6 6-6 6"/></svg>
+            </a>
+        </header>
+
+        <div class="gw-combo-grid" style="--bb-combo-count: {{ min(6, max(1, $homeCombos->count())) }}">
+            @foreach($homeCombos as $product)
+                @include('website.partials.tn-combo-card', ['product' => $product])
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
+
 {{-- 6. BRANDS --}}
 @php
     $brandMarquee = collect($trustedBrands ?? []);

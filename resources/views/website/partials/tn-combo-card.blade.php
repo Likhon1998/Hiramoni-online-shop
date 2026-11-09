@@ -8,16 +8,11 @@
     $brandLabel = trim((string) ($product->brand_name ?? $product->brand?->name ?? ''));
     $comboItems = $product->comboItemList();
     $comboCount = count($comboItems);
+    $comboPreviews = $ws->comboItemPreviews($product);
+    $comboTiles = count($comboPreviews);
     $comboBlurb = trim((string) ($product->short_description ?? ''));
     $saveAmount = ($compareAt && $compareAt > $currentPrice) ? round($compareAt - $currentPrice, 2) : 0;
     $inStock = ((int) $product->availableStock()) > 0;
-    $variantChips = $product->variantOptions()
-        ->map(fn ($opt) => trim((string) ($opt['value'] ?? '')))
-        ->filter()
-        ->unique()
-        ->take(2)
-        ->values()
-        ->all();
 
     $listItem = [
         'id' => $product->id,
@@ -60,19 +55,20 @@
             </svg>
         </button>
 
-        <a href="{{ route('website.product', $product) }}" class="tn-combo-card__img" aria-label="{{ $displayName }}">
-            <img src="{{ $img }}" alt="{{ $displayName }}" loading="lazy" decoding="async">
+        <a href="{{ route('website.product', $product) }}"
+           class="tn-combo-card__mosaic"
+           style="--tiles: {{ max(1, min(4, $comboTiles)) }}"
+           aria-label="{{ $displayName }}">
+            @foreach($comboPreviews as $preview)
+                <figure class="tn-combo-card__tile {{ empty($preview['image']) ? 'is-empty' : '' }}">
+                    @if(! empty($preview['image']))
+                        <img class="tn-combo-card__photo" src="{{ $preview['image'] }}" alt="{{ $preview['label'] }}" loading="lazy" decoding="async">
+                    @else
+                        <span>{{ $preview['label'] }}</span>
+                    @endif
+                </figure>
+            @endforeach
         </a>
-
-        <div class="tn-combo-card__media-meta">
-            <span class="tn-combo-card__count">
-                <strong>{{ $comboCount > 0 ? $comboCount : '—' }}</strong>
-                {{ $comboCount > 0 ? \Illuminate\Support\Str::plural('item', $comboCount) : 'pack' }}
-            </span>
-            @if(! empty($variantChips))
-                <span class="tn-combo-card__size">{{ implode(' · ', $variantChips) }}</span>
-            @endif
-        </div>
     </div>
 
     <div class="tn-combo-card__body">
@@ -94,16 +90,13 @@
                     <span class="tn-combo-card__includes-count">{{ $comboCount }}</span>
                 </div>
                 <ol class="tn-combo-card__list">
-                    @foreach(array_slice($comboItems, 0, 2) as $item)
+                    @foreach($comboItems as $item)
                         <li>
                             <span class="tn-combo-card__num" aria-hidden="true">{{ $loop->iteration }}</span>
                             <span class="tn-combo-card__item">{{ $item }}</span>
                         </li>
                     @endforeach
                 </ol>
-                @if($comboCount > 2)
-                    <p class="tn-combo-card__more">+{{ $comboCount - 2 }} more</p>
-                @endif
             </div>
         @elseif($comboBlurb !== '')
             <p class="tn-combo-card__blurb">{{ $comboBlurb }}</p>

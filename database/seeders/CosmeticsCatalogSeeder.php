@@ -198,7 +198,7 @@ class CosmeticsCatalogSeeder extends Seeder
 
             foreach ($shades as $shadeIndex => $shade) {
                 $n++;
-                $barcode = 'HM-BTY-'.str_pad((string) $n, 4, '0', STR_PAD_LEFT);
+                $barcode = $item['barcode'] ?? 'HM-BTY-'.str_pad((string) $n, 4, '0', STR_PAD_LEFT);
                 $shadeName = is_array($shade) ? (string) ($shade['name'] ?? '') : '';
                 $shadeHex = is_array($shade) ? (string) ($shade['hex'] ?? '#E91E63') : (string) ($item['accent'] ?? '#E91E63');
                 $displayName = $shadeName !== '' ? $item['name'].' — '.$shadeName : $item['name'];
@@ -251,6 +251,10 @@ class CosmeticsCatalogSeeder extends Seeder
                         'is_new_arrival' => (bool) ($item['new'] ?? false) && $shadeIndex === 0,
                         'is_best_seller' => (bool) ($item['best'] ?? false) && $shadeIndex === 0,
                         'is_featured' => (bool) ($item['featured'] ?? false) && $shadeIndex === 0,
+                        'is_combo' => (bool) ($item['combo'] ?? false),
+                        'combo_items' => ! empty($item['combo'])
+                            ? implode("\n", (array) ($item['combo_items'] ?? []))
+                            : null,
                     ]
                 );
 
@@ -539,6 +543,86 @@ SVG);
                 'accent' => '#1565c0', 'photos' => ['photo-1620916297397-a4a3352a2790', 'photo-1621607512214-68297480165e'],
                 'summary' => 'Lightweight hydrating cream for men’s skin.',
                 'description' => "Dove Men+Care moisturises without a heavy feel.\n\n• Non-greasy finish\n• Helps reduce dryness\n• Daily post-wash cream",
+            ],
+
+            // Combo packs (homepage Beauty Combo Sets)
+            [
+                'barcode' => 'HM-CMB-0001', 'combo' => true, 'featured' => true, 'best' => true,
+                'brand' => "L'Oréal Paris", 'category' => 'Skincare', 'name' => 'Glow Ritual Combo',
+                'cost' => 1480, 'price' => 2490, 'original' => 3050,
+                'accent' => '#1a1a2e', 'photos' => ['photo-1620916562805-4d887089db82', 'photo-1556228578-0d85b1a4d571'],
+                'summary' => 'Serum + day cream kit for a hydrated morning glow.',
+                'description' => "A complete AM skincare ritual from L'Oréal Paris.\n\n• Hyaluronic serum for plump skin\n• Lightweight day cream to lock in moisture\n• Save versus buying each item alone",
+                'combo_items' => [
+                    '1x Revitalift Hyaluronic Serum 30ml',
+                    '1x Revitalift Day Cream 50ml',
+                    'Travel pouch',
+                ],
+            ],
+            [
+                'barcode' => 'HM-CMB-0002', 'combo' => true, 'featured' => true,
+                'brand' => 'Maybelline New York', 'category' => 'Makeup', 'name' => 'Everyday Makeup Combo',
+                'cost' => 1060, 'price' => 2290, 'original' => 2870,
+                'accent' => '#c2185b', 'photos' => ['photo-1596462502278-27bfdc403348', 'photo-1586495777744-4413f21067fa'],
+                'summary' => 'Foundation, mascara and matte lipstick — a full everyday face.',
+                'description' => "Maybelline essentials for a polished everyday look.\n\n• Soft-matte foundation\n• Fan-effect mascara\n• Long-wear matte lipstick",
+                'combo_items' => [
+                    '1x Fit Me Matte + Poreless Foundation',
+                    '1x Lash Sensational Mascara',
+                    '1x SuperStay Matte Ink Lipstick',
+                ],
+            ],
+            [
+                'barcode' => 'HM-CMB-0003', 'combo' => true, 'featured' => true,
+                'brand' => "Pond's", 'category' => 'Skincare', 'name' => 'Bright Start Combo',
+                'cost' => 500, 'price' => 990, 'original' => 1410,
+                'accent' => '#f4c430', 'photos' => ['photo-1556228720-195a672e8a03', 'photo-1570172619644-dfd03ed5d881'],
+                'summary' => 'Brightening cream and moisture whip for a fresh daytime glow.',
+                'description' => "Pond's brightening care in one easy kit.\n\n• Spot-less looking day cream\n• Classic cold cream moisture\n• Ideal first skincare set",
+                'combo_items' => [
+                    '1x Bright Beauty Spot-less Cream',
+                    '1x Cold Cream Moisture Whip',
+                    '1x Mini cleansing towelettes',
+                ],
+            ],
+            [
+                'barcode' => 'HM-CMB-0004', 'combo' => true, 'featured' => true,
+                'brand' => 'Dove', 'category' => 'Body Care', 'name' => 'Soft Skin Body Combo',
+                'cost' => 420, 'price' => 890, 'original' => 1180,
+                'accent' => '#1565c0', 'photos' => ['photo-1570194065650-d99fb4b38b17', 'photo-1608571423902-eed4a9abdd0d'],
+                'summary' => 'Body wash and lotion pairing for all-day softness.',
+                'description' => "Dove body care from shower to moisturise.\n\n• Gentle cleansing wash\n• Nourishing body lotion\n• Soft-skin ritual in one pack",
+                'combo_items' => [
+                    '1x Deep Moisture Body Wash 250ml',
+                    '1x Intensive Repair Lotion 250ml',
+                    '1x Mini beauty bar',
+                ],
+            ],
+            [
+                'barcode' => 'HM-CMB-0005', 'combo' => true, 'featured' => true,
+                'brand' => 'Olay', 'category' => 'Skincare', 'name' => 'Regenerist Night Combo',
+                'cost' => 1680, 'price' => 2890, 'original' => 3480,
+                'accent' => '#b71c1c', 'photos' => ['photo-1620916562805-4d887089db82', 'photo-1570172619644-dfd03ed5d881'],
+                'summary' => 'Micro-sculpting cream plus hydrating cleanser for overnight repair.',
+                'description' => "Olay Regenerist evening ritual in one set.\n\n• Firming night cream\n• Gentle hydrating cleanser\n• Ready-to-gift skincare duo",
+                'combo_items' => [
+                    '1x Regenerist Micro-Sculpting Cream',
+                    '1x Regenerist Hydrating Cleanser',
+                    '1x Sleep mask sachet',
+                ],
+            ],
+            [
+                'barcode' => 'HM-CMB-0006', 'combo' => true, 'featured' => true, 'new' => true,
+                'brand' => 'NYX Professional Makeup', 'category' => 'Makeup', 'name' => 'Night Out Makeup Combo',
+                'cost' => 720, 'price' => 1590, 'original' => 1980,
+                'accent' => '#111827', 'photos' => ['photo-1512496015851-a90fb38ba796', 'photo-1631214524020-7e18db9a8fbd'],
+                'summary' => 'Lip, liner and setting spray kit for nights out.',
+                'description' => "NYX glam essentials packed together.\n\n• Bold lip colour\n• Precise liner\n• Makeup setting spray to lock the look",
+                'combo_items' => [
+                    '1x Soft Matte Lip Cream',
+                    '1x Epic Ink Waterproof Liner',
+                    '1x Setting Spray Matte Finish',
+                ],
             ],
         ];
     }

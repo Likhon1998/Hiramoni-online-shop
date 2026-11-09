@@ -446,4 +446,51 @@ class ProductVariantCatalogTest extends TestCase
 
         $this->assertSame(0, Product::count());
     }
+
+    public function test_combo_card_previews_match_included_catalog_products(): void
+    {
+        Product::create([
+            'shop_id' => $this->shop->id,
+            'name' => 'Soft Matte Lip Cream',
+            'selling_price' => 890,
+            'cost_price' => 400,
+            'stock_quantity' => 10,
+            'image' => 'products/lip.jpg',
+            'is_combo' => false,
+        ]);
+        Product::create([
+            'shop_id' => $this->shop->id,
+            'name' => 'Epic Ink Waterproof Liner',
+            'selling_price' => 650,
+            'cost_price' => 300,
+            'stock_quantity' => 10,
+            'image' => 'products/liner.jpg',
+            'is_combo' => false,
+        ]);
+        Product::create([
+            'shop_id' => $this->shop->id,
+            'name' => 'Setting Spray Matte Finish',
+            'selling_price' => 750,
+            'cost_price' => 320,
+            'stock_quantity' => 10,
+            'image' => 'products/spray.jpg',
+            'is_combo' => false,
+        ]);
+        $combo = Product::create([
+            'shop_id' => $this->shop->id,
+            'name' => 'Night Out Makeup Combo',
+            'selling_price' => 1590,
+            'cost_price' => 720,
+            'stock_quantity' => 5,
+            'is_combo' => true,
+            'combo_items' => "1x Soft Matte Lip Cream\n1x Epic Ink Liner\n1x Matte Finish Setting Spray",
+        ]);
+
+        $previews = app(\App\Services\WebsiteService::class)->comboItemPreviews($combo);
+
+        $this->assertCount(3, $previews);
+        $this->assertStringContainsString('lip.jpg', (string) $previews[0]['image']);
+        $this->assertStringContainsString('liner.jpg', (string) $previews[1]['image']);
+        $this->assertStringContainsString('spray.jpg', (string) $previews[2]['image']);
+    }
 }
