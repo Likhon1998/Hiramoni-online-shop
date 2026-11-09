@@ -16,17 +16,19 @@
             $navIcon = $navSettings->favicon_path
                 ? public_storage_url($navSettings->favicon_path)
                 : ($navSettings->logo_path ? public_storage_url($navSettings->logo_path) : null);
+            if (! $navIcon && is_file(public_path('images/hiramoni-logo-round.png'))) {
+                $navIcon = asset('images/hiramoni-logo-round.png');
+            }
         @endphp
         <a href="{{ route('dashboard') }}" @click="sidebarOpen = false" class="sidebar-brand-link flex items-center gap-2.5 min-w-0 flex-1 overflow-hidden" :title='sidebarCollapsed ? @json($navName) : null'>
             @if($navIcon)
-                <img src="{{ $navIcon }}?v={{ @filemtime(public_storage_path($navSettings->favicon_path ?: $navSettings->logo_path)) ?: time() }}" alt="" class="sidebar-brand-mark h-8 w-8 object-contain shrink-0 rounded-lg" width="32" height="32">
-                <span class="sidebar-brand-text truncate" x-show="!sidebarCollapsed">{{ $navName }}</span>
+                <img src="{{ $navIcon }}?v={{ @filemtime(public_storage_path($navSettings->favicon_path ?: $navSettings->logo_path)) ?: time() }}" alt="" class="sidebar-brand-mark h-8 w-8 object-contain shrink-0" width="32" height="32">
             @else
-                <span class="sidebar-brand-mark sidebar-brand-lottie flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
-                    @include('website.partials.lottie', ['name' => 'bear'])
+                <span class="sidebar-brand-mark flex h-8 w-8 shrink-0 items-center justify-center text-sm font-bold text-[#C2185B]">
+                    {{ mb_strtoupper(mb_substr($navName, 0, 1)) }}
                 </span>
-                <span class="sidebar-brand-text truncate" x-show="!sidebarCollapsed">{{ $navName }}</span>
             @endif
+            <span class="sidebar-brand-text truncate" x-show="!sidebarCollapsed">{{ $navName }}</span>
         </a>
 
         <button type="button"
@@ -306,11 +308,13 @@
     </nav>
 
     <div class="sidebar-foot">
-        <a href="{{ route('home') }}" target="_blank" rel="noopener" class="sidebar-store-card bb-lottie-host" :title="sidebarCollapsed ? 'View store' : null">
-            @include('website.partials.lottie', ['name' => 'rocket', 'hover' => true])
+        <a href="{{ route('home') }}" target="_blank" rel="noopener" class="sidebar-store-card" :title="sidebarCollapsed ? 'View store' : null">
+            <span class="sidebar-store-ico" aria-hidden="true">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </span>
             <span class="sidebar-store-copy min-w-0">
-                <strong class="truncate">View your store</strong>
-                <small>See what shoppers see</small>
+                <strong class="truncate">View storefront</strong>
+                <small>Open the beauty shop</small>
             </span>
         </a>
     </div>

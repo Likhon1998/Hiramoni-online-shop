@@ -8,278 +8,326 @@
     @include('partials.favicon', ['settings' => $settings ?? null])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    {{-- CSS only: app.js CSRF refresh races with form POST on php artisan serve (single-threaded) and causes 419 Page Expired. --}}
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css'])
     <style>
         :root {
-            --bl-cream: #fffaf5;
-            --bl-peach: #fcebdd;
-            --bl-coral: #ec8560;
-            --bl-coral-deep: #b84f2c;
-            --bl-coral-edge: #8a3a20;
-            --bl-purple: #8b6fd6;
-            --bl-purple-deep: #6a4bb8;
-            --bl-lavender: #efe9fc;
-            --bl-sun: #f4b740;
-            --bl-ink: #3a2a24;
-            --bl-muted: #654f45;
-            --bl-line: #f2e6dc;
-            --bl-display: 'Fredoka', 'Nunito', system-ui, sans-serif;
+            --ink: #2b1522;
+            --muted: #8d6b7a;
+            --line: #f0d5e2;
+            --blush: #fff4f8;
+            --rose: #e91e63;
+            --rose-deep: #c2185b;
+            --display: 'Cormorant Garamond', Georgia, serif;
+            --sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
         }
-        .bl-body {
-            min-height: 100vh;
+        * { box-sizing: border-box; }
+        body.bl-body {
             margin: 0;
-            font-family: 'Nunito', ui-sans-serif, system-ui, sans-serif;
-            color: var(--bl-ink);
-            background-color: var(--bl-cream);
-            background-image:
-                radial-gradient(circle at 12px 12px, rgba(236, 133, 96, .12) 2.5px, transparent 3px),
-                radial-gradient(circle at 46px 40px, rgba(139, 111, 214, .12) 2.5px, transparent 3px),
-                radial-gradient(circle at 70px 10px, rgba(143, 163, 126, .14) 2px, transparent 2.5px);
-            background-size: 84px 64px;
+            min-height: 100vh;
+            font-family: var(--sans);
+            color: var(--ink);
+            background:
+                radial-gradient(ellipse 42% 36% at 8% 12%, rgba(244, 143, 177, .34), transparent 70%),
+                radial-gradient(ellipse 38% 40% at 92% 88%, rgba(194, 24, 91, .12), transparent 68%),
+                linear-gradient(165deg, #fff7fa 0%, #ffe9f1 42%, #fff 100%);
             -webkit-font-smoothing: antialiased;
         }
-        .bl-body * { box-sizing: border-box; }
-
         .bl-stage {
-            position: relative;
             min-height: 100vh;
             display: grid;
             place-items: center;
             padding: 28px 16px;
-            overflow: hidden;
         }
-        .bl-blob { position: absolute; border-radius: 50%; filter: blur(2px); pointer-events: none; }
-        .bl-blob--a { width: 340px; height: 340px; left: -120px; top: -110px; background: radial-gradient(circle, #fde1d3 0%, rgba(253, 225, 211, 0) 70%); }
-        .bl-blob--b { width: 380px; height: 380px; right: -140px; bottom: -150px; background: radial-gradient(circle, #e7ddfb 0%, rgba(231, 221, 251, 0) 70%); }
-
         .bl-card {
-            position: relative;
-            z-index: 1;
-            width: min(100%, 820px);
+            width: min(100%, 920px);
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            border-radius: 28px;
+            grid-template-columns: 1.05fr .95fr;
+            border-radius: 32px;
             overflow: hidden;
             background: #fff;
-            border: 2px solid #f6e7dc;
-            box-shadow: 0 7px 0 #f3dccd, 0 28px 60px rgba(214, 150, 118, .18);
-            animation: bl-in .55s cubic-bezier(.22, 1, .36, 1) both;
+            border: 1px solid rgba(233, 30, 99, .08);
+            box-shadow:
+                0 1px 0 rgba(255,255,255,.8) inset,
+                0 28px 70px rgba(136, 14, 79, .12);
         }
-
-        /* Brand side */
         .bl-side {
             position: relative;
+            padding: 36px 34px 32px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            gap: 28px;
-            padding: 30px 30px 26px;
+            gap: 36px;
+            min-height: 520px;
             background:
-                radial-gradient(circle at 18px 18px, rgba(255, 255, 255, .55) 3px, transparent 3.5px) 0 0 / 36px 36px,
-                linear-gradient(150deg, #fde7da 0%, #fbdccd 45%, #efe4fb 100%);
-        }
-        .bl-brand { display: flex; align-items: center; gap: 11px; }
-        .bl-brand__mark {
-            width: 44px;
-            height: 44px;
-            flex-shrink: 0;
-            display: grid;
-            place-items: center;
-            border-radius: 14px;
-            background: #fff;
-            box-shadow: 0 4px 0 #f1cdb9;
+                radial-gradient(circle at 18% 18%, rgba(255,255,255,.7), transparent 42%),
+                radial-gradient(circle at 88% 78%, rgba(233, 30, 99, .16), transparent 46%),
+                linear-gradient(155deg, #fff5f8 0%, #fce4ec 52%, #f8bbd0 100%);
             overflow: hidden;
-            font-family: var(--bl-display);
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--bl-coral-deep);
         }
-        .bl-brand__mark img { width: 30px; height: 30px; object-fit: contain; display: block; }
-        .bl-brand__name {
-            margin: 0;
-            font-family: var(--bl-display);
-            font-size: 17px;
-            font-weight: 600;
-            line-height: 1.15;
-            color: var(--bl-ink);
-        }
-        .bl-brand__sub { margin: 2px 0 0; font-size: 12px; font-weight: 600; color: #7a5a4d; }
-
-        .bl-hello__title {
-            margin: 0 0 10px;
-            font-family: var(--bl-display);
-            font-size: 30px;
-            font-weight: 700;
-            line-height: 1.1;
-            color: var(--bl-ink);
-        }
-        .bl-hello__text { margin: 0; max-width: 30ch; font-size: 14px; font-weight: 600; line-height: 1.55; color: #7a5f53; }
-        .bl-balls { display: flex; align-items: flex-end; gap: 8px; height: 34px; margin-bottom: 14px; }
-        .bl-balls i {
-            display: block;
-            width: 13px;
-            height: 13px;
+        .bl-side::before {
+            content: '';
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            right: -70px;
+            top: -50px;
             border-radius: 50%;
-            background: var(--bl-coral);
-            box-shadow: inset -2px -2px 0 rgba(0, 0, 0, .08);
-            transform-origin: 50% 100%;
-            animation: bl-hop .9s cubic-bezier(.45, 0, .55, 1) infinite;
+            border: 1px solid rgba(255,255,255,.55);
+            background: radial-gradient(circle, rgba(255,255,255,.35), transparent 68%);
+            pointer-events: none;
         }
-        .bl-balls i:nth-child(2) { background: var(--bl-purple); animation-delay: .14s; }
-        .bl-balls i:nth-child(3) { background: var(--bl-sun); animation-delay: .28s; }
-
-        .bl-perks { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-        .bl-perks li {
+        .bl-side::after {
+            content: '';
+            position: absolute;
+            width: 160px;
+            height: 160px;
+            left: -48px;
+            bottom: 48px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,.4);
+            pointer-events: none;
+        }
+        .bl-brand {
+            position: relative;
+            z-index: 1;
             display: flex;
             align-items: center;
-            gap: 9px;
-            font-size: 12.5px;
-            font-weight: 700;
-            color: #6f5a50;
+            gap: 14px;
         }
-        .bl-perks span {
-            width: 24px;
-            height: 24px;
-            flex-shrink: 0;
+        .bl-brand__mark {
+            width: 56px;
+            height: 56px;
+            border-radius: 999px;
+            background: #fff;
+            box-shadow: 0 10px 24px rgba(194, 24, 91, .16);
             display: grid;
             place-items: center;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, .8);
-            color: var(--bl-coral-deep);
+            overflow: hidden;
+            flex-shrink: 0;
         }
-        .bl-perks svg { width: 13px; height: 13px; }
-
-        /* Form side */
-        .bl-main { padding: 34px 32px 26px; }
-        .bl-title {
-            margin: 0 0 4px;
-            font-family: var(--bl-display);
-            font-size: 24px;
+        .bl-brand__mark img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            display: block;
+        }
+        .bl-brand__name {
+            margin: 0;
+            font-family: var(--display);
+            font-size: 26px;
             font-weight: 600;
-            color: var(--bl-ink);
+            line-height: 1;
+            letter-spacing: -.01em;
+            color: var(--ink);
         }
-        .bl-lead { margin: 0 0 20px; font-size: 13px; font-weight: 500; line-height: 1.5; color: var(--bl-muted); }
+        .bl-brand__sub {
+            margin: 5px 0 0;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            color: var(--rose-deep);
+        }
+        .bl-hello {
+            position: relative;
+            z-index: 1;
+            max-width: 18ch;
+        }
+        .bl-hello__eyebrow {
+            margin: 0 0 14px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+            color: var(--rose-deep);
+        }
+        .bl-hello__title {
+            margin: 0;
+            font-family: var(--display);
+            font-size: clamp(2.4rem, 4vw, 3.15rem);
+            font-weight: 600;
+            line-height: .98;
+            letter-spacing: -.02em;
+            color: var(--ink);
+        }
+        .bl-hello__title em {
+            font-style: italic;
+            color: var(--rose-deep);
+        }
+        .bl-hello__text {
+            margin: 16px 0 0;
+            font-size: 14.5px;
+            font-weight: 500;
+            line-height: 1.55;
+            color: var(--muted);
+            max-width: 28ch;
+        }
+        .bl-side-foot {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #7a5566;
+        }
+        .bl-side-foot__dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: var(--rose);
+            box-shadow: 0 0 0 4px rgba(233, 30, 99, .12);
+        }
 
+        .bl-main {
+            padding: 42px 40px 34px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: linear-gradient(180deg, #fff 0%, #fffafc 100%);
+        }
+        .bl-title {
+            margin: 0;
+            font-family: var(--display);
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: -.01em;
+            color: var(--ink);
+        }
+        .bl-lead {
+            margin: 6px 0 26px;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.5;
+            color: var(--muted);
+        }
         .bl-alert,
         .bl-status {
-            margin-bottom: 14px;
-            border-radius: 12px;
-            padding: 10px 12px;
-            font-size: 12.5px;
+            margin-bottom: 16px;
+            border-radius: 14px;
+            padding: 11px 13px;
+            font-size: 13px;
             line-height: 1.45;
         }
-        .bl-alert { border: 1px solid #f6c9c0; background: #fff1ee; color: #a2412c; }
-        .bl-alert strong { display: block; margin-bottom: 1px; font-size: 13px; color: #8a2f1c; }
-        .bl-status { border: 1px solid #d8ccf6; background: var(--bl-lavender); color: var(--bl-purple-deep); text-align: center; }
+        .bl-alert { border: 1px solid #f8bbd0; background: #fff5f8; color: #ad1457; }
+        .bl-alert strong { display: block; margin-bottom: 2px; color: #880e4f; }
+        .bl-status { border: 1px solid #f8bbd0; background: #fff5f8; color: var(--rose-deep); text-align: center; }
 
-        .bl-form { display: grid; gap: 14px; }
-        .bl-label-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
-        .bl-label { display: block; margin-bottom: 6px; font-size: 12.5px; font-weight: 800; color: #5a463d; }
+        .bl-form { display: grid; gap: 16px; }
+        .bl-label-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 7px;
+        }
+        .bl-label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
         .bl-label-row .bl-label { margin-bottom: 0; }
-        .bl-forgot { font-size: 12px; font-weight: 700; color: #6a4bc4; text-decoration: none; }
-        .bl-forgot:hover { color: var(--bl-purple-deep); text-decoration: underline; }
+        .bl-forgot {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--rose-deep);
+            text-decoration: none;
+        }
+        .bl-forgot:hover { text-decoration: underline; }
 
         .bl-field { position: relative; }
         .bl-field input {
             width: 100%;
-            height: 46px;
-            padding: 0 40px 0 14px;
-            border: 2px solid var(--bl-line);
-            border-radius: 14px;
-            background: var(--bl-cream);
-            color: var(--bl-ink);
-            font-family: inherit;
-            font-size: 14px;
-            font-weight: 600;
+            height: 50px;
+            padding: 0 44px 0 16px;
+            border: 1.5px solid var(--line);
+            border-radius: 16px;
+            background: var(--blush);
+            color: var(--ink);
+            font: 500 14.5px/1.2 var(--sans);
             outline: none;
-            box-shadow: none;
-            transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
         }
-        .bl-field input::placeholder { color: #8a7468; font-weight: 500; }
+        .bl-field input::placeholder { color: #b48ea0; }
         .bl-field input:focus {
-            border-color: var(--bl-coral);
+            border-color: var(--rose);
             background: #fff;
-            box-shadow: 0 0 0 4px rgba(236, 133, 96, .14);
+            box-shadow: 0 0 0 4px rgba(233, 30, 99, .11);
         }
         .bl-field__icon {
             position: absolute;
-            right: 14px;
+            right: 15px;
             top: 50%;
-            width: 17px;
-            height: 17px;
+            width: 18px;
+            height: 18px;
             transform: translateY(-50%);
-            color: #c6b3a8;
+            color: #c095a8;
             pointer-events: none;
         }
-        .bl-field input:focus + .bl-field__icon { color: var(--bl-coral); }
+        .bl-field input:focus + .bl-field__icon { color: var(--rose); }
 
         .bl-check {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--bl-muted);
+            gap: 9px;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--muted);
             cursor: pointer;
             user-select: none;
         }
-        .bl-check input { width: 16px; height: 16px; border-radius: 5px; border-color: #e3cfc3; color: var(--bl-coral); accent-color: var(--bl-coral); cursor: pointer; }
-        .bl-check input:focus { box-shadow: 0 0 0 3px rgba(236, 133, 96, .18); }
+        .bl-check input {
+            width: 17px;
+            height: 17px;
+            border-radius: 5px;
+            accent-color: var(--rose);
+            cursor: pointer;
+        }
 
         .bl-submit {
             width: 100%;
-            height: 48px;
-            margin-top: 4px;
+            height: 52px;
+            margin-top: 2px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             border: 0;
             border-radius: 999px;
-            background: #bf5230;
+            background: linear-gradient(135deg, #e91e63, #c2185b);
             color: #fff;
-            font-family: var(--bl-display);
-            font-size: 16px;
-            font-weight: 600;
-            letter-spacing: .01em;
+            font: 700 15px/1 var(--sans);
             cursor: pointer;
-            box-shadow: 0 5px 0 var(--bl-coral-edge), 0 12px 22px rgba(236, 133, 96, .28);
-            transition: transform .18s cubic-bezier(.34, 1.56, .64, 1), box-shadow .18s ease, background .18s ease;
+            box-shadow: 0 10px 22px rgba(194, 24, 91, .22);
         }
-        .bl-submit:hover { background: #9e4225; transform: translateY(-2px); }
-        .bl-submit:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--bl-coral-edge); }
-        .bl-submit:focus-visible { outline: 3px solid rgba(139, 111, 214, .45); outline-offset: 3px; }
+        .bl-submit:hover { filter: brightness(1.03); }
         .bl-submit svg { width: 16px; height: 16px; }
 
-        .bl-foot { margin: 18px 0 0; text-align: center; font-size: 11.5px; color: #6f5b52; }
+        .bl-foot {
+            margin: 22px 0 0;
+            text-align: center;
+            font-size: 12px;
+            color: var(--muted);
+        }
         .bl-foot a { color: inherit; text-decoration: none; }
-        .bl-foot strong { color: var(--bl-muted); font-weight: 800; }
-        .bl-foot a:hover strong { color: #6a4bc4; }
+        .bl-foot strong { color: var(--rose-deep); font-weight: 700; }
 
-        @keyframes bl-hop {
-            0%, 100% { transform: translateY(0) scale(1.25, .75); }
-            18% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-18px) scale(.92, 1.08); }
-            82% { transform: translateY(0) scale(1); }
-        }
-        @keyframes bl-in {
-            from { opacity: 0; transform: translateY(14px) scale(.98); }
-            to { opacity: 1; transform: none; }
-        }
-
-        @media (max-width: 760px) {
-            .bl-card { grid-template-columns: 1fr; width: min(100%, 420px); border-radius: 24px; }
-            .bl-side { gap: 14px; padding: 20px 22px 18px; }
-            .bl-hello__title { font-size: 22px; margin-bottom: 4px; }
-            .bl-hello__text { font-size: 13px; }
-            .bl-balls { display: none; }
-            .bl-perks { display: none; }
-            .bl-main { padding: 24px 22px 20px; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .bl-card, .bl-balls i { animation: none !important; }
+        @media (max-width: 820px) {
+            .bl-card { grid-template-columns: 1fr; width: min(100%, 440px); }
+            .bl-side {
+                min-height: 0;
+                gap: 18px;
+                padding: 26px 24px 22px;
+            }
+            .bl-hello { max-width: none; }
+            .bl-hello__title { font-size: 2.2rem; }
+            .bl-side-foot { display: none; }
+            .bl-main { padding: 28px 24px 24px; }
         }
     </style>
 </head>

@@ -21,9 +21,51 @@ class CategoryIcons
             ],
             'sparkles' => [
                 'label' => 'Beauty',
-                'keywords' => ['beauty', 'cosmetic', 'cosmetics', 'makeup', 'skincare', 'skin care', 'lipstick', 'perfume'],
+                'keywords' => ['beauty', 'cosmetic', 'cosmetics', 'glow'],
                 'color' => '#c026d3',
                 'bg' => '#fae8ff',
+            ],
+            'lipstick' => [
+                'label' => 'Makeup',
+                'keywords' => ['makeup', 'lipstick', 'lip', 'blush', 'foundation', 'concealer', 'mascara', 'eyeliner', 'eyeshadow', 'primer', 'contour'],
+                'color' => '#db2777',
+                'bg' => '#fce7f3',
+            ],
+            'droplet' => [
+                'label' => 'Skincare',
+                'keywords' => ['skincare', 'skin care', 'skin', 'body', 'body care', 'lotion', 'moisturizer', 'moisturiser', 'cream', 'serum', 'cleanser', 'toner', 'face'],
+                'color' => '#0891b2',
+                'bg' => '#cffafe',
+            ],
+            'scissors' => [
+                'label' => 'Hair',
+                'keywords' => ['hair', 'hair care', 'shampoo', 'conditioner', 'salon', 'haircare'],
+                'color' => '#7c3aed',
+                'bg' => '#ede9fe',
+            ],
+            'spray' => [
+                'label' => 'Fragrance',
+                'keywords' => ['fragrance', 'perfume', 'cologne', 'scent', 'eau', 'mist', 'deodorant'],
+                'color' => '#c026d3',
+                'bg' => '#fae8ff',
+            ],
+            'brush' => [
+                'label' => 'Tools',
+                'keywords' => ['tool', 'tools', 'beauty tools', 'brush', 'sponge', 'applicator', 'mirror', 'tweezer'],
+                'color' => '#ea580c',
+                'bg' => '#ffedd5',
+            ],
+            'nail' => [
+                'label' => 'Nail',
+                'keywords' => ['nail', 'nail care', 'manicure', 'pedicure', 'polish', 'cuticle'],
+                'color' => '#e11d48',
+                'bg' => '#ffe4e6',
+            ],
+            'grooming' => [
+                'label' => 'Grooming',
+                'keywords' => ['grooming', 'men', "men's", 'mens', 'beard', 'shave', 'razor', 'aftershave'],
+                'color' => '#0f766e',
+                'bg' => '#ccfbf1',
             ],
             'toy' => [
                 'label' => 'Toys',
@@ -188,9 +230,37 @@ class CategoryIcons
         return 'box';
     }
 
+    /**
+     * Legacy / informal icon keys stored on older rows.
+     *
+     * @return array<string, string>
+     */
+    public static function aliases(): array
+    {
+        return [
+            'hair' => 'scissors',
+            'body' => 'droplet',
+            'perfume' => 'spray',
+            'fragrance' => 'spray',
+            'skincare' => 'droplet',
+            'makeup' => 'lipstick',
+            'tools' => 'brush',
+            'man' => 'grooming',
+            'men' => 'grooming',
+        ];
+    }
+
     public static function resolve(?string $icon): string
     {
         $icon = strtolower(trim((string) $icon));
+        if ($icon === '') {
+            return self::default();
+        }
+
+        $aliases = self::aliases();
+        if (isset($aliases[$icon])) {
+            $icon = $aliases[$icon];
+        }
 
         return isset(self::catalog()[$icon]) ? $icon : self::default();
     }

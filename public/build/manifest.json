@@ -1,6 +1,6 @@
 {
   "resources/css/app.css": {
-    "file": "assets/app-CSylUHwP.css",
+    "file": "assets/app-VCID4s2L.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "name": "app",
@@ -9,7 +9,7 @@
     ]
   },
   "resources/css/website-glow.css": {
-    "file": "assets/website-glow-CZomn6Ep.css",
+    "file": "assets/website-glow-BepVPKRQ.css",
     "src": "resources/css/website-glow.css",
     "isEntry": true,
     "name": "website-glow",
@@ -48,6 +48,12 @@
     "file": "assets/app-pZqFNkiu.js",
     "name": "app",
     "src": "resources/js/app.js",
+    "isEntry": true
+  },
+  "resources/js/website-lottie.js": {
+    "file": "assets/website-lottie-DUWMZ_d-.js",
+    "name": "website-lottie",
+    "src": "resources/js/website-lottie.js",
     "isEntry": true
   }
 }

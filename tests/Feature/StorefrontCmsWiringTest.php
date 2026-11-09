@@ -71,6 +71,40 @@ class StorefrontCmsWiringTest extends TestCase
         $this->get(route('website.faqs'))->assertOk()->assertSee('7-Day Returns')->assertDontSee('30-day easy returns');
     }
 
+    public function test_product_trust_bar_follows_landing_promises_and_delivery_settings(): void
+    {
+        SiteFeature::create(['shop_id' => $this->admin->shop_id, 'icon' => 'truck', 'title' => 'Free Delivery', 'subtitle' => 'Orders over ৳10,000', 'is_active' => true, 'sort_order' => 1]);
+        SiteFeature::create(['shop_id' => $this->admin->shop_id, 'icon' => 'lock', 'title' => 'Cash on Delivery', 'subtitle' => 'Pay when you unbox', 'is_active' => true, 'sort_order' => 2]);
+        SiteFeature::create(['shop_id' => $this->admin->shop_id, 'icon' => 'return', 'title' => '7-Day Returns', 'subtitle' => 'Unused items', 'is_active' => true, 'sort_order' => 3]);
+
+        SiteSetting::current()->update([
+            'delivery_free_enabled' => true,
+            'delivery_free_min_amount' => 15000,
+            'delivery_cod_enabled' => true,
+        ]);
+
+        $this->get(route('website.product', $this->product))->assertOk()
+            ->assertSee('Free Delivery')
+            ->assertSee('৳15,000')
+            ->assertSee('Cash on Delivery')
+            ->assertSee('7-Day Returns')
+            ->assertDontSee('৳10,000');
+
+        SiteSetting::current()->update([
+            'delivery_free_enabled' => false,
+            'delivery_cod_enabled' => false,
+            'delivery_confirmation_enabled' => true,
+            'delivery_confirmation_amount' => 100,
+            'delivery_confirmation_instructions' => 'bKash 01700000000',
+        ]);
+
+        $this->get(route('website.product', $this->product))->assertOk()
+            ->assertDontSee('Free Delivery')
+            ->assertDontSee('Cash on Delivery')
+            ->assertDontSee('৳15,000')
+            ->assertSee('7-Day Returns');
+    }
+
     public function test_admin_editors_render_the_new_fields(): void
     {
         $admin = $this->actingAs($this->admin, 'admin');

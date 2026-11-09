@@ -65,10 +65,17 @@ class Category extends Model
         return $this->belongsTo(Shop::class);
     }
 
-    // A category will have many products later
     public function products()
     {
         return $this->hasMany(Product::class);
+    }
+
+    public function productAttributes()
+    {
+        return $this->belongsToMany(ProductAttribute::class, 'category_product_attribute')
+            ->withPivot(['is_required', 'is_variation_default', 'sort_order'])
+            ->withTimestamps()
+            ->orderByPivot('sort_order');
     }
 
     public function scopeWhereSlugOrId($query, string|int $value)

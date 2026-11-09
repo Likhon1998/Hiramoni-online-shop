@@ -563,13 +563,15 @@ class WebsiteController extends Controller
             $storeName = data_get($settings, 'store_name', 'Shop');
 
             return response()->json([
-                'html' => view('website.partials.product-live', compact(
-                    'product',
-                    'related',
-                    'reviews',
-                    'variantOptions',
-                    'settings'
-                ))->render(),
+                'html' => view('website.partials.product-live', [
+                    'product' => $product,
+                    'related' => $related,
+                    'reviews' => $reviews,
+                    'variantOptions' => $variantOptions,
+                    'settings' => $settings,
+                    'features' => $home['features'] ?? collect(),
+                    'deliveryConfig' => $home['deliveryConfig'] ?? null,
+                ])->render(),
                 'url' => route('website.product', $product),
                 'title' => $displayName.' | '.$storeName,
             ]);

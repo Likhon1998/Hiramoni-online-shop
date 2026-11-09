@@ -149,6 +149,44 @@ class ProductVariantCatalogTest extends TestCase
         $this->assertSame('Organic Cotton', $product->fresh()->variantOptions()->first()['value']);
     }
 
+    public function test_attribute_category_clear_and_color_only_shade_add(): void
+    {
+        $category = Category::create([
+            'shop_id' => $this->shop->id, 'name' => 'Makeup', 'slug' => 'makeup',
+        ]);
+
+        $this->actingAs($this->admin, 'admin')->post(route('attributes.store'), [
+            'name' => 'Undertone',
+            'type' => 'select',
+            'category_ids' => [$category->id],
+            'is_filterable' => 1,
+        ])->assertSessionHas('success');
+
+        $undertone = $this->attr('undertone');
+        $this->assertTrue($undertone->categories->contains('id', $category->id));
+
+        $this->actingAs($this->admin, 'admin')->patch(route('attributes.update', $undertone), [
+            'name' => 'Undertone',
+            'type' => 'select',
+            'is_filterable' => 1,
+            'is_variation' => 0,
+            // No category_ids = clear all category links
+        ])->assertSessionHas('success');
+
+        $this->assertCount(0, $undertone->fresh()->categories);
+
+        $color = $this->attr('color');
+        $this->actingAs($this->admin, 'admin')->post(route('attributes.values.store', $color), [
+            'color_hex' => '#c2185b',
+        ])->assertSessionHas('success');
+
+        $shade = ProductAttributeValue::where('product_attribute_id', $color->id)
+            ->where('slug', 'custom-c2185b')
+            ->firstOrFail();
+        $this->assertSame('Custom #C2185B', $shade->value);
+        $this->assertSame('#C2185B', $shade->color_hex);
+    }
+
     public function test_attribute_routes_enforce_permission_and_shop_scope(): void
     {
         $cashier = $this->staff('Cashier');
@@ -161,8 +199,8 @@ class ProductVariantCatalogTest extends TestCase
 
         $otherShop = Shop::withoutEvents(fn () => Shop::create(['name' => 'Other', 'is_active' => true]));
         $outsider = $this->staff('Admin', $otherShop);
-        $this->actingAs($outsider, 'admin')->delete(route('attributes.destroy', $this->attr('weight')))->assertNotFound();
-        $this->assertDatabaseHas('product_attributes', ['shop_id' => $this->shop->id, 'slug' => 'weight']);
+        $this->actingAs($outsider, 'admin')->delete(route('attributes.destroy', $this->attr('finish')))->assertNotFound();
+        $this->assertDatabaseHas('product_attributes', ['shop_id' => $this->shop->id, 'slug' => 'finish']);
 
         $this->actingAs($this->admin, 'admin')->get(route('attributes.index'))->assertOk()->assertSee('Product Attributes');
         $this->actingAs($this->admin, 'admin')->get(route('products.variants'))->assertOk();
@@ -200,9 +238,15 @@ class ProductVariantCatalogTest extends TestCase
         $this->assertFalse($sizeL['available']);
 
         $blue = $this->getJson('/shop?ajax=1&attr[color][]=blue')->assertOk()->json('count_text');
-        $this->assertStringContainsString('of 1 products', $blue);
+        $this->assertTrue(
+            str_contains($blue, 'of 1 products') || str_contains($blue, 'মোট 1'),
+            "Unexpected count text: {$blue}"
+        );
         $none = $this->getJson('/shop?ajax=1&attr[color][]=blue&attr[size][]=l')->assertOk()->json('count_text');
-        $this->assertStringContainsString('of 0 products', $none);
+        $this->assertTrue(
+            str_contains($none, 'of 0 products') || str_contains($none, 'মোট 0'),
+            "Unexpected count text: {$none}"
+        );
     }
 
     public function test_csv_import_generates_codes_and_maps_attribute_columns(): void
@@ -235,7 +279,10 @@ class ProductVariantCatalogTest extends TestCase
                 'groups' => [['key' => 'rom', 'label' => 'Storage', 'type' => 'storage', 'enabled' => true, 'options' => []]],
             ],
         ]);
-        $storage = $this->attr('storage');
+        $storage = ProductAttribute::firstOrCreate(
+            ['shop_id' => $this->shop->id, 'slug' => 'storage'],
+            ['name' => 'Storage', 'type' => ProductAttribute::TYPE_SELECT, 'is_filterable' => true, 'sort_order' => 99],
+        );
         $service = app(ProductVariantService::class);
         foreach (['Alpha Drive' => '256GB', 'Beta Drive' => '128GB'] as $name => $size) {
             $p = Product::create([
@@ -282,5 +329,121 @@ class ProductVariantCatalogTest extends TestCase
         $this->assertStringContainsString('hira-moni-products-template.csv', $response->headers->get('Content-Disposition'));
         $this->assertStringContainsString('Classic Cotton T-Shirt', $response->getContent());
         $this->assertStringNotContainsStringIgnoringCase('samsung', $response->getContent());
+    }
+
+    public function test_combo_mode_creates_one_sku_with_text_contents(): void
+    {
+        $this->actingAs($this->admin, 'admin')->post(route('products.store'), [
+            'product_mode' => 'combo',
+            'name' => 'Bridal Makeup Set',
+            'cost_price' => 800,
+            'selling_price' => 1490,
+            'is_combo' => 1,
+            'combo_items' => "1x Foundation 30ml\n1x Lipstick\n1x Setting spray",
+            'stock_quantity' => 4,
+        ])->assertRedirect(route('products.index'));
+
+        $product = Product::firstOrFail();
+        $this->assertTrue((bool) $product->is_combo);
+        $this->assertNull($product->variant_group);
+        $this->assertSame(1, Product::count());
+        $this->assertSame([
+            '1x Foundation 30ml',
+            '1x Lipstick',
+            '1x Setting spray',
+        ], $product->comboItemList());
+        $this->assertSame(4, (int) $product->stock_quantity);
+    }
+
+    public function test_edit_updates_one_row_and_does_not_rebuild_variants(): void
+    {
+        $color = $this->attr('color');
+        $this->actingAs($this->admin, 'admin')->post(route('products.store'), [
+            'product_mode' => 'variable',
+            'name' => 'Lip Ink',
+            'cost_price' => 100,
+            'selling_price' => 250,
+            'variants' => [
+                ['options' => [$color->id => ['value' => 'Ruby', 'hex' => '#9b1b30']], 'stock_quantity' => 2],
+                ['options' => [$color->id => ['value' => 'Nude', 'hex' => '#c47a6a']], 'stock_quantity' => 3],
+            ],
+        ])->assertRedirect(route('products.index'));
+
+        $rows = Product::where('variant_group', 'lip-ink')->orderBy('id')->get();
+        $this->assertCount(2, $rows);
+        $first = $rows->first();
+        $beforeStock = (int) $first->stock_quantity;
+
+        $this->actingAs($this->admin, 'admin')->put(route('products.update', $first), [
+            'product_mode' => 'variable',
+            'name' => $first->name,
+            'cost_price' => 110,
+            'selling_price' => 275,
+            'variant_group' => 'lip-ink',
+            'is_combo' => 1,
+            'combo_items' => "Bonus pouch",
+            'attributes' => [$color->id => ['value' => 'Ruby Red', 'hex' => '#8b0000']],
+            'stock_quantity' => 99,
+            'variants' => [
+                ['options' => [$color->id => ['value' => 'ShouldNotCreate']]],
+            ],
+        ])->assertRedirect();
+
+        $this->assertSame(2, Product::where('variant_group', 'lip-ink')->count());
+        $first->refresh();
+        $this->assertSame(110.0, (float) $first->cost_price);
+        $this->assertTrue((bool) $first->is_combo);
+        $this->assertSame(['Bonus pouch'], $first->comboItemList());
+        $this->assertSame('Ruby Red', $first->variantOptions()->first()['value']);
+        $this->assertSame($beforeStock, (int) $first->stock_quantity);
+        $this->assertDatabaseMissing('products', ['name' => '%ShouldNotCreate%']);
+    }
+
+    public function test_category_attribute_assignment_and_variation_flag(): void
+    {
+        $makeup = Category::create([
+            'shop_id' => $this->shop->id,
+            'name' => 'Makeup',
+            'slug' => 'makeup',
+        ]);
+        ProductAttribute::ensureDefaults($this->shop->id);
+
+        $shade = $this->attr('color');
+        $this->assertTrue((bool) $shade->fresh()->is_variation);
+        $this->assertTrue($makeup->fresh()->productAttributes()->where('product_attributes.slug', 'color')->exists());
+
+        $this->actingAs($this->admin, 'admin')
+            ->post(route('attributes.store'), [
+                'name' => 'Undertone',
+                'type' => 'select',
+                'is_variation' => 1,
+                'is_filterable' => 1,
+                'values' => 'Cool, Warm',
+                'category_ids' => [$makeup->id],
+            ])
+            ->assertSessionHasNoErrors();
+
+        $undertone = $this->attr('undertone');
+        $this->assertTrue((bool) $undertone->is_variation);
+        $this->assertTrue($undertone->categories->contains('id', $makeup->id));
+    }
+
+    public function test_variable_rejects_more_than_100_combinations(): void
+    {
+        $size = $this->attr('size');
+        $variants = [];
+        for ($i = 1; $i <= 101; $i++) {
+            $variants[] = ['options' => [$size->id => ['value' => 'V'.$i]]];
+        }
+
+        $this->actingAs($this->admin, 'admin')->post(route('products.store'), [
+            'product_mode' => 'variable',
+            'name' => 'Too Many',
+            'cost_price' => 1,
+            'selling_price' => 2,
+            'variants' => $variants,
+        ])->assertSessionHasErrors('variants');
+
+        $this->assertSame(0, Product::count());
     }
 }

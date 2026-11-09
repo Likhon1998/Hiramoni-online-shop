@@ -28,35 +28,35 @@
     --c-blue-800: 30 64 175; --c-blue-900: 30 58 138; --c-blue-950: 23 37 84;
 }
 
-/* Admin theme: warm neutrals, purple primary, coral accent (matches the storefront) */
+/* Admin theme: calm beauty neutrals + magenta primary */
 body.admin-panel {
-    --c-slate-50: 253 249 246; --c-slate-100: 248 241 235; --c-slate-200: 240 228 218; --c-slate-300: 226 208 195;
-    --c-slate-400: 118 97 90; --c-slate-500: 101 79 69; --c-slate-600: 84 66 58; --c-slate-700: 69 53 47;
-    --c-slate-800: 55 42 37; --c-slate-900: 42 31 26; --c-slate-950: 28 20 17;
+    --c-slate-50: 255 248 251; --c-slate-100: 252 228 236; --c-slate-200: 245 214 229; --c-slate-300: 232 186 205;
+    --c-slate-400: 154 107 125; --c-slate-500: 122 85 102; --c-slate-600: 98 68 82; --c-slate-700: 74 49 63;
+    --c-slate-800: 58 31 46; --c-slate-900: 43 21 34; --c-slate-950: 28 12 22;
 
-    --c-gray-50: 253 249 246; --c-gray-100: 248 241 235; --c-gray-200: 240 228 218; --c-gray-300: 226 208 195;
-    --c-gray-400: 118 97 90; --c-gray-500: 101 79 69; --c-gray-600: 84 66 58; --c-gray-700: 69 53 47;
-    --c-gray-800: 55 42 37; --c-gray-900: 42 31 26; --c-gray-950: 28 20 17;
+    --c-gray-50: 255 248 251; --c-gray-100: 252 228 236; --c-gray-200: 245 214 229; --c-gray-300: 232 186 205;
+    --c-gray-400: 154 107 125; --c-gray-500: 122 85 102; --c-gray-600: 98 68 82; --c-gray-700: 74 49 63;
+    --c-gray-800: 58 31 46; --c-gray-900: 43 21 34; --c-gray-950: 28 12 22;
 
-    --c-indigo-50: 247 243 254; --c-indigo-100: 239 233 252; --c-indigo-200: 221 209 248; --c-indigo-300: 196 178 241;
-    --c-indigo-400: 154 128 223; --c-indigo-500: 118 87 201; --c-indigo-600: 100 69 184; --c-indigo-700: 85 58 158;
-    --c-indigo-800: 70 48 128; --c-indigo-900: 58 40 104; --c-indigo-950: 36 23 68;
+    --c-indigo-50: 255 245 248; --c-indigo-100: 252 228 236; --c-indigo-200: 248 187 208; --c-indigo-300: 244 143 177;
+    --c-indigo-400: 236 64 122; --c-indigo-500: 233 30 99; --c-indigo-600: 194 24 91; --c-indigo-700: 173 20 87;
+    --c-indigo-800: 136 14 79; --c-indigo-900: 112 16 68; --c-indigo-950: 74 8 44;
 
-    --c-violet-50: 247 243 254; --c-violet-100: 239 233 252; --c-violet-200: 221 209 248; --c-violet-300: 196 178 241;
-    --c-violet-400: 154 128 223; --c-violet-500: 118 87 201; --c-violet-600: 100 69 184; --c-violet-700: 85 58 158;
-    --c-violet-800: 70 48 128; --c-violet-900: 58 40 104; --c-violet-950: 36 23 68;
+    --c-violet-50: 255 245 248; --c-violet-100: 252 228 236; --c-violet-200: 248 187 208; --c-violet-300: 244 143 177;
+    --c-violet-400: 236 64 122; --c-violet-500: 233 30 99; --c-violet-600: 194 24 91; --c-violet-700: 173 20 87;
+    --c-violet-800: 136 14 79; --c-violet-900: 112 16 68; --c-violet-950: 74 8 44;
 
-    --c-blue-50: 255 245 240; --c-blue-100: 253 232 221; --c-blue-200: 251 210 191; --c-blue-300: 242 168 134;
-    --c-blue-400: 224 113 75; --c-blue-500: 201 90 52; --c-blue-600: 184 79 44; --c-blue-700: 158 66 37;
-    --c-blue-800: 131 55 31; --c-blue-900: 107 46 27; --c-blue-950: 61 23 12;
+    --c-blue-50: 255 245 248; --c-blue-100: 252 228 236; --c-blue-200: 248 187 208; --c-blue-300: 244 143 177;
+    --c-blue-400: 236 64 122; --c-blue-500: 233 30 99; --c-blue-600: 194 24 91; --c-blue-700: 173 20 87;
+    --c-blue-800: 136 14 79; --c-blue-900: 112 16 68; --c-blue-950: 74 8 44;
 
-    --bb-cream: #fffaf5;
-    --bb-coral: #ec8560;
-    --bb-coral-deep: #db6f4a;
-    --bb-purple: #8b6fd6;
-    --bb-purple-deep: #6a4bb8;
-    --bb-ink: #3a2a24;
-    --bb-line: #f2e6dc;
+    --bb-cream: #FFF8FB;
+    --bb-coral: #E91E63;
+    --bb-coral-deep: #C2185B;
+    --bb-purple: #C2185B;
+    --bb-purple-deep: #AD1457;
+    --bb-ink: #3a1f2e;
+    --bb-line: #F5D6E5;
 }
 
 /* Admin panel: moderate / compact typography (POS + storefront keep their own layouts) */
@@ -205,33 +205,15 @@ body.admin-panel main {
     width: 100%;
     transform: scaleX(0);
     transform-origin: left center;
-    background: linear-gradient(90deg, #ec8560 0%, #f4b740 50%, #8b6fd6 100%);
-    transition: transform 0.18s ease-out;
+    background: #C2185B;
+    transition: transform 0.15s linear;
     opacity: 0;
 }
 .admin-progress__bar.is-active {
     opacity: 1;
 }
 .admin-progress__peg {
-    display: block;
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 80px;
-    height: 100%;
-    opacity: 0;
-    transform: translateX(-100%);
-    box-shadow: 0 0 12px #ec8560, 0 0 5px #b39cf0;
-    background: #f6b397;
-}
-.admin-progress__peg.is-active {
-    opacity: 1;
-    animation: admin-progress-peg 0.9s ease-in-out infinite;
-}
-@keyframes admin-progress-peg {
-    0% { transform: translateX(-120%); opacity: 0; }
-    40% { opacity: 1; }
-    100% { transform: translateX(20vw); opacity: 0; }
+    display: none;
 }
 html.admin-progress-busy,
 html.admin-progress-busy body {

@@ -5,9 +5,11 @@ namespace Database\Seeders;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductAttribute;
 use App\Models\ProductImage;
 use App\Models\Shop;
 use App\Models\SiteSetting;
+use App\Services\ProductVariantService;
 use App\Services\WebsiteService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -38,6 +40,8 @@ class CosmeticsCatalogSeeder extends Seeder
         $website = app(WebsiteService::class);
         $website->ensureTrustedBrands($shop->id);
         $this->syncTrustedBrandLogos($shop->id);
+
+        ProductAttribute::ensureDefaults($shop->id);
 
         $categories = $this->ensureCategories($shop->id);
         $brands = $this->trustedBrandMap($shop->id);
@@ -104,11 +108,11 @@ class CosmeticsCatalogSeeder extends Seeder
     private function ensureCategories(int $shopId): array
     {
         $defs = [
-            ['name' => 'Skincare', 'icon' => 'sparkles', 'description' => 'Serums, creams and daily glow essentials', 'photo' => 'photo-1556228720-195a672e8a03'],
+            ['name' => 'Skincare', 'icon' => 'droplet', 'description' => 'Serums, creams and daily glow essentials', 'photo' => 'photo-1556228720-195a672e8a03'],
             ['name' => 'Makeup', 'icon' => 'lipstick', 'description' => 'Lips, face and eye makeup favourites', 'photo' => 'photo-1596462502278-27bfdc403348'],
-            ['name' => 'Hair Care', 'icon' => 'hair', 'description' => 'Shampoo, conditioner and hair treatments', 'photo' => 'photo-1522338140262-f46f5913618a'],
-            ['name' => 'Body Care', 'icon' => 'body', 'description' => 'Lotions, washes and body moisturisers', 'photo' => 'photo-1570194065650-d99fb4b38b17'],
-            ['name' => 'Fragrance', 'icon' => 'perfume', 'description' => 'Light scents and everyday fragrance', 'photo' => 'photo-1541643600914-78b084683601'],
+            ['name' => 'Hair Care', 'icon' => 'scissors', 'description' => 'Shampoo, conditioner and hair treatments', 'photo' => 'photo-1522338140262-f46f5913618a'],
+            ['name' => 'Body Care', 'icon' => 'droplet', 'description' => 'Lotions, washes and body moisturisers', 'photo' => 'photo-1570194065650-d99fb4b38b17'],
+            ['name' => 'Fragrance', 'icon' => 'spray', 'description' => 'Light scents and everyday fragrance', 'photo' => 'photo-1541643600914-78b084683601'],
             ['name' => 'Beauty Tools', 'icon' => 'brush', 'description' => 'Brushes, sponges and beauty tools', 'photo' => 'photo-1512496015851-a90fb38ba796'],
             ['name' => 'Nail Care', 'icon' => 'nail', 'description' => 'Polishes, care oils and nail essentials', 'photo' => 'photo-1604654894610-df63bc536371'],
             ['name' => "Men's Grooming", 'icon' => 'grooming', 'description' => 'Face wash, beard care and men’s essentials', 'photo' => 'photo-1621607512214-68297480165e'],
@@ -137,9 +141,9 @@ class CosmeticsCatalogSeeder extends Seeder
     /** @param  list<string>  $keepBrandNames */
     private function purgeIrrelevantCatalog(int $shopId, array $keepBrandNames): void
     {
-        $seedBarcodes = collect($this->catalog())
-            ->values()
-            ->map(fn ($row, $i) => 'HM-BTY-'.str_pad((string) ($i + 1), 4, '0', STR_PAD_LEFT))
+        $expectedCount = collect($this->catalog())->sum(fn ($row) => max(1, count($row['shades'] ?? [null])));
+        $seedBarcodes = collect(range(1, $expectedCount))
+            ->map(fn ($i) => 'HM-BTY-'.str_pad((string) $i, 4, '0', STR_PAD_LEFT))
             ->all();
 
         // Remove every product that is not part of the cosmetics barcode set.
@@ -174,76 +178,96 @@ class CosmeticsCatalogSeeder extends Seeder
     private function seedProducts(int $shopId, array $categories, array $brands): int
     {
         $n = 0;
+        $variants = app(ProductVariantService::class);
+        $colorAttr = ProductAttribute::where('shop_id', $shopId)->where('slug', 'color')->first();
 
-        foreach ($this->catalog() as $index => $item) {
-            $n++;
-            $barcode = 'HM-BTY-'.str_pad((string) $n, 4, '0', STR_PAD_LEFT);
+        foreach ($this->catalog() as $item) {
             $brand = $brands[$item['brand']] ?? null;
             $category = $categories[$item['category']] ?? null;
 
             if (! $brand || ! $category) {
                 $this->command?->warn("Skip {$item['name']} — missing brand/category.");
-                $n--;
 
                 continue;
             }
 
-            $images = [];
-            foreach ($item['photos'] as $k => $photoId) {
-                $path = $this->storeRemoteImage(
-                    sprintf(self::PHOTO, $photoId),
-                    'products/beauty',
-                    Str::slug($item['name']).'-'.($k + 1).'.jpg'
-                );
-                if ($path) {
-                    $images[] = $path;
+            $shades = $item['shades'] ?? [null];
+            $group = count($shades) > 1
+                ? ($item['variant_group'] ?? Str::slug($item['name']))
+                : null;
+
+            foreach ($shades as $shadeIndex => $shade) {
+                $n++;
+                $barcode = 'HM-BTY-'.str_pad((string) $n, 4, '0', STR_PAD_LEFT);
+                $shadeName = is_array($shade) ? (string) ($shade['name'] ?? '') : '';
+                $shadeHex = is_array($shade) ? (string) ($shade['hex'] ?? '#E91E63') : (string) ($item['accent'] ?? '#E91E63');
+                $displayName = $shadeName !== '' ? $item['name'].' — '.$shadeName : $item['name'];
+
+                $images = [];
+                foreach ($item['photos'] as $k => $photoId) {
+                    $path = $this->storeRemoteImage(
+                        sprintf(self::PHOTO, $photoId),
+                        'products/beauty',
+                        Str::slug($displayName).'-'.($k + 1).'.jpg'
+                    );
+                    if ($path) {
+                        $images[] = $path;
+                    }
                 }
-            }
 
-            if ($images === []) {
-                $images[] = $this->storePlaceholder($item['name'], $item['accent'] ?? '#E91E63');
-            }
+                if ($images === []) {
+                    $images[] = $this->storePlaceholder($displayName, $shadeHex);
+                }
 
-            $seed = crc32($barcode);
-            $product = Product::updateOrCreate(
-                ['shop_id' => $shopId, 'barcode' => $barcode],
-                [
-                    'name' => $item['name'],
-                    'sku' => 'HM-'.strtoupper(Str::limit(Str::slug($item['brand'], ''), 4, '')).'-'.str_pad((string) $n, 3, '0', STR_PAD_LEFT),
-                    'category_id' => $category->id,
-                    'brand_id' => $brand->id,
-                    'brand_name' => $brand->name,
-                    'variant_group' => null,
-                    'cost_price' => $item['cost'],
-                    'selling_price' => $item['price'],
-                    'original_price' => $item['original'] ?? $item['price'],
-                    'stock_quantity' => 18 + ($seed % 40),
-                    'reserved_stock' => 0,
-                    'alert_quantity' => 5,
-                    'availability' => 'in_stock',
-                    'short_description' => $item['summary'],
-                    'description' => $item['description'],
-                    'seo_title' => $item['name'].' | '.$brand->name.' | Hira Moni',
-                    'meta_description' => Str::limit($item['summary'].' Shop '.$brand->name.' at Hira Moni.', 155, ''),
-                    'image' => $images[0] ?? null,
-                    'image_2' => $images[1] ?? null,
-                    'image_3' => $images[2] ?? null,
-                    'rating' => $item['rating'] ?? round(4.3 + ($seed % 6) / 10, 1),
-                    'review_count' => $item['reviews'] ?? 24 + ($seed % 160),
-                    'is_published' => true,
-                    'is_new_arrival' => (bool) ($item['new'] ?? false),
-                    'is_best_seller' => (bool) ($item['best'] ?? false),
-                    'is_featured' => (bool) ($item['featured'] ?? false),
-                ]
-            );
+                $seed = crc32($barcode);
+                $product = Product::updateOrCreate(
+                    ['shop_id' => $shopId, 'barcode' => $barcode],
+                    [
+                        'name' => $displayName,
+                        'sku' => 'HM-'.strtoupper(Str::limit(Str::slug($item['brand'], ''), 4, '')).'-'.str_pad((string) $n, 3, '0', STR_PAD_LEFT),
+                        'category_id' => $category->id,
+                        'brand_id' => $brand->id,
+                        'brand_name' => $brand->name,
+                        'variant_group' => $group,
+                        'color' => $shadeName !== '' ? $shadeName : null,
+                        'color_hex' => $shadeName !== '' ? $shadeHex : null,
+                        'cost_price' => $item['cost'],
+                        'selling_price' => $item['price'],
+                        'original_price' => $item['original'] ?? $item['price'],
+                        'stock_quantity' => 18 + (($seed + $shadeIndex) % 40),
+                        'reserved_stock' => 0,
+                        'alert_quantity' => 5,
+                        'availability' => 'in_stock',
+                        'short_description' => $item['summary'],
+                        'description' => $item['description'],
+                        'seo_title' => $item['name'].' | '.$brand->name.' | Hira Moni',
+                        'meta_description' => Str::limit($item['summary'].' Shop '.$brand->name.' at Hira Moni.', 155, ''),
+                        'image' => $images[0] ?? null,
+                        'image_2' => $images[1] ?? null,
+                        'image_3' => $images[2] ?? null,
+                        'rating' => $item['rating'] ?? round(4.3 + ($seed % 6) / 10, 1),
+                        'review_count' => $item['reviews'] ?? 24 + ($seed % 160),
+                        'is_published' => true,
+                        'is_new_arrival' => (bool) ($item['new'] ?? false) && $shadeIndex === 0,
+                        'is_best_seller' => (bool) ($item['best'] ?? false) && $shadeIndex === 0,
+                        'is_featured' => (bool) ($item['featured'] ?? false) && $shadeIndex === 0,
+                    ]
+                );
 
-            $product->galleryImages()->delete();
-            foreach ($images as $sort => $path) {
-                ProductImage::create([
-                    'product_id' => $product->id,
-                    'path' => $path,
-                    'sort_order' => $sort,
-                ]);
+                $product->galleryImages()->delete();
+                foreach ($images as $sort => $path) {
+                    ProductImage::create([
+                        'product_id' => $product->id,
+                        'path' => $path,
+                        'sort_order' => $sort,
+                    ]);
+                }
+
+                if ($colorAttr && $shadeName !== '') {
+                    $variants->syncValues($product, [
+                        $colorAttr->id => ['value' => $shadeName, 'hex' => $shadeHex],
+                    ]);
+                }
             }
         }
 
@@ -312,6 +336,12 @@ SVG);
                 'accent' => '#c49a6c', 'photos' => ['photo-1631214524020-7e18db9a8fbd', 'photo-1522335789203-aabd1fc54bc9'],
                 'summary' => 'Natural coverage foundation that blends like your skin.',
                 'description' => "True Match foundation with blendable medium coverage.\n\n• Matches skin undertone\n• Breathable finish\n• Buildable for day-to-night looks",
+                'shades' => [
+                    ['name' => 'Ivory', 'hex' => '#F3E0C8'],
+                    ['name' => 'Beige', 'hex' => '#D4A574'],
+                    ['name' => 'Golden', 'hex' => '#C49A6C'],
+                    ['name' => 'Caramel', 'hex' => '#8D5524'],
+                ],
             ],
             [
                 'brand' => "L'Oréal Paris", 'category' => 'Hair Care', 'name' => 'Elvive Total Repair Shampoo',
@@ -328,6 +358,12 @@ SVG);
                 'accent' => '#0096d6', 'photos' => ['photo-1596462502278-27bfdc403348', 'photo-1512496015851-a90fb38ba796'],
                 'summary' => 'Oil-control foundation for a natural matte look.',
                 'description' => "Maybelline Fit Me foundation for normal to oily skin.\n\n• Soft matte finish\n• Helps blur pores\n• Lightweight everyday wear",
+                'shades' => [
+                    ['name' => '112 Natural Ivory', 'hex' => '#F0D5B8'],
+                    ['name' => '220 Natural Beige', 'hex' => '#D7A878'],
+                    ['name' => '330 Toffee', 'hex' => '#A66B3D'],
+                    ['name' => '355 Coconut', 'hex' => '#6B3F24'],
+                ],
             ],
             [
                 'brand' => 'Maybelline New York', 'category' => 'Makeup', 'name' => 'SuperStay Matte Ink Lipstick',
@@ -335,6 +371,13 @@ SVG);
                 'accent' => '#c2185b', 'photos' => ['photo-1586495777744-4413f21067fa', 'photo-1631214524020-7e18db9a8fbd'],
                 'summary' => 'Long-wear liquid lipstick with intense matte colour.',
                 'description' => "SuperStay Matte Ink stays put through the day.\n\n• Up to 16-hour wear feel\n• Arrow applicator for precise lips\n• Highly pigmented shades",
+                'shades' => [
+                    ['name' => 'Pioneer', 'hex' => '#8B1E3F'],
+                    ['name' => 'Lover', 'hex' => '#C2185B'],
+                    ['name' => 'Loverer', 'hex' => '#E91E63'],
+                    ['name' => 'Lover', 'hex' => '#B71C1C'],
+                    ['name' => 'Dreamer', 'hex' => '#AD1457'],
+                ],
             ],
             [
                 'brand' => 'Maybelline New York', 'category' => 'Makeup', 'name' => 'Lash Sensational Mascara',
@@ -397,6 +440,13 @@ SVG);
                 'accent' => '#000000', 'photos' => ['photo-1586495777744-4413f21067fa', 'photo-1631214524020-7e18db9a8fbd'],
                 'summary' => 'Creamy matte lip colour with a soft-blur finish.',
                 'description' => "NYX Soft Matte Lip Cream is a cult favourite.\n\n• Lightweight creamy formula\n• Soft matte payoff\n• Buildable colour",
+                'shades' => [
+                    ['name' => 'Abu Dhabi', 'hex' => '#C47A6A'],
+                    ['name' => 'Copenhagen', 'hex' => '#9C2A3E'],
+                    ['name' => 'Rome', 'hex' => '#7A1F2B'],
+                    ['name' => 'Tokyo', 'hex' => '#E57373'],
+                    ['name' => 'Madrid', 'hex' => '#D32F2F'],
+                ],
             ],
             [
                 'brand' => 'NYX Professional Makeup', 'category' => 'Makeup', 'name' => 'Setting Spray Matte Finish',

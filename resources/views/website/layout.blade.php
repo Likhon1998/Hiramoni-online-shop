@@ -1023,59 +1023,86 @@
 </div>
 
 {{-- Checkout: sign in / register / place order (one modal) --}}
+@php
+    $authStoreName = $settings->store_name ?? config('app.name', 'Hira Moni');
+    $authLogo = !empty($settings->logo_path) ? public_storage_url($settings->logo_path) : asset('images/hiramoni-logo-round.png');
+@endphp
 <div x-show="checkoutOpen" x-cloak class="fixed inset-0 z-[130] flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bb-modal-backdrop absolute inset-0 bg-black/50" @click="checkoutStep !== 'success' && (checkoutOpen=false)"></div>
-    <div class="bb-modal relative bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md max-h-[92vh] overflow-y-auto p-4 sm:p-6"
+    <div class="bb-modal gw-auth-modal relative bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md max-h-[92vh] overflow-y-auto"
          :class="checkoutStep === 'success' && 'overflow-hidden'">
-        <button type="button" x-show="checkoutStep !== 'success'" @click="checkoutOpen=false" class="absolute right-4 top-4 text-slate-400 hover:text-slate-600 text-2xl leading-none">&times;</button>
+        <button type="button" x-show="checkoutStep !== 'success'" @click="checkoutOpen=false" class="gw-auth-close" aria-label="Close">&times;</button>
 
         {{-- Auth step (standalone account OR checkout) --}}
-        <div x-show="checkoutStep==='auth'" x-cloak>
-            <h3 class="text-xl font-bold text-slate-900 pr-8" x-text="authPurpose === 'checkout' ? @js(__('website.auth.sign_in_faster')) : (authTab === 'register' ? @js(__('website.auth.create_account')) : @js(__('website.auth.welcome_back')) )"></h3>
-            <p class="text-sm text-slate-500 mt-1 mb-5" x-text="authPurpose === 'checkout' ? @js(__('website.auth.checkout_sub')) : @js(__('website.auth.account_sub'))"></p>
-
-            <div class="flex rounded-xl bg-slate-100 p-1 mb-5">
-                <button type="button" @click="authTab='login'; authMessage=''; authMessageOk=false" class="flex-1 rounded-lg py-2 text-sm font-semibold transition" :class="authTab==='login' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'">{{ __('website.auth.sign_in') }}</button>
-                <button type="button" @click="authTab='register'; authMessage=''; authMessageOk=false" class="flex-1 rounded-lg py-2 text-sm font-semibold transition" :class="authTab==='register' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'">{{ __('website.auth.create_account_btn') }}</button>
-            </div>
-
-            <div x-show="authTab==='login'" class="space-y-3">
-                <input x-model="authLogin.email" type="email" placeholder="{{ __('website.auth.email') }}" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm" autocomplete="email">
-                <input x-model="authLogin.password" type="password" placeholder="{{ __('website.auth.password') }}" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm" autocomplete="current-password" @keydown.enter.prevent="submitLogin()">
-                <button type="button" @click="submitLogin()" :disabled="authLoading" class="w-full gaget-btn-primary text-center disabled:opacity-50">
-                    <span x-text="authLoading ? @js(__('website.auth.signing_in')) : (authPurpose === 'checkout' ? @js(__('website.auth.sign_in_continue')) : @js(__('website.auth.sign_in')) )"></span>
-                </button>
-            </div>
-
-            <div x-show="authTab==='register'" class="space-y-3">
-                <input x-model="authRegister.name" type="text" placeholder="{{ __('website.auth.full_name') }}" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm" autocomplete="name">
-                <input x-model="authRegister.phone" type="text" placeholder="{{ __('website.auth.phone') }}" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm" autocomplete="tel">
-                <input x-model="authRegister.email" type="email" placeholder="{{ __('website.auth.email') }}" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm" autocomplete="email">
-                <input x-model="authRegister.password" type="password" placeholder="{{ __('website.auth.password_min') }}" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm" autocomplete="new-password">
-                <textarea x-model="authRegister.address" placeholder="{{ __('website.auth.address_optional') }}" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm" rows="2"></textarea>
-                <button type="button" @click="submitRegister()" :disabled="authLoading" class="w-full gaget-btn-primary text-center disabled:opacity-50">
-                    <span x-text="authLoading ? @js(__('website.auth.creating')) : @js(__('website.auth.create_account_btn'))"></span>
-                </button>
-            </div>
-
-            <p x-show="authMessage" x-text="authMessage" class="mt-3 text-sm text-center" :class="authMessageOk ? 'text-emerald-600' : 'text-rose-600'"></p>
-
-            <template x-if="authPurpose === 'checkout'">
-                <div class="mt-5">
-                    <div class="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">
-                        <span class="h-px flex-1 bg-slate-200"></span>or<span class="h-px flex-1 bg-slate-200"></span>
+        <div x-show="checkoutStep==='auth'" x-cloak class="gw-auth-panel">
+            <div class="gw-auth-hero">
+                <div class="gw-auth-brand">
+                    <img src="{{ $authLogo }}" alt="{{ $authStoreName }}" class="gw-auth-logo">
+                    <div>
+                        <p class="gw-auth-store">{{ $authStoreName }}</p>
+                        <p class="gw-auth-tag">{{ __('website.auth.beauty_tag') }}</p>
                     </div>
-                    <button type="button" @click="continueAsGuest()" class="bb-guest-btn mt-4">
-                        {{ __('website.auth.continue_guest') }}
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 12h14m-6-6 6 6-6 6"/></svg>
-                    </button>
-                    <p class="mt-2 text-center text-[11.5px] text-slate-500">{{ __('website.auth.guest_track_note') }}</p>
                 </div>
-            </template>
+                <h3 class="gw-auth-title" x-text="authPurpose === 'checkout' ? @js(__('website.auth.sign_in_faster')) : (authTab === 'register' ? @js(__('website.auth.create_account')) : @js(__('website.auth.welcome_back')) )"></h3>
+                <p class="gw-auth-sub" x-text="authPurpose === 'checkout' ? @js(__('website.auth.checkout_sub')) : @js(__('website.auth.account_sub'))"></p>
+            </div>
+
+            <div class="gw-auth-body">
+                <div class="gw-auth-tabs">
+                    <button type="button" @click="authTab='login'; authMessage=''; authMessageOk=false" class="gw-auth-tab" :class="authTab==='login' && 'is-active'">{{ __('website.auth.sign_in') }}</button>
+                    <button type="button" @click="authTab='register'; authMessage=''; authMessageOk=false" class="gw-auth-tab" :class="authTab==='register' && 'is-active'">{{ __('website.auth.create_account_btn') }}</button>
+                </div>
+
+                <div x-show="authTab==='login'" class="gw-auth-fields">
+                    <label class="gw-auth-label">{{ __('website.auth.email') }}
+                        <input x-model="authLogin.email" type="email" placeholder="you@email.com" class="gw-auth-input" autocomplete="email">
+                    </label>
+                    <label class="gw-auth-label">{{ __('website.auth.password') }}
+                        <input x-model="authLogin.password" type="password" placeholder="••••••••" class="gw-auth-input" autocomplete="current-password" @keydown.enter.prevent="submitLogin()">
+                    </label>
+                    <button type="button" @click="submitLogin()" :disabled="authLoading" class="gw-auth-submit disabled:opacity-50">
+                        <span x-text="authLoading ? @js(__('website.auth.signing_in')) : (authPurpose === 'checkout' ? @js(__('website.auth.sign_in_continue')) : @js(__('website.auth.sign_in')) )"></span>
+                    </button>
+                </div>
+
+                <div x-show="authTab==='register'" class="gw-auth-fields">
+                    <label class="gw-auth-label">{{ __('website.auth.full_name') }}
+                        <input x-model="authRegister.name" type="text" placeholder="{{ __('website.auth.full_name') }}" class="gw-auth-input" autocomplete="name">
+                    </label>
+                    <label class="gw-auth-label">{{ __('website.auth.phone') }}
+                        <input x-model="authRegister.phone" type="text" placeholder="01XXXXXXXXX" class="gw-auth-input" autocomplete="tel">
+                    </label>
+                    <label class="gw-auth-label">{{ __('website.auth.email') }}
+                        <input x-model="authRegister.email" type="email" placeholder="you@email.com" class="gw-auth-input" autocomplete="email">
+                    </label>
+                    <label class="gw-auth-label">{{ __('website.auth.password_min') }}
+                        <input x-model="authRegister.password" type="password" placeholder="••••••••" class="gw-auth-input" autocomplete="new-password">
+                    </label>
+                    <label class="gw-auth-label">{{ __('website.auth.address_optional') }}
+                        <textarea x-model="authRegister.address" placeholder="{{ __('website.auth.address_optional') }}" class="gw-auth-input gw-auth-textarea" rows="2"></textarea>
+                    </label>
+                    <button type="button" @click="submitRegister()" :disabled="authLoading" class="gw-auth-submit disabled:opacity-50">
+                        <span x-text="authLoading ? @js(__('website.auth.creating')) : @js(__('website.auth.create_account_btn'))"></span>
+                    </button>
+                </div>
+
+                <p x-show="authMessage" x-text="authMessage" class="gw-auth-message" :class="authMessageOk ? 'is-ok' : 'is-err'"></p>
+
+                <template x-if="authPurpose === 'checkout'">
+                    <div class="gw-auth-guest">
+                        <div class="gw-auth-or"><span>{{ __('website.auth.or') }}</span></div>
+                        <button type="button" @click="continueAsGuest()" class="gw-auth-guest-btn">
+                            {{ __('website.auth.continue_guest') }}
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 12h14m-6-6 6 6-6 6"/></svg>
+                        </button>
+                        <p class="gw-auth-guest-note">{{ __('website.auth.guest_track_note') }}</p>
+                    </div>
+                </template>
+            </div>
         </div>
 
         {{-- Order step --}}
-        <div x-show="checkoutStep==='order'" x-cloak>
+        <div x-show="checkoutStep==='order'" x-cloak class="p-4 sm:p-6">
             <h3 class="text-xl font-bold text-slate-900 pr-8">{{ __('website.checkout.place_order') }}</h3>
             <p class="text-sm text-slate-500 mt-1 mb-4"><span x-text="cartCount"></span> item(s) · Subtotal <span class="font-semibold text-slate-800" x-text="currency + Math.round(Number(cartTotal) || 0).toLocaleString()"></span></p>
 
@@ -1184,7 +1211,7 @@
         </div>
 
         {{-- Success step --}}
-        <div x-show="checkoutStep==='success'" x-cloak class="gaget-order-success text-center py-2">
+        <div x-show="checkoutStep==='success'" x-cloak class="gaget-order-success text-center p-4 sm:p-6 py-6">
             <div class="gaget-order-success__burst" aria-hidden="true">
                 <span></span><span></span><span></span><span></span><span></span><span></span>
             </div>

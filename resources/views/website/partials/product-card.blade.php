@@ -7,6 +7,22 @@
     $displayName = $product->storefrontDisplayName();
     $catLabel = $product->category?->name ?? $product->brand_name ?? '';
     $isNew = $product->showsAsNew();
+    $shadeDots = [];
+    if ($product->variant_group) {
+        $shadeDots = \App\Models\Product::query()
+            ->where('shop_id', $product->shop_id)
+            ->where('variant_group', $product->variant_group)
+            ->where(fn ($q) => $q->where('is_published', true)->orWhereNull('is_published'))
+            ->whereNotNull('color_hex')
+            ->orderBy('id')
+            ->limit(6)
+            ->pluck('color_hex')
+            ->filter()
+            ->values()
+            ->all();
+    } elseif (filled($product->color_hex)) {
+        $shadeDots = [$product->color_hex];
+    }
     $cartItem = [
         'id' => $product->id,
         'name' => $displayName,
@@ -41,6 +57,14 @@
     <div class="gaget-product-body">
         <p class="gaget-product-cat">{{ $catLabel }}</p>
         <a href="{{ route('website.product', $product) }}" class="gaget-product-name">{{ $displayName }}</a>
+
+        @if(count($shadeDots) > 0)
+            <div class="gs-shade-dots" aria-hidden="true">
+                @foreach($shadeDots as $hex)
+                    <span class="gs-shade-dot" style="background: {{ $hex }}"></span>
+                @endforeach
+            </div>
+        @endif
 
         @if(($product->review_count ?? 0) > 0)
         <div class="gaget-stars">

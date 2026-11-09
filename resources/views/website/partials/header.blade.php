@@ -150,7 +150,7 @@
                                     {{ website_nav_label($link->label) }}
                                     <svg class="gaget-nav-chevron" :class="{ 'is-open': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
-                                <div class="gaget-nav-dropdown-menu" @mouseover="track($event)" @focusin="track($event)" @mouseleave="untrack()">
+                                <div class="gaget-nav-dropdown-menu gaget-nav-dropdown-menu--categories" @mouseover="track($event)" @focusin="track($event)" @mouseleave="untrack()">
                                     <span class="gaget-nav-dropdown-glow" aria-hidden="true" :class="{ 'is-on': hl.on, 'is-snap': hl.snap }" :style="`--hl-y:${hl.y}px;--hl-h:${hl.h}px`"></span>
                                     @include('website.partials.nav-dropdown-categories', ['allUrl' => $link->url ?: route('website.shop')])
                                 </div>
@@ -196,7 +196,7 @@
                                     {{ __('website.nav.shop') }}
                                     <svg class="gaget-nav-chevron" :class="{ 'is-open': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
-                                <div class="gaget-nav-dropdown-menu" @mouseover="track($event)" @focusin="track($event)" @mouseleave="untrack()">
+                                <div class="gaget-nav-dropdown-menu gaget-nav-dropdown-menu--shop" @mouseover="track($event)" @focusin="track($event)" @mouseleave="untrack()">
                                     <span class="gaget-nav-dropdown-glow" aria-hidden="true" :class="{ 'is-on': hl.on, 'is-snap': hl.snap }" :style="`--hl-y:${hl.y}px;--hl-h:${hl.h}px`"></span>
                                     @include('website.partials.nav-dropdown-shop')
                                 </div>
@@ -238,7 +238,7 @@
                                 {{ __('website.nav.shop') }}
                                 <svg class="gaget-nav-chevron" :class="{ 'is-open': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </button>
-                            <div class="gaget-nav-dropdown-menu" @mouseover="track($event)" @focusin="track($event)" @mouseleave="untrack()">
+                            <div class="gaget-nav-dropdown-menu gaget-nav-dropdown-menu--shop" @mouseover="track($event)" @focusin="track($event)" @mouseleave="untrack()">
                                 <span class="gaget-nav-dropdown-glow" aria-hidden="true" :class="{ 'is-on': hl.on, 'is-snap': hl.snap }" :style="`--hl-y:${hl.y}px;--hl-h:${hl.h}px`"></span>
                                 @include('website.partials.nav-dropdown-shop')
                             </div>
@@ -261,7 +261,7 @@
                                 {{ __('website.nav.categories') }}
                                 <svg class="gaget-nav-chevron" :class="{ 'is-open': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </button>
-                            <div class="gaget-nav-dropdown-menu" @mouseover="track($event)" @focusin="track($event)" @mouseleave="untrack()">
+                            <div class="gaget-nav-dropdown-menu gaget-nav-dropdown-menu--categories" @mouseover="track($event)" @focusin="track($event)" @mouseleave="untrack()">
                                 <span class="gaget-nav-dropdown-glow" aria-hidden="true" :class="{ 'is-on': hl.on, 'is-snap': hl.snap }" :style="`--hl-y:${hl.y}px;--hl-h:${hl.h}px`"></span>
                                 @include('website.partials.nav-dropdown-categories', ['allUrl' => route('website.shop')])
                             </div>
@@ -621,12 +621,15 @@
 
             @if(($allCategories ?? collect())->isNotEmpty())
                 <div class="gw-mobile-cats" aria-label="{{ __('website.mobile.shop_by_category') }}">
-                    @foreach(($allCategories ?? collect())->take(6) as $cat)
+                    @foreach(($allCategories ?? collect())->take(8) as $cat)
+                        @php $mobileCatMeta = $cat->iconMeta(); @endphp
                         <a href="{{ route('website.category', $cat->slug) }}" class="gw-mobile-cat" @click="mobileOpen = false">
                             @if(filled($cat->image_path ?? null))
                                 <img src="{{ public_storage_url($cat->image_path) }}" alt="" loading="lazy" decoding="async">
                             @else
-                                <span class="gw-mobile-cat-fallback" aria-hidden="true">{{ mb_strtoupper(mb_substr($cat->name, 0, 1)) }}</span>
+                                <span class="gw-mobile-cat-ico" style="--dd-bg: {{ $mobileCatMeta['bg'] }}; --dd-fg: {{ $mobileCatMeta['color'] }};" aria-hidden="true">
+                                    @include('website.partials.category-icon-svg', ['icon' => $mobileCatMeta['key'], 'class' => ''])
+                                </span>
                             @endif
                             <span>{{ $cat->name }}</span>
                         </a>
@@ -652,7 +655,11 @@
                             <div class="gaget-mobile-accordion-panel" x-show="mobileCatsOpen" x-cloak x-transition.opacity.duration.150ms>
                                 <a href="{{ $link->url ?: route('website.shop') }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub" @click="mobileOpen = false">{{ __('website.mobile.all_categories') }}</a>
                                 @foreach(($allCategories ?? []) as $cat)
-                                    <a href="{{ route('website.category', $cat->slug) }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub" @click="mobileOpen = false">
+                                    @php $drawerCatMeta = $cat->iconMeta(); @endphp
+                                    <a href="{{ route('website.category', $cat->slug) }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub gaget-mobile-drawer-link--cat" @click="mobileOpen = false">
+                                        <span class="gaget-mobile-drawer-cat-ico" style="--dd-bg: {{ $drawerCatMeta['bg'] }}; --dd-fg: {{ $drawerCatMeta['color'] }};" aria-hidden="true">
+                                            @include('website.partials.category-icon-svg', ['icon' => $drawerCatMeta['key'], 'class' => ''])
+                                        </span>
                                         <span>{{ $cat->name }}</span>
                                     </a>
                                 @endforeach
@@ -705,7 +712,11 @@
                     <div class="gaget-mobile-accordion-panel" x-show="mobileCatsOpen" x-cloak x-transition.opacity.duration.150ms>
                         <a href="{{ route('website.shop') }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub" @click="mobileOpen = false">{{ __('website.mobile.all_categories') }}</a>
                         @foreach(($allCategories ?? []) as $cat)
-                            <a href="{{ route('website.category', $cat->slug) }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub" @click="mobileOpen = false">
+                            @php $drawerCatMeta = $cat->iconMeta(); @endphp
+                            <a href="{{ route('website.category', $cat->slug) }}" class="gaget-mobile-drawer-link gaget-mobile-drawer-link--sub gaget-mobile-drawer-link--cat" @click="mobileOpen = false">
+                                <span class="gaget-mobile-drawer-cat-ico" style="--dd-bg: {{ $drawerCatMeta['bg'] }}; --dd-fg: {{ $drawerCatMeta['color'] }};" aria-hidden="true">
+                                    @include('website.partials.category-icon-svg', ['icon' => $drawerCatMeta['key'], 'class' => ''])
+                                </span>
                                 <span>{{ $cat->name }}</span>
                             </a>
                         @endforeach

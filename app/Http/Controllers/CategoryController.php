@@ -62,12 +62,16 @@ class CategoryController extends Controller
 
         $category = Category::create($payload);
 
+        // Link cosmetics attributes for this category (same as product form expects).
+        \App\Models\ProductAttribute::ensureDefaults((int) $category->shop_id);
+
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
                 'category' => [
                     'id' => $category->id,
                     'name' => $category->name,
+                    'icon' => $category->icon,
                 ],
             ]);
         }

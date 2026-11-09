@@ -1115,4 +1115,75 @@ class WebsiteService
                 ->update(['brand_name' => $keeper->name]);
         }
     }
+
+    /**
+     * Product-page trust row: CMS Store promises, gated by Delivery settings.
+     *
+     * @param  iterable<int, object>|null  $features
+     * @return list<array{0: string, 1: string}>
+     */
+    public function productTrustItems($features = null, ?array $deliveryConfig = null, ?object $settings = null): array
+    {
+        $settings ??= $this->settings();
+        $delivery = $deliveryConfig ?? app(DeliveryChargeService::class)->publicConfig($settings instanceof SiteSetting ? $settings : null);
+        $freeOn = (bool) ($delivery['free_enabled'] ?? false);
+        $freeMin = (float) ($delivery['free_min_amount'] ?? 0);
+        $codOn = (bool) ($delivery['cod_enabled'] ?? false);
+
+        $items = [];
+        $sawFree = false;
+        $sawCod = false;
+
+        foreach (collect($features ?? []) as $feature) {
+            $title = trim((string) ($feature->title ?? ''));
+            if ($title === '') {
+                continue;
+            }
+
+            $hay = mb_strtolower($title.' '.($feature->icon ?? ''));
+            $isFree = (bool) preg_match('/(free).*(deliver|ship)|(deliver|ship).*free|ফ্রি.*(ডেলিভারি|শিপিং)/u', $hay);
+            $isCod = (bool) preg_match('/cash on delivery|\bcod\b|ক্যাশ অন ডেলিভারি/u', $hay);
+
+            if ($isFree) {
+                $sawFree = true;
+                if (! $freeOn) {
+                    continue;
+                }
+                $items[] = [
+                    $title,
+                    $freeMin > 0
+                        ? __('website.product.trust_free_over', ['amount' => $this->formatPrice($freeMin, $settings)])
+                        : __('website.product.trust_free_all'),
+                ];
+                continue;
+            }
+
+            if ($isCod) {
+                $sawCod = true;
+                if (! $codOn) {
+                    continue;
+                }
+                $sub = trim((string) ($feature->subtitle ?? ''));
+                $items[] = [$title, $sub !== '' ? $sub : __('website.product.trust_cod_sub')];
+                continue;
+            }
+
+            $items[] = [$title, (string) ($feature->subtitle ?? '')];
+        }
+
+        if ($freeOn && ! $sawFree) {
+            array_unshift($items, [
+                __('website.product.trust_free_title'),
+                $freeMin > 0
+                    ? __('website.product.trust_free_over', ['amount' => $this->formatPrice($freeMin, $settings)])
+                    : __('website.product.trust_free_all'),
+            ]);
+        }
+
+        if ($codOn && ! $sawCod) {
+            $items[] = [__('website.product.trust_cod_title'), __('website.product.trust_cod_sub')];
+        }
+
+        return array_slice($items, 0, 4);
+    }
 }

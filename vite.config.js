@@ -11,6 +11,7 @@ export default defineConfig({
                 'resources/css/website-theme.css',
                 'resources/css/website-glow.css',
                 'resources/js/app.js',
+                'resources/js/website-lottie.js',
             ],
             refresh: true,
         }),

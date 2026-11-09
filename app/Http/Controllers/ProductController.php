@@ -131,7 +131,9 @@ class ProductController extends Controller
         $categories = Category::where('shop_id', $shopId)->orderBy('name')->get();
         $brands = Brand::where('shop_id', $shopId)->where('is_active', true)->orderBy('name')->get();
         $returnTo = $this->productReturnRoute($request->query('from'));
-        $productAttributes = ProductAttribute::forShop($shopId)->with('values')->get();
+        $productAttributes = ProductAttribute::forShop($shopId)
+            ->with(['values', 'categories:id'])
+            ->get();
         $variantOf = $request->filled('variant_of')
             ? Product::where('shop_id', $shopId)->find((int) $request->query('variant_of'))
             : null;
@@ -143,6 +145,11 @@ class ProductController extends Controller
     {
         $shopId = Auth::user()->shop_id;
         $isVariable = $request->input('product_mode') === 'variable';
+        $isComboMode = $request->input('product_mode') === 'combo';
+
+        if ($isComboMode) {
+            $request->merge(['is_combo' => 1]);
+        }
 
         if ($isVariable && is_array($request->input('variants'))) {
             $variants = $request->input('variants', []);
@@ -157,7 +164,7 @@ class ProductController extends Controller
         }
 
         $rules = array_merge($this->productRules($shopId), [
-            'product_mode' => 'required|in:simple,variable',
+            'product_mode' => 'required|in:simple,variable,combo',
             'barcode' => ['nullable', 'string', 'max:100', Rule::unique('products', 'barcode')],
             'stock_quantity' => 'nullable|integer|min:0',
             'variant_of' => 'nullable|integer',
@@ -179,6 +186,11 @@ class ProductController extends Controller
                 'variants.*.images' => 'nullable|array|max:20',
                 'variants.*.images.*' => 'image|mimes:jpeg,png,jpg,webp,gif|max:5120',
             ]);
+        }
+
+        if ($isComboMode) {
+            $rules['combo_items'] = 'required|string|min:3|max:2000';
+            $rules['is_combo'] = 'accepted';
         }
 
         $validated = $request->validate($rules);
@@ -215,12 +227,13 @@ class ProductController extends Controller
             : null;
 
         try {
-            $created = DB::transaction(function () use ($request, $validated, $shopId, $openingQty, $isVariable, $requiresImei, $attributes, $variantOf, &$uploadedPaths) {
+            $created = DB::transaction(function () use ($request, $validated, $shopId, $openingQty, $isVariable, $isComboMode, $requiresImei, $attributes, $variantOf, &$uploadedPaths) {
                 $ogImage = $this->storeOgImage($request);
                 if ($ogImage) {
                     $uploadedPaths[] = $ogImage;
                 }
 
+                $asCombo = $isComboMode || $request->boolean('is_combo');
                 $shared = [
                     'shop_id' => $shopId,
                     'name' => $validated['name'],
@@ -247,8 +260,8 @@ class ProductController extends Controller
                     'is_new_arrival' => $request->boolean('is_new_arrival'),
                     'is_best_seller' => $request->boolean('is_best_seller'),
                     'is_featured' => $request->boolean('is_featured'),
-                    'is_combo' => $request->boolean('is_combo'),
-                    'combo_items' => $request->boolean('is_combo') ? ($validated['combo_items'] ?? null) : null,
+                    'is_combo' => $asCombo,
+                    'combo_items' => $asCombo ? ($validated['combo_items'] ?? null) : null,
                 ];
                 $shared = $this->normalizeVariantFields($this->applyBrandData($shared));
 
@@ -371,7 +384,9 @@ class ProductController extends Controller
 
         $categories = Category::where('shop_id', $shopId)->orderBy('name')->get();
         $brands = Brand::where('shop_id', $shopId)->orderBy('name')->get();
-        $productAttributes = ProductAttribute::forShop($shopId)->with('values')->get();
+        $productAttributes = ProductAttribute::forShop($shopId)
+            ->with(['values', 'categories:id'])
+            ->get();
         $product->load(['galleryImages', 'availableImeis', 'variantValues.attributeValue']);
         $siblings = $product->variant_group
             ? Product::where('shop_id', $shopId)
@@ -476,7 +491,7 @@ class ProductController extends Controller
             'sku' => 'nullable|string|max:100',
             'variant_group' => 'nullable|string|max:120',
             'attributes' => 'nullable|array',
-            'attributes.*.value' => 'nullable|string|max:120',
+            'attributes.*.value' => 'nullable|string|max:500',
             'attributes.*.hex' => 'nullable|string|max:7',
             'requires_imei' => 'nullable|boolean',
             'imei_list' => 'nullable|string|max:10000',

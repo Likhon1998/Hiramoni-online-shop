@@ -10,38 +10,36 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/website-lottie.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         [x-cloak]{display:none!important}
 
-        /* ── Brand base ── */
-        body.admin-panel{color:#3a2a24}
-        body.admin-panel h1,body.admin-panel h2,body.admin-panel .font-display{
-            font-family:'Fredoka','Nunito',ui-sans-serif,system-ui,sans-serif;font-weight:600;letter-spacing:0
+        /* Beauty admin — calm rose palette, no motion */
+        body.admin-panel{
+            color:#3a1f2e;
+            font-family:'DM Sans',ui-sans-serif,system-ui,sans-serif;
         }
-        body.admin-panel .rounded-xl{border-radius:14px}
-        body.admin-panel .rounded-2xl{border-radius:18px}
-        body.admin-panel .shadow-sm{box-shadow:0 1px 2px rgba(74,48,38,.04),0 4px 14px -6px rgba(74,48,38,.08)}
-        body.admin-panel .shadow{box-shadow:0 2px 4px rgba(74,48,38,.05),0 8px 20px -8px rgba(74,48,38,.12)}
+        body.admin-panel h1,body.admin-panel h2,body.admin-panel .font-display{
+            font-family:'DM Sans',ui-sans-serif,system-ui,sans-serif;font-weight:700;letter-spacing:-.01em
+        }
+        body.admin-panel .rounded-xl{border-radius:12px}
+        body.admin-panel .rounded-2xl{border-radius:16px}
+        body.admin-panel .shadow-sm{box-shadow:0 1px 2px rgba(58,31,46,.04),0 4px 12px -6px rgba(136,14,79,.08)}
+        body.admin-panel .shadow{box-shadow:0 2px 4px rgba(58,31,46,.04),0 8px 18px -8px rgba(136,14,79,.1)}
         body.admin-panel input:not([type=checkbox]):not([type=radio]):focus,
         body.admin-panel select:focus,
         body.admin-panel textarea:focus{
-            border-color:#b39cf0;--tw-ring-color:rgba(139,111,214,.28);outline:none
+            border-color:#E91E63;--tw-ring-color:rgba(233,30,99,.18);outline:none
         }
-        body.admin-panel ::selection{background:#efe9fc;color:#3a2a24}
+        body.admin-panel ::selection{background:#FCE4EC;color:#3a1f2e}
         .admin-scroll-hide{
             background:
-                radial-gradient(900px 380px at 100% -8%, rgba(239,233,252,.75), transparent 62%),
-                radial-gradient(720px 360px at -8% 100%, rgba(252,235,221,.55), transparent 60%),
-                #fffaf5
+                radial-gradient(900px 380px at 100% -8%, rgba(252,228,236,.55), transparent 62%),
+                radial-gradient(720px 360px at -8% 100%, rgba(255,245,248,.7), transparent 60%),
+                #FFF8FB
         }
-
-        .bb-lottie{position:relative;display:inline-grid;place-items:center;line-height:0;container-type:size}
-        .bb-lottie svg{position:absolute;inset:0;width:100%!important;height:100%!important}
-        .bb-lottie-fallback{font-size:min(26px,70cqmin);line-height:1}
-        .bb-lottie.is-lottie-ready .bb-lottie-fallback{display:none}
 
         .powered-by-admin{
             flex-shrink:0;
@@ -50,22 +48,23 @@
             font-size:11px;
             font-weight:600;
             letter-spacing:.03em;
-            color:#654f45;
-            border-top:1px solid #f2e6dc;
+            color:#8A6B7A;
+            border-top:1px solid #F5D6E5;
             background:transparent;
         }
-        .powered-by-admin strong{color:#3a2a24;font-weight:800}
+        .powered-by-admin strong{color:#3a1f2e;font-weight:700}
         .powered-by-admin a,.powered-by-link{color:inherit;text-decoration:none}
-        .powered-by-admin a:hover,.powered-by-admin .powered-by-link:hover{color:#b84f2c;text-decoration:underline}
+        .powered-by-admin a:hover,.powered-by-admin .powered-by-link:hover{color:#C2185B;text-decoration:underline}
 
-        /* ── Admin sidebar (warm light theme) ── */
         :root{
             --sb-bg:#ffffff;
-            --sb-line:#f2e6dc;
-            --sb-text:#6f5b52;
-            --sb-text-strong:#3a2a24;
-            --sb-muted:#8a7468;
-            --sb-hover:#fdf3ec;
+            --sb-line:#F5D6E5;
+            --sb-text:#7A5566;
+            --sb-text-strong:#3a1f2e;
+            --sb-muted:#9A6B7D;
+            --sb-hover:#FFF5F8;
+            --sb-active:#FCE4EC;
+            --sb-accent:#C2185B;
             --sb-width:244px;
             --sb-rail:68px;
             --sb-top:3.5rem
@@ -75,9 +74,8 @@
             display:flex;flex-direction:column;
             width:var(--sb-width);min-width:var(--sb-width);max-width:var(--sb-width);
             flex:0 0 var(--sb-width);height:100vh;
-            background:linear-gradient(180deg,#fff 0%,#fffdfb 60%,#fff6ee 100%);
+            background:#fff;
             border-right:1px solid var(--sb-line);
-            box-shadow:6px 0 24px -12px rgba(74,48,38,.12);
             color:var(--sb-text);overflow:hidden
         }
         .admin-sidebar.is-collapsed{
@@ -88,18 +86,17 @@
         .admin-sidebar-close{display:none}
         .sidebar-collapse-btn{
             display:inline-flex;align-items:center;justify-content:center;
-            width:26px;height:26px;border-radius:999px;border:1px solid var(--sb-line);
-            color:var(--sb-muted);background:#fff;
-            transition:color .15s ease,background .15s ease,border-color .15s ease,transform .2s ease
+            width:26px;height:26px;border-radius:8px;border:1px solid var(--sb-line);
+            color:var(--sb-muted);background:#fff
         }
         .sidebar-collapse-btn:hover{
-            color:#b84f2c;background:var(--sb-hover);border-color:#f6d9c8;transform:scale(1.06)
+            color:var(--sb-accent);background:var(--sb-hover);border-color:#F8BBD0
         }
         .admin-topbar{
             position:fixed;top:0;right:0;left:var(--sb-width);height:var(--sb-top);z-index:30;
             display:flex;align-items:center;gap:.75rem;padding:0 1.15rem;
-            background:rgba(255,250,245,.86);backdrop-filter:blur(14px);
-            border-bottom:1px solid var(--sb-line);transition:left .22s ease
+            background:rgba(255,248,251,.92);backdrop-filter:blur(10px);
+            border-bottom:1px solid var(--sb-line)
         }
         .admin-topbar.is-rail{left:var(--sb-rail)}
 
@@ -107,14 +104,14 @@
             .admin-sidebar{
                 position:fixed;top:0;left:0;bottom:0;height:auto;
                 width:min(288px,88vw);min-width:0;max-width:min(288px,88vw);flex:none;
-                transform:translateX(-105%);transition:transform .26s ease;
-                box-shadow:16px 0 48px rgba(74,48,38,.22)
+                transform:translateX(-105%);
+                box-shadow:16px 0 40px rgba(58,20,40,.18)
             }
             .admin-sidebar.is-collapsed{width:min(288px,88vw);min-width:0;max-width:min(288px,88vw);flex:none}
             .admin-sidebar.is-mobile-open{transform:translateX(0)}
             .admin-sidebar-backdrop{
                 display:none;position:fixed;inset:0;z-index:40;
-                background:rgba(58,42,36,.35);backdrop-filter:blur(2px)
+                background:rgba(58,20,40,.35)
             }
             .admin-sidebar-backdrop.is-visible{display:block}
             .admin-mobile-menu-btn{display:inline-flex}
@@ -125,26 +122,23 @@
         }
 
         .admin-sidebar .sidebar-head{
-            height:var(--sb-top);padding:0 .75rem 0 .9rem;border-bottom:1px dashed var(--sb-line)
+            height:var(--sb-top);padding:0 .75rem 0 .9rem;border-bottom:1px solid var(--sb-line)
         }
         .sidebar-brand-link{color:var(--sb-text-strong) !important;text-decoration:none}
-        .sidebar-brand-text{font-family:'Fredoka','Nunito',sans-serif;font-size:16px;font-weight:600;letter-spacing:0;line-height:1.15}
-        .sidebar-brand-mark{border-radius:10px}
-        .sidebar-brand-lottie{background:#fcebdd;box-shadow:0 3px 0 #f6d9c8}
-        .sidebar-brand-lottie .bb-lottie{width:24px;height:24px}
+        .sidebar-brand-text{font-size:15px;font-weight:700;letter-spacing:-.01em;line-height:1.15}
+        .sidebar-brand-mark{border-radius:999px;background:#FFF5F8;border:1px solid #F8BBD0}
         .admin-sidebar-nav{
-            padding:.6rem .6rem 1.25rem;
-            scrollbar-width:thin;scrollbar-color:#f0e4da transparent
+            padding:.55rem .55rem 1.1rem;
+            scrollbar-width:thin;scrollbar-color:#F8BBD0 transparent
         }
-        .nav-divider{height:0;margin:.6rem .4rem .55rem;border-top:1px dashed var(--sb-line)}
+        .nav-divider{height:0;margin:.55rem .35rem .5rem;border-top:1px solid var(--sb-line)}
 
         .nav-link,.nav-group{
             display:flex;align-items:center;width:100%;gap:10px;
-            padding:5px 8px;margin:2px 0;border-radius:12px;
+            padding:7px 8px;margin:1px 0;border-radius:10px;
             font-size:13px;font-weight:600;letter-spacing:0;
             color:var(--sb-text);text-align:left;background:transparent;border:0;
-            cursor:pointer;text-decoration:none;line-height:1.2;
-            transition:background .18s ease,color .18s ease,transform .18s ease,box-shadow .18s ease
+            cursor:pointer;text-decoration:none;line-height:1.2
         }
         .nav-group{justify-content:space-between}
         .nav-group-main{display:flex;align-items:center;gap:10px;min-width:0}
@@ -154,97 +148,63 @@
         .nav-link--badge .nav-label{flex:1;min-width:0}
 
         .nav-ico-wrap{
-            width:30px;height:30px;flex-shrink:0;border-radius:10px;
+            width:28px;height:28px;flex-shrink:0;border-radius:8px;
             display:inline-flex;align-items:center;justify-content:center;
-            color:var(--tone,#8c776d);background:var(--tone-bg,#f8f1eb);
-            transition:transform .22s cubic-bezier(.34,1.56,.64,1),background .18s ease,box-shadow .18s ease,color .18s ease
+            color:#9A6B7D;background:#FFF5F8
         }
         .nav-ico{width:15px;height:15px;stroke-width:1.9}
-        .nav-link:hover .nav-ico-wrap,.nav-group:hover .nav-ico-wrap{transform:translateY(-1px) rotate(-4deg) scale(1.06)}
 
-        /* Active / open: tinted row + candy-filled icon in the feature's tone */
-        .nav-link.is-active,.nav-group.is-open{font-weight:800;color:var(--sb-text-strong)}
-        .nav-link.is-active{background:linear-gradient(90deg,var(--tone-bg,#fdf3ec),rgba(255,255,255,0) 92%)}
-        .nav-group.is-open{background:linear-gradient(90deg,var(--tone-bg,#fdf3ec),rgba(255,255,255,0) 80%)}
+        .nav-link.is-active,.nav-group.is-open{font-weight:700;color:var(--sb-accent)}
+        .nav-link.is-active{background:var(--sb-active)}
+        .nav-group.is-open{background:var(--sb-hover)}
         .nav-link.is-active .nav-ico-wrap,.nav-group.is-open .nav-ico-wrap{
-            color:#fff;background:var(--tone,#ec8560);
-            box-shadow:0 3px 0 var(--tone-edge,rgba(0,0,0,.12)),0 6px 14px -4px var(--tone-glow,rgba(0,0,0,.18));
-            animation:navIcoPop .42s cubic-bezier(.34,1.45,.64,1) both
-        }
-        @keyframes navIcoPop{
-            0%{transform:scale(.86) rotate(-6deg)}
-            55%{transform:scale(1.14) rotate(3deg)}
-            100%{transform:scale(1) rotate(0)}
-        }
-        @media (prefers-reduced-motion:reduce){
-            .nav-link.is-active .nav-ico-wrap,.nav-group.is-open .nav-ico-wrap{animation:none}
-            .nav-link:hover .nav-ico-wrap,.nav-group:hover .nav-ico-wrap{transform:none}
+            color:#fff;background:var(--sb-accent)
         }
 
-        .nav-tone-dash{--tone:#c95a34;--tone-bg:#fde8dd;--tone-edge:#9e4225;--tone-glow:rgba(201,90,52,.4)}
-        .nav-tone-sales,.nav-tone-credit{--tone:#557a41;--tone-bg:#e9f1e1;--tone-edge:#3f5c2f;--tone-glow:rgba(85,122,65,.4)}
-        .nav-tone-orders,.nav-tone-catalog{--tone:#7657c9;--tone-bg:#efe9fc;--tone-edge:#553a9e;--tone-glow:rgba(118,87,201,.4)}
-        .nav-tone-products,.nav-tone-cash{--tone:#a8620c;--tone-bg:#fdf1d6;--tone-edge:#7f4a08;--tone-glow:rgba(168,98,12,.38)}
-        .nav-tone-customers,.nav-tone-reports{--tone:#2a74a4;--tone-bg:#e2f1fa;--tone-edge:#1d5a82;--tone-glow:rgba(42,116,164,.38)}
-        .nav-tone-accounts{--tone:#1d7c6f;--tone-bg:#dcf3ef;--tone-edge:#145c52;--tone-glow:rgba(29,124,111,.38)}
-        .nav-tone-alert{--tone:#c43d63;--tone-bg:#fde4ea;--tone-edge:#9c2e4e;--tone-glow:rgba(196,61,99,.38)}
-        .nav-tone-inventory{--tone:#b84f2c;--tone-bg:#fde8dd;--tone-edge:#8a3a20;--tone-glow:rgba(184,79,44,.38)}
-        .nav-tone-web{--tone:#b0407f;--tone-bg:#fbe4f1;--tone-edge:#8a2f62;--tone-glow:rgba(176,64,127,.38)}
-        .nav-tone-team{--tone:#6f5b52;--tone-bg:#f3ebe4;--tone-edge:#54423a;--tone-glow:rgba(111,91,82,.32)}
-        .nav-tone-alert.is-active .nav-ico-wrap{animation:navIcoPulse 1.6s ease-in-out infinite}
-        @keyframes navIcoPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
-
-        .nav-chevron{
-            width:11px;height:11px;flex-shrink:0;opacity:.4;
-            transition:transform .18s ease,opacity .12s ease
-        }
+        .nav-chevron{width:11px;height:11px;flex-shrink:0;opacity:.4}
         .nav-group:hover .nav-chevron,.nav-group.is-open .nav-chevron{opacity:.75}
 
         .nav-submenu{
-            margin:2px 0 6px 22px;padding:2px 0 2px 10px;
+            margin:2px 0 6px 18px;padding:2px 0 2px 10px;
             border-left:2px solid var(--sb-line);
             display:flex;flex-direction:column;gap:1px
         }
         .nav-sub{
             display:flex;align-items:center;gap:8px;
-            padding:5px 9px;border-radius:10px;
-            font-size:12.5px;font-weight:600;color:#654f45;
-            transition:background .14s ease,color .14s ease,transform .14s ease,box-shadow .14s ease;
+            padding:6px 9px;border-radius:8px;
+            font-size:12.5px;font-weight:600;color:#7A5566;
             text-decoration:none;letter-spacing:0;line-height:1.2
         }
-        .nav-sub:hover{background:var(--sb-hover);color:var(--sb-text-strong);transform:translateX(2px)}
+        .nav-sub:hover{background:var(--sb-hover);color:var(--sb-text-strong)}
         .nav-sub.is-active{
-            background:#fff;color:var(--sb-text-strong);font-weight:800;
-            box-shadow:0 0 0 1px var(--sb-line),0 3px 10px -4px rgba(74,48,38,.14)
+            background:#fff;color:var(--sb-accent);font-weight:700;
+            border:1px solid #F8BBD0
         }
-        .nav-sub-ico{width:14px;height:14px;flex-shrink:0;opacity:.6;stroke-width:1.8}
-        .nav-sub:hover .nav-sub-ico{opacity:.95}
-        .nav-sub.is-active .nav-sub-ico{opacity:1;color:#b84f2c}
+        .nav-sub-ico{width:14px;height:14px;flex-shrink:0;opacity:.55;stroke-width:1.8}
+        .nav-sub:hover .nav-sub-ico{opacity:.9}
+        .nav-sub.is-active .nav-sub-ico{opacity:1;color:var(--sb-accent)}
         .nav-badge{
             display:inline-flex;align-items:center;justify-content:center;
             min-width:18px;height:18px;padding:0 5px;margin-left:auto;
-            border-radius:999px;background:#c43d63;color:#fff;
-            font-size:9.5px;font-weight:800;line-height:1;
-            box-shadow:0 2px 0 #9c2e4e;
-            animation:navBadgePop .5s ease both
+            border-radius:999px;background:#C2185B;color:#fff;
+            font-size:9.5px;font-weight:700;line-height:1
         }
-        @keyframes navBadgePop{0%{transform:scale(0)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
 
-        /* Sidebar store card */
-        .sidebar-foot{flex-shrink:0;padding:.6rem .7rem .8rem}
+        .sidebar-foot{flex-shrink:0;padding:.55rem .65rem .75rem}
         .sidebar-store-card{
-            position:relative;display:flex;align-items:center;gap:10px;
-            padding:10px 12px;border-radius:16px;text-decoration:none;
-            background:linear-gradient(135deg,#fcebdd 0%,#efe9fc 100%);
-            border:1px solid #f2e6dc;color:#3a2a24;
-            transition:transform .18s ease,box-shadow .18s ease
+            display:flex;align-items:center;gap:10px;
+            padding:10px 12px;border-radius:12px;text-decoration:none;
+            background:#FFF5F8;border:1px solid #F8BBD0;color:#3a1f2e
         }
-        .sidebar-store-card:hover{transform:translateY(-2px);box-shadow:0 10px 22px -10px rgba(139,111,214,.45)}
-        .sidebar-store-card .bb-lottie{width:34px;height:34px;flex-shrink:0}
-        .sidebar-store-card strong{display:block;font-family:'Fredoka','Nunito',sans-serif;font-size:13.5px;font-weight:600;line-height:1.15}
-        .sidebar-store-card small{display:block;font-size:11px;font-weight:700;color:#5a4740}
+        .sidebar-store-card:hover{background:#FCE4EC}
+        .sidebar-store-ico{
+            width:32px;height:32px;flex-shrink:0;border-radius:999px;
+            display:grid;place-items:center;background:#fff;color:#C2185B;border:1px solid #F8BBD0
+        }
+        .sidebar-store-ico svg{width:15px;height:15px}
+        .sidebar-store-card strong{display:block;font-size:13px;font-weight:700;line-height:1.15}
+        .sidebar-store-card small{display:block;font-size:11px;font-weight:500;color:#8A6B7A}
 
-        /* Collapsed rail */
         .admin-sidebar.is-collapsed .nav-label,
         .admin-sidebar.is-collapsed .nav-chevron,
         .admin-sidebar.is-collapsed .nav-badge,
@@ -267,21 +227,39 @@
         .admin-sidebar.is-collapsed .admin-sidebar-nav{padding:.35rem .28rem 1rem}
         .admin-sidebar.is-collapsed .nav-submenu{display:none !important}
 
-        /* Top bar actions */
         .admin-topbar .topbar-pill{
             display:inline-flex;align-items:center;gap:6px;border-radius:999px;
-            padding:7px 14px;font-size:12px;font-weight:800;line-height:1;color:#fff;
-            transition:transform .15s ease,box-shadow .15s ease,filter .15s ease
+            padding:7px 14px;font-size:12px;font-weight:700;line-height:1;color:#fff
         }
-        .admin-topbar .topbar-pill:hover{transform:translateY(-1px);filter:brightness(1.04)}
-        .admin-topbar .topbar-pill:active{transform:translateY(1px)}
-        .admin-topbar .topbar-pill--pos{background:#6a4bc4;box-shadow:0 3px 0 #4f3597}
-        .admin-topbar .topbar-pill--store{background:#bf5230;box-shadow:0 3px 0 #963d20}
-        .admin-topbar .topbar-icon-btn{border-radius:999px !important}
+        .admin-topbar .topbar-pill--pos{background:#C2185B}
+        .admin-topbar .topbar-pill--store{background:#AD1457}
+        .admin-topbar .topbar-icon-btn{border-radius:10px !important;border-color:#F5D6E5 !important}
+        .admin-topbar .topbar-icon-btn:hover{
+            border-color:#F8BBD0 !important;background:#FFF5F8 !important;color:#C2185B !important
+        }
         @media (max-width:639px){.admin-topbar .topbar-pill{padding:7px 11px;font-size:11px}}
+
+        body.admin-panel header.bg-white\/80,
+        body.admin-panel header[class*="bg-white"]{
+            background:rgba(255,255,255,.92) !important;
+            border-color:#F5D6E5 !important
+        }
+        body.admin-panel .bg-blue-600,
+        body.admin-panel .bg-indigo-600,
+        body.admin-panel .bg-violet-600{background-color:#C2185B !important}
+        body.admin-panel .hover\:bg-blue-700:hover,
+        body.admin-panel .hover\:bg-indigo-700:hover{background-color:#AD1457 !important}
+        body.admin-panel .text-blue-600,
+        body.admin-panel .text-indigo-600,
+        body.admin-panel .text-violet-600{color:#C2185B !important}
+        body.admin-panel .border-blue-200,
+        body.admin-panel .border-indigo-200{border-color:#F8BBD0 !important}
+        body.admin-panel .bg-blue-50,
+        body.admin-panel .bg-indigo-50,
+        body.admin-panel .hover\:bg-blue-50:hover{background-color:#FFF5F8 !important}
     </style>
 </head>
-<body class="admin-panel font-sans antialiased text-slate-900 bg-[#fffaf5]">
+<body class="admin-panel font-sans antialiased text-slate-900 bg-[#FFF8FB]">
     @php
         $adminFlash = array_filter([
             'success' => session('success'),
@@ -363,6 +341,7 @@
                 credentials: 'same-origin',
                 keepalive: true,
             });
+            const PANEL_ID = 'alerts';
             return {
                 panelOpen: false,
                 loading: false,
@@ -371,6 +350,11 @@
                 init() {
                     this.load();
                     setInterval(() => this.load(), 60000);
+                    window.addEventListener('admin-topbar-panel', (e) => {
+                        if (e.detail?.id !== PANEL_ID && this.panelOpen) {
+                            this.panelOpen = false;
+                        }
+                    });
                 },
                 async load() {
                     this.loading = true;
@@ -390,7 +374,10 @@
                 },
                 toggle() {
                     this.panelOpen = !this.panelOpen;
-                    if (this.panelOpen) this.load();
+                    if (this.panelOpen) {
+                        window.dispatchEvent(new CustomEvent('admin-topbar-panel', { detail: { id: PANEL_ID } }));
+                        this.load();
+                    }
                 },
                 async open(item, event) {
                     event.preventDefault();
@@ -415,6 +402,7 @@
         }
 
         function onlineOrderBell(listUrl, seenUrl) {
+            const PANEL_ID = 'online-orders';
             return {
                 panelOpen: false,
                 loading: false,
@@ -426,6 +414,11 @@
                     this.panelOpen = false;
                     this.fetchBadge();
                     setInterval(() => this.fetchBadge(), 60000);
+                    window.addEventListener('admin-topbar-panel', (e) => {
+                        if (e.detail?.id !== PANEL_ID && this.panelOpen) {
+                            this.closePanel();
+                        }
+                    });
                 },
                 togglePanel(event) {
                     if (event) {
@@ -434,6 +427,7 @@
                     }
                     this.panelOpen = !this.panelOpen;
                     if (this.panelOpen) {
+                        window.dispatchEvent(new CustomEvent('admin-topbar-panel', { detail: { id: PANEL_ID } }));
                         this.fetchList(true);
                     } else {
                         this.markSeen();

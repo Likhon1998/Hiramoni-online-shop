@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
  * Product + Variant + Attribute layer.
  *
  * Every `products` row is a sellable variant (own price, stock, code, photos). Rows that share
- * `variant_group` are one product family; attribute values (Color, Size, …) tell them apart.
+ * `variant_group` are one product family; attribute values (Shade, Size, Finish, …) tell them apart.
  */
 class ProductVariantService
 {
@@ -33,11 +33,11 @@ class ProductVariantService
                 continue;
             }
 
-            $label = trim((string) (is_array($raw) ? ($raw['value'] ?? '') : $raw));
+            $hex = is_array($raw) ? ($raw['hex'] ?? null) : null;
+            $label = $this->normalizeAttributeInput($attribute, $raw);
             if ($label === '') {
                 continue;
             }
-            $hex = is_array($raw) ? ($raw['hex'] ?? null) : null;
 
             $value = $this->resolveValue($attribute, $label, $hex);
             ProductVariantValue::updateOrCreate(
@@ -52,6 +52,46 @@ class ProductVariantService
             ->delete();
 
         $this->mirrorLegacyColumns($product->fresh());
+    }
+
+    /**
+     * Normalize request payload for one attribute into a single stored label.
+     * Multiselect values are comma-joined to preserve the unique (product, attribute) pivot.
+     */
+    public function normalizeAttributeInput(ProductAttribute $attribute, mixed $raw): string
+    {
+        if ($attribute->isBoolean()) {
+            if (is_array($raw)) {
+                $flag = $raw['value'] ?? $raw[0] ?? '';
+            } else {
+                $flag = $raw;
+            }
+            if ($flag === '' || $flag === null) {
+                return '';
+            }
+            $truthy = in_array(strtolower((string) $flag), ['1', 'true', 'yes', 'on'], true) || $flag === true || $flag === 1;
+
+            return $truthy ? 'Yes' : 'No';
+        }
+
+        if ($attribute->isMultiselect()) {
+            if (is_array($raw)) {
+                $parts = $raw['value'] ?? $raw;
+                if (! is_array($parts)) {
+                    $parts = preg_split('/\s*,\s*/', (string) $parts) ?: [];
+                }
+            } else {
+                $parts = preg_split('/\s*,\s*/', (string) $raw) ?: [];
+            }
+
+            return collect($parts)
+                ->map(fn ($v) => trim((string) $v))
+                ->filter()
+                ->unique()
+                ->implode(', ');
+        }
+
+        return trim((string) (is_array($raw) ? ($raw['value'] ?? '') : $raw));
     }
 
     public function resolveValue(ProductAttribute $attribute, string $label, ?string $hex = null): ProductAttributeValue

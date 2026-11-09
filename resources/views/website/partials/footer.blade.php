@@ -176,6 +176,7 @@
 
             <div class="gw-footer-credit">
                 <p class="gw-footer-copy">&copy; {{ date('Y') }} {{ $storeName }}. {{ __('website.footer.rights') }}</p>
+                @include('partials.powered-by', ['variant' => 'footer'])
                 <nav class="gw-footer-legal" aria-label="{{ __('website.footer.legal') }}">
                     @if($privacyUrl)<a href="{{ $privacyUrl }}">{{ __('website.footer.privacy') }}</a>@endif
                     @if($termsUrl)<a href="{{ $termsUrl }}">{{ __('website.footer.terms') }}</a>@endif
