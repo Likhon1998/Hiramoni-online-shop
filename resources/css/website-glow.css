@@ -3425,24 +3425,49 @@ body.gw-home .gaget-header-spacer {
         hyphens: auto;
     }
 
-    /* Dual banners */
+    /* Dual banners — keep both cards on one row */
     .gw-dual-banners {
         padding: 4px max(10px, env(safe-area-inset-left)) 12px max(10px, env(safe-area-inset-right));
     }
-    .gw-dual-grid { grid-template-columns: 1fr; gap: 12px; }
-    .gw-dual-card {
-        height: auto;
-        min-height: 158px;
-        border-radius: 18px;
+    .gw-dual-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 8px;
     }
-    .gw-dual-body { padding: 18px 16px; }
-    .gw-dual-title { font-size: clamp(1.4rem, 5.8vw, 1.75rem); }
-    .gw-dual-sub { font-size: 13px; max-width: 28ch; }
+    .gw-dual-card {
+        height: 132px;
+        min-height: 0;
+        border-radius: 16px;
+    }
+    .gw-dual-body { padding: 12px 10px; gap: 3px; }
+    .gw-dual-badge {
+        padding: 3px 8px;
+        font-size: 8px;
+        letter-spacing: .1em;
+        margin-bottom: 0;
+    }
+    .gw-dual-title {
+        font-size: clamp(0.92rem, 3.6vw, 1.15rem);
+        line-height: 1.15;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .gw-dual-sub {
+        font-size: 10px;
+        line-height: 1.3;
+        max-width: 18ch;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
     .gw-dual-cta {
-        margin-top: 8px;
-        padding: 9px 14px;
-        font-size: 12px;
-        min-height: 40px;
+        margin-top: 6px;
+        padding: 6px 10px;
+        font-size: 10px;
+        min-height: 0;
+        white-space: nowrap;
     }
 
     /* Best sellers — clean 2-column / 2-row product grid */
@@ -3752,9 +3777,12 @@ body.gw-home .gaget-header-spacer {
     }
     .gw-cat-name { font-size: 11.5px; }
 
-    .gw-dual-banners { padding: 2px 10px 10px; }
-    .gw-dual-card { min-height: 148px; border-radius: 16px; }
-    .gw-dual-body { padding: 16px 14px; gap: 4px; }
+    .gw-dual-banners { padding: 2px 8px 10px; }
+    .gw-dual-grid { gap: 6px; }
+    .gw-dual-card { height: 118px; min-height: 0; border-radius: 14px; }
+    .gw-dual-body { padding: 10px 8px; gap: 2px; }
+    .gw-dual-title { font-size: 0.88rem; }
+    .gw-dual-sub { font-size: 9px; max-width: 16ch; }
 
     .gw-bestsellers { padding: 26px 0 34px; }
     .gw-best-rail {
@@ -3822,6 +3850,12 @@ body.gw-home .gaget-header-spacer {
         width: 66px !important;
     }
     .gw-cat-name { font-size: 11px; letter-spacing: -.01em; }
+    .gw-dual-grid { gap: 5px; }
+    .gw-dual-card { height: 108px; border-radius: 12px; }
+    .gw-dual-body { padding: 8px 7px; }
+    .gw-dual-title { font-size: 0.78rem; }
+    .gw-dual-sub { display: none; }
+    .gw-dual-cta { padding: 5px 8px; font-size: 9px; margin-top: 4px; }
     .gw-best-rail > .tn-product-card {
         flex: 0 0 82%;
         width: 82%;
