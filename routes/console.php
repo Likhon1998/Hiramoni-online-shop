@@ -12,7 +12,9 @@ Artisan::command('storefront:publish-demo-media', function () {
     $seeder = new \Database\Seeders\CosmeticsCatalogSeeder;
     $seeder->setCommand($this);
     $count = $seeder->publishPackagedImages();
+    $linked = $seeder->relinkCatalogProductPhotos();
     $this->info("Published {$count} demo catalog photos into storage.");
+    $this->info("Linked {$linked} products to those photos.");
 })->purpose('Copy packaged demo product photos into public storage');
 
 /*

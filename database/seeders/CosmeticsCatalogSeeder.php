@@ -352,7 +352,83 @@ class CosmeticsCatalogSeeder extends Seeder
             }
         }
 
+        $this->relinkCatalogProductPhotos();
+
         return $written;
+    }
+
+    /** Point catalog products at published JPEGs instead of SVG placeholders. */
+    public function relinkCatalogProductPhotos(): int
+    {
+        if (! Schema::hasTable('products')) {
+            return 0;
+        }
+
+        $updated = 0;
+
+        foreach ($this->catalog() as $item) {
+            $shades = $item['shades'] ?? [null];
+            foreach ($shades as $shade) {
+                $shadeName = is_array($shade) ? (string) ($shade['name'] ?? '') : '';
+                $displayName = $shadeName !== '' ? $item['name'].' — '.$shadeName : $item['name'];
+                $paths = [];
+                foreach ($item['photos'] as $k => $photoId) {
+                    $relative = 'products/beauty/'.Str::slug($displayName).'-'.($k + 1).'.jpg';
+                    if (Storage::disk('public')->exists($relative) && Storage::disk('public')->size($relative) > 1000) {
+                        $paths[] = $relative;
+                    }
+                }
+                if ($paths === []) {
+                    continue;
+                }
+
+                $barcode = $item['barcode'] ?? null;
+                $query = Product::query();
+                if ($barcode && count($shades) === 1) {
+                    $query->where('barcode', $barcode);
+                } else {
+                    $query->where(function ($q) use ($displayName, $item, $barcode) {
+                        $q->where('name', $displayName);
+                        if ($barcode) {
+                            $q->orWhere('barcode', $barcode);
+                        }
+                    });
+                }
+
+                $product = $query->orderBy('id')->first();
+                if (! $product || ! $this->shouldReplaceCatalogImage($product->image)) {
+                    continue;
+                }
+
+                $product->forceFill([
+                    'image' => $paths[0] ?? null,
+                    'image_2' => $paths[1] ?? null,
+                    'image_3' => $paths[2] ?? null,
+                ])->save();
+
+                $product->galleryImages()->delete();
+                foreach ($paths as $sort => $path) {
+                    ProductImage::create([
+                        'product_id' => $product->id,
+                        'path' => $path,
+                        'sort_order' => $sort,
+                    ]);
+                }
+                $updated++;
+            }
+        }
+
+        return $updated;
+    }
+
+    private function shouldReplaceCatalogImage(?string $path): bool
+    {
+        $path = (string) $path;
+
+        return $path === ''
+            || str_contains($path, 'placeholder')
+            || str_ends_with(strtolower($path), '.svg')
+            || str_starts_with($path, 'products/beauty/');
     }
 
     private function categoryDefs(): array

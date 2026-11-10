@@ -846,6 +846,10 @@ class WebsiteService
     {
         $urls = [];
         foreach ($product->imagePaths() as $path) {
+            $path = $this->preferRealProductPhoto((string) $path);
+            if ($this->isPlaceholderProductPhoto($path) && $this->productPhotoExists($path) === false) {
+                continue;
+            }
             $url = public_storage_url($path);
             if ($url) {
                 $urls[] = $url;
@@ -857,6 +861,32 @@ class WebsiteService
         }
 
         return $urls;
+    }
+
+    private function preferRealProductPhoto(string $path): string
+    {
+        if (! $this->isPlaceholderProductPhoto($path)) {
+            return $path;
+        }
+
+        $jpg = preg_replace('/-placeholder\.svg$/i', '-1.jpg', $path) ?: $path;
+        if ($jpg !== $path && $this->productPhotoExists($jpg)) {
+            return $jpg;
+        }
+
+        return $path;
+    }
+
+    private function isPlaceholderProductPhoto(string $path): bool
+    {
+        return str_contains($path, 'placeholder') || str_ends_with(strtolower($path), '.svg');
+    }
+
+    private function productPhotoExists(string $path): bool
+    {
+        $absolute = public_storage_path($path);
+
+        return is_file($absolute) && filesize($absolute) > 1000;
     }
 
     /**
