@@ -22,7 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         // Gateways post back server-to-server; the driver verifies each callback instead.
-        $middleware->validateCsrfTokens(except: ['payment/callback/*']);
+        $middleware->validateCsrfTokens(except: ['payment/callback/*', 'webhooks/courier/*']);
 
         // Drop leftover staff sessions from the customer (web) guard on every request.
         $middleware->appendToGroup('web', [

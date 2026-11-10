@@ -48,6 +48,7 @@ class StorefrontCmsWiringTest extends TestCase
         NavigationLink::create(['shop_id' => $this->admin->shop_id, 'label' => 'Size Guide', 'url' => '/page/size-guide', 'location' => 'top_bar', 'is_active' => true]);
         SiteFeature::create(['shop_id' => $this->admin->shop_id, 'icon' => 'return', 'title' => '7-Day Returns', 'subtitle' => 'Unused items', 'is_active' => true]);
         $this->product->update(['is_featured' => true]);
+        $this->product->applySale(520, now()->subHour(), now()->addDays(3));
 
         // The announcement strip was removed from the storefront, even when offer text / top-bar links exist.
         $this->get('/')->assertOk()

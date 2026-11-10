@@ -31,14 +31,15 @@ require '$REPO/public/index.php';
 EOF
   cp -f "$REPO/public/.htaccess" "$WEB_ROOT/.htaccess"
   # LiteSpeed 404s most symlinks outside docroot — copy static dirs/files.
-  rm -rf "$WEB_ROOT/build" "$WEB_ROOT/images" "$WEB_ROOT/storage"
+  rm -rf "$WEB_ROOT/build" "$WEB_ROOT/images"
   [[ -d "$REPO/public/build" ]] && cp -a "$REPO/public/build" "$WEB_ROOT/build"
   [[ -d "$REPO/public/images" ]] && cp -a "$REPO/public/images" "$WEB_ROOT/images"
-  # Prefer real storage files (public/storage → storage/app/public)
+  # Merge into docroot /storage (do not wipe merchant uploads). LiteSpeed cannot follow symlinks.
+  mkdir -p "$WEB_ROOT/storage"
   if [[ -d "$REPO/storage/app/public" ]]; then
-    cp -a "$REPO/storage/app/public" "$WEB_ROOT/storage"
+    cp -a "$REPO/storage/app/public/." "$WEB_ROOT/storage/"
   elif [[ -d "$REPO/public/storage" ]]; then
-    cp -aL "$REPO/public/storage" "$WEB_ROOT/storage"
+    cp -aL "$REPO/public/storage/." "$WEB_ROOT/storage/"
   fi
   for item in favicon.ico favicon.png favicon.svg favicon-32.png favicon-64.png robots.txt; do
     if [[ -e "$REPO/public/$item" ]]; then
@@ -140,11 +141,16 @@ echo "==> Migrate"
 php artisan migrate --force
 
 if [[ "$SEED" == "1" ]]; then
-  echo "==> Seed beauty catalog + blog (first deploy)"
+  echo "==> Seed demo storefront (catalog, CMS, sales, blog)"
   php artisan db:seed --force || true
+  php artisan db:seed --class=WebsiteSeeder --force || true
   php artisan db:seed --class=CosmeticsCatalogSeeder --force || true
   php artisan db:seed --class=BlogSeeder --force || true
+  php artisan db:seed --class=DemoStorefrontSeeder --force || true
 fi
+
+echo "==> Publish packaged demo product photos"
+php artisan storefront:publish-demo-media || true
 
 link_web_root
 

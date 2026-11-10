@@ -99,6 +99,17 @@
             border-bottom:1px solid var(--sb-line)
         }
         .admin-topbar.is-rail{left:var(--sb-rail)}
+        .admin-main{
+            margin-top:var(--sb-top);
+            padding:.4rem .75rem .9rem;
+        }
+        .admin-main.has-page-header{margin-top:0;padding-top:.5rem}
+        @media (min-width:640px){
+            .admin-main{padding:.45rem 1rem 1rem}
+        }
+        @media (min-width:1024px){
+            .admin-main{padding:.5rem 1.15rem 1.15rem}
+        }
 
         @media (max-width:767px){
             .admin-sidebar{
@@ -316,14 +327,14 @@
 
         <div class="admin-scroll-hide relative flex flex-col flex-1 min-w-0 overflow-y-auto overflow-x-hidden">
             @isset($header)
-                <header class="bg-white/80 backdrop-blur border-b border-slate-200 mt-14 lg:mt-14">
-                    <div class="max-w-[1800px] mx-auto py-3 px-3 sm:px-6 lg:px-8">
+                <header class="bg-white/80 backdrop-blur border-b border-slate-200" style="margin-top:var(--sb-top)">
+                    <div class="max-w-[1800px] mx-auto py-2 px-3 sm:px-5 lg:px-6">
                         {{ $header }}
                     </div>
                 </header>
             @endisset
 
-            <main class="w-full grow p-3 sm:p-4 lg:p-5 min-w-0 {{ !isset($header) ? 'mt-14 lg:mt-14' : '' }}">
+            <main class="admin-main w-full grow min-w-0 {{ isset($header) ? 'has-page-header' : '' }}">
                 <div class="w-full max-w-[1800px] mx-auto min-w-0">
                     {{ $slot }}
                 </div>

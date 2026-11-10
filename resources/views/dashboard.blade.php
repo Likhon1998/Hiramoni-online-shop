@@ -39,28 +39,23 @@
 
 @php
     $hour = (int) now()->format('G');
-    [$greeting, $greetLottie] = match (true) {
-        $hour >= 5 && $hour < 12 => ['Good morning', 'sun'],
-        $hour >= 12 && $hour < 17 => ['Good afternoon', 'rocket'],
-        $hour >= 17 && $hour < 22 => ['Good evening', 'hug'],
-        default => ['Working late', 'sleepy'],
+    $greeting = match (true) {
+        $hour >= 5 && $hour < 12 => 'Good morning',
+        $hour >= 12 && $hour < 17 => 'Good afternoon',
+        $hour >= 17 && $hour < 22 => 'Good evening',
+        default => 'Working late',
     };
 @endphp
 
 <div class="space-y-3">
     <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <div class="flex items-center gap-2.5 min-w-0">
-            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white shadow-[0_3px_0_#f6d9c8]">
-                @include('website.partials.lottie', ['name' => $greetLottie, 'class' => 'h-7 w-7'])
-            </span>
-            <div class="min-w-0">
-                <h1 class="text-[1.2rem] leading-tight text-slate-900 truncate">{{ $greeting }}, {{ explode(' ', $user->name)[0] }}!</h1>
-                <p class="text-[12px] text-slate-500 truncate">
-                    Business summary for
-                    <span class="font-bold text-slate-700">{{ $filterLabel ?? ($counter->name ?? 'your shop') }}</span>
-                    · {{ now()->format('D, M j, Y') }}
-                </p>
-            </div>
+        <div class="min-w-0">
+            <h1 class="text-[1.2rem] leading-tight text-slate-900 truncate">{{ $greeting }}, {{ explode(' ', $user->name)[0] }}!</h1>
+            <p class="text-[12px] text-slate-500 truncate">
+                Business summary for
+                <span class="font-bold text-slate-700">{{ $filterLabel ?? ($counter->name ?? 'your shop') }}</span>
+                · {{ now()->format('D, M j, Y') }}
+            </p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
             @if(Auth::user()->can('manage orders') && ($pendingOnlineOrders ?? 0) > 0)

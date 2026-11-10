@@ -8,6 +8,13 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
+Artisan::command('storefront:publish-demo-media', function () {
+    $seeder = new \Database\Seeders\CosmeticsCatalogSeeder;
+    $seeder->setCommand($this);
+    $count = $seeder->publishPackagedImages();
+    $this->info("Published {$count} demo catalog photos into storage.");
+})->purpose('Copy packaged demo product photos into public storage');
+
 /*
 |--------------------------------------------------------------------------
 | Midnight counter auto-close (Asia/Dhaka)
@@ -24,6 +31,10 @@ Artisan::command('inspire', function () {
 | Staff alerts: abandoned-cart digests and shipments overdue for delivery.
 */
 Schedule::command('commerce:scan-alerts')
+    ->everyFifteenMinutes()
+    ->withoutOverlapping();
+
+Schedule::command('courier:sync-status')
     ->everyFifteenMinutes()
     ->withoutOverlapping();
 

@@ -58,9 +58,9 @@
 
         <div class="tn-trending-foot">
             <div class="tn-trending-prices">
-                <span class="tn-trending-price">{{ $ws->formatPrice($currentPrice, $settings) }}</span>
+                <span class="tn-trending-price">{!! $ws->formatPriceHtml($currentPrice, $settings) !!}</span>
                 @if($compareAt && $compareAt > $currentPrice)
-                    <span class="tn-trending-old">{{ $ws->formatPrice($compareAt, $settings) }}</span>
+                    <span class="tn-trending-old">{!! $ws->formatPriceHtml($compareAt, $settings) !!}</span>
                 @endif
             </div>
             <button type="button"

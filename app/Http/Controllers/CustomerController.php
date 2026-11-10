@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Models\CustomerAddress;
+use App\Models\CustomerNote;
 use App\Services\CustomerSegmentService;
 use App\Support\OrderStatus;
 use Illuminate\Http\Request;
@@ -47,14 +49,15 @@ class CustomerController extends Controller
             abort_unless($customer->orders()->where('counter_id', $user->counter_id)->exists(), 404);
         }
 
+        $customer->ensureLegacyAddressRecord();
         $stats = $this->segments->stats($customer);
         $segments = $this->segments->segmentsFor($customer);
 
         $orders = $customer->orders()
             ->when(! $user->isAdminUser() && $user->counter_id, fn ($q) => $q->where('counter_id', $user->counter_id))
             ->latest('id')
-            ->limit(50)
-            ->get(['id', 'invoice_no', 'status', 'total_amount', 'delivery_charge', 'counter_id', 'created_at', 'campaign_id', 'utm_source', 'lead_id']);
+            ->paginate(25)
+            ->withQueryString();
 
         $leads = $user->can('manage leads')
             ? $customer->leads()->latest('id')->limit(20)->get()
@@ -71,7 +74,7 @@ class CustomerController extends Controller
             : collect();
 
         return view('customers.show', [
-            'customer' => $customer,
+            'customer' => $customer->load(['addresses', 'notes.author']),
             'stats' => $stats,
             'segments' => $segments,
             'orders' => $orders,
@@ -79,6 +82,108 @@ class CustomerController extends Controller
             'carts' => $carts,
             'statusLabels' => OrderStatus::labels(),
         ]);
+    }
+
+    public function block(Request $request, Customer $customer)
+    {
+        $this->authorizeCustomer($customer);
+        $data = $request->validate(['reason' => 'nullable|string|max:255']);
+        $customer->block($data['reason'] ?? null);
+
+        return back()->with('success', $customer->name.' has been blocked.');
+    }
+
+    public function unblock(Customer $customer)
+    {
+        $this->authorizeCustomer($customer);
+        $customer->unblock();
+
+        return back()->with('success', $customer->name.' has been unblocked.');
+    }
+
+    public function storeAddress(Request $request, Customer $customer)
+    {
+        $this->authorizeCustomer($customer);
+        $data = $this->addressRules($request);
+        $address = $customer->addresses()->create($data + [
+            'is_default' => $customer->addresses()->doesntExist() || $request->boolean('is_default'),
+        ]);
+        if ($address->is_default) {
+            $customer->makeDefaultAddress($address);
+        }
+
+        return back()->with('success', 'Delivery address saved.');
+    }
+
+    public function updateAddress(Request $request, Customer $customer, CustomerAddress $address)
+    {
+        $this->authorizeCustomer($customer);
+        abort_unless((int) $address->customer_id === (int) $customer->id, 404);
+        $address->update($this->addressRules($request));
+        if ($request->boolean('is_default')) {
+            $customer->makeDefaultAddress($address);
+        }
+
+        return back()->with('success', 'Delivery address updated.');
+    }
+
+    public function destroyAddress(Customer $customer, CustomerAddress $address)
+    {
+        $this->authorizeCustomer($customer);
+        abort_unless((int) $address->customer_id === (int) $customer->id, 404);
+        $wasDefault = $address->is_default;
+        $address->delete();
+        if ($wasDefault) {
+            $next = $customer->addresses()->first();
+            if ($next) {
+                $customer->makeDefaultAddress($next);
+            }
+        }
+
+        return back()->with('success', 'Delivery address removed.');
+    }
+
+    public function defaultAddress(Customer $customer, CustomerAddress $address)
+    {
+        $this->authorizeCustomer($customer);
+        abort_unless((int) $address->customer_id === (int) $customer->id, 404);
+        $customer->makeDefaultAddress($address);
+
+        return back()->with('success', 'Default delivery address updated.');
+    }
+
+    public function storeNote(Request $request, Customer $customer)
+    {
+        $this->authorizeCustomer($customer);
+        $data = $request->validate(['body' => 'required|string|max:2000']);
+        $customer->notes()->create([
+            'user_id' => Auth::id(),
+            'body' => trim($data['body']),
+        ]);
+
+        return back()->with('success', 'Note added.');
+    }
+
+    public function destroyNote(Customer $customer, CustomerNote $note)
+    {
+        $this->authorizeCustomer($customer);
+        abort_unless((int) $note->customer_id === (int) $customer->id, 404);
+        $note->delete();
+
+        return back()->with('success', 'Note removed.');
+    }
+
+    private function addressRules(Request $request): array
+    {
+        $data = $request->validate([
+            'label' => 'nullable|string|max:40',
+            'name' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'required|string|max:1000',
+        ]);
+        $data['label'] = trim((string) ($data['label'] ?? '')) ?: 'Home';
+
+        return $data;
     }
 
     public function create()

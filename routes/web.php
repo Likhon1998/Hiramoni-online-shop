@@ -48,6 +48,8 @@ use App\Http\Controllers\Cms\FaqCategoryController as CmsFaqCategoryController;
 use App\Http\Controllers\Cms\ContactController as CmsContactController;
 use App\Http\Controllers\Cms\DeliverySettingsController;
 use App\Http\Controllers\Cms\CourierServiceController;
+use App\Http\Controllers\CourierWebhookController;
+use App\Http\Controllers\DeliveryReportController;
 use App\Http\Controllers\Cms\ReviewController as CmsReviewController;
 use App\Http\Controllers\Cms\NavigationController as CmsNavigationController;
 use App\Http\Controllers\Cms\PromoPopupController;
@@ -63,6 +65,8 @@ Route::get('/', [WebsiteController::class, 'home'])->name('home');
 Route::get('/favicon.ico', function () {
     return redirect()->to(site_favicon_url(), 302);
 })->name('favicon');
+Route::post('/webhooks/courier/{driver}', CourierWebhookController::class)->name('webhooks.courier');
+
 Route::get('/robots.txt', [\App\Http\Controllers\SeoController::class, 'robots'])->name('robots');
 Route::get('/sitemap.xml', [\App\Http\Controllers\SeoController::class, 'sitemap'])->name('sitemap');
 Route::get('/locale/{locale}', \App\Http\Controllers\LocaleController::class)
@@ -147,6 +151,7 @@ Route::middleware([
         Route::put('/landing', [LandingPageController::class, 'update'])->name('landing.update');
         Route::get('/delivery', [DeliverySettingsController::class, 'edit'])->name('delivery.edit');
         Route::put('/delivery', [DeliverySettingsController::class, 'update'])->name('delivery.update');
+        Route::post('/couriers/{courier}/test', [CourierServiceController::class, 'test'])->name('couriers.test');
         Route::resource('couriers', CourierServiceController::class)->except(['show', 'create', 'edit']);
         Route::resource('slides', HomeSlideController::class)->except(['show']);
         Route::post('/promo-popups/{banner}/toggle', [PromoPopupController::class, 'toggle'])->name('promo-popups.toggle');
@@ -224,7 +229,17 @@ Route::middleware([
         Route::post('/counter-sessions/{session}/close', [CounterSessionController::class, 'close'])->name('counters.sessions.close');
     });
 
-    Route::resource('customers', CustomerController::class)->middleware('can:manage customers');
+    Route::middleware('can:manage customers')->group(function () {
+        Route::post('/customers/{customer}/block', [CustomerController::class, 'block'])->name('customers.block');
+        Route::post('/customers/{customer}/unblock', [CustomerController::class, 'unblock'])->name('customers.unblock');
+        Route::post('/customers/{customer}/addresses', [CustomerController::class, 'storeAddress'])->name('customers.addresses.store');
+        Route::put('/customers/{customer}/addresses/{address}', [CustomerController::class, 'updateAddress'])->name('customers.addresses.update');
+        Route::delete('/customers/{customer}/addresses/{address}', [CustomerController::class, 'destroyAddress'])->name('customers.addresses.destroy');
+        Route::post('/customers/{customer}/addresses/{address}/default', [CustomerController::class, 'defaultAddress'])->name('customers.addresses.default');
+        Route::post('/customers/{customer}/notes', [CustomerController::class, 'storeNote'])->name('customers.notes.store');
+        Route::delete('/customers/{customer}/notes/{note}', [CustomerController::class, 'destroyNote'])->name('customers.notes.destroy');
+        Route::resource('customers', CustomerController::class);
+    });
 
     Route::middleware('can:manage campaigns')->group(function () {
         Route::resource('campaigns', CampaignController::class);
@@ -358,6 +373,8 @@ Route::middleware([
         Route::post('/online-orders/{order}/verify', [OnlineOrderController::class, 'verify'])->name('online-orders.verify');
         Route::post('/online-orders/{order}/cancel', [OrderCancellationController::class, 'cancel'])->name('online-orders.cancel');
         Route::post('/online-orders/{order}/collect-from-courier', [OnlineOrderController::class, 'collectFromCourier'])->name('online-orders.collect-from-courier');
+        Route::post('/online-orders/{order}/sync-courier', [OnlineOrderController::class, 'syncCourier'])->name('online-orders.sync-courier');
+        Route::get('/reports/delivery', [DeliveryReportController::class, 'index'])->name('reports.delivery');
     });
 
     Route::middleware('can:manage leads')->group(function () {

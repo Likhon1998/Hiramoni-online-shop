@@ -93,6 +93,34 @@ class WebsiteService
         ));
     }
 
+    /**
+     * Prefer translation files for stock English CMS copy when the storefront is not English.
+     * Custom CMS text (including Bangla entered in the editor) is left as-is.
+     */
+    public function localizeStorefrontCopy(?string $value, string $translationKey, array $englishStock = []): string
+    {
+        $value = trim((string) $value);
+        $translated = (string) __($translationKey);
+
+        if ($value === '') {
+            return $translated;
+        }
+
+        if (app()->getLocale() === 'en') {
+            return $value;
+        }
+
+        if (preg_match('/\p{Bengali}/u', $value) === 1) {
+            return $value;
+        }
+
+        if ($englishStock === [] || in_array($value, $englishStock, true)) {
+            return $translated;
+        }
+
+        return $value;
+    }
+
     public function settings(): object
     {
         $site = SiteSetting::current();
@@ -123,10 +151,24 @@ class WebsiteService
             'trusted_by_text' => $site->trusted_by_text,
             'footer_tagline' => $site->footer_tagline,
             'home_copy' => $this->homeCopyDefaults($site->home_copy ?? []),
-            'deals_kicker' => $site->deals_kicker ?: 'Special Offers',
-            'deals_title' => $site->deals_title ?: "Deals You'll",
-            'deals_title_accent' => $site->deals_title_accent ?: 'Love',
-            'deals_subtitle' => $site->deals_subtitle ?: 'Grab the best deals on top-quality products.',
+            'deals_kicker' => $this->localizeStorefrontCopy($site->deals_kicker, 'website.home.flash_eyebrow', [
+                'Limited time', 'HOT DEALS', 'Hot Deals', 'Special Offers',
+            ]),
+            'deals_title' => $this->localizeStorefrontCopy($site->deals_title, 'website.home.flash_title', [
+                "Deals You'll", "Deals You’ll", 'Flash', 'Featured',
+            ]),
+            'deals_title_accent' => $this->localizeStorefrontCopy($site->deals_title_accent, 'website.home.flash_title_accent', [
+                'Love', 'Sale', 'Deals',
+            ]),
+            'deals_subtitle' => $this->localizeStorefrontCopy($site->deals_subtitle, 'website.home.flash_sub', [
+                'Grab the best deals on top-quality products.',
+                'Save on trending products and everyday favourites.',
+                "Today's best prices — grab them before the clock hits zero.",
+                'Today’s best prices — grab them before the clock hits zero.',
+                'Today’s best prices on selected products — grab them before they expire.',
+                'Today’s best prices on selected products — ends when the timer hits zero.',
+                'Top products at carefully chosen prices.',
+            ]),
             // No fallback to the shop record: its email is the admin login.
             'contact_email' => $site->contact_email,
             'contact_phone' => $site->contact_phone ?: $shop?->phone,
@@ -219,7 +261,7 @@ class WebsiteService
             $this->catalogQuery($shopId)
                 ->with(['category', 'brand'])
                 ->onSale()
-                ->orderByRaw('(selling_price - sale_price) / NULLIF(selling_price, 0) DESC')
+                ->orderByRaw('CASE WHEN sale_price IS NOT NULL AND sale_price < selling_price THEN (selling_price - sale_price) / NULLIF(selling_price, 0) ELSE COALESCE(pos_discount_value, 0) / 100 END DESC')
                 ->take(48)
                 ->get(),
             16
@@ -595,6 +637,18 @@ class WebsiteService
         );
 
         return format_taka($amount ?? 0, $symbol);
+    }
+
+    /** HTML price so the ৳ glyph uses a Bengali-capable face (serif cards otherwise render it as “b”). */
+    public function formatPriceHtml(?float $amount, ?object $settings = null): string
+    {
+        $settings ??= $this->settings();
+        $symbol = e($this->normalizeCurrencySymbol(
+            $settings->currency_symbol ?? null,
+            $settings->currency_code ?? 'BDT'
+        ));
+
+        return '<span class="tn-price-currency">'.$symbol.'</span><span class="tn-price-amount">'.e(format_taka_number($amount ?? 0)).'</span>';
     }
 
     /**

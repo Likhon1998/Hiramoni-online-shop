@@ -18,6 +18,7 @@ class OrderWorkflowService
         protected StockService $stock,
         protected AccountService $accounts,
         protected OnlineOrderTrackingService $tracking,
+        protected CourierBookingService $courierBooking,
     ) {}
 
     /**
@@ -50,6 +51,22 @@ class OrderWorkflowService
 
         $courier = $this->resolveCourier($order, $data);
         $this->guard($order, $from, $to, $data, $courier);
+
+        if ($to === OrderStatus::SHIPPED) {
+            $shipCourier = $courier ?: $order->courierService;
+            if (! $shipCourier) {
+                throw new OrderWorkflowException('Select a courier service when marking as shipped. Add services under CMS → Courier Services.');
+            }
+            $consignment = $this->courierBooking->bookForward(
+                $order,
+                $shipCourier,
+                $data['tracking_number'] ?? null,
+                $data['note'] ?? null,
+            );
+            $order->refresh();
+            $courier = $shipCourier;
+            $data['tracking_number'] = $consignment->tracking_number;
+        }
 
         DB::transaction(function () use ($order, $from, $to, $data, $userId, $courier) {
             // Two staff acting on the same order must not both apply stock/ledger side effects.
@@ -132,7 +149,35 @@ class OrderWorkflowService
 
         event(new OrderStatusChanged($order, $from, $to, $userId));
 
+        $this->bookReturnIfNeeded($order, $from, $to, $data);
+
         return $order;
+    }
+
+    /**
+     * Customer-initiated returns get a reverse consignment. Failed outbound deliveries do not.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    protected function bookReturnIfNeeded(Order $order, string $from, string $to, array $data): void
+    {
+        if (! empty($data['skip_return_booking'])) {
+            return;
+        }
+
+        $wantsPickup = $to === OrderStatus::RETURN_REQUESTED
+            || ($to === OrderStatus::RETURNED && in_array($from, [OrderStatus::DELIVERED, OrderStatus::COMPLETED, OrderStatus::RETURN_REQUESTED], true));
+
+        if (! $wantsPickup) {
+            return;
+        }
+
+        $courier = $order->courierService;
+        if (! $courier) {
+            return;
+        }
+
+        $this->courierBooking->bookReturn($order, $courier, $data['return_reason'] ?? ($data['note'] ?? null));
     }
 
     /** Record verification on a NEW order and confirm it in one step. */

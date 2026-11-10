@@ -373,10 +373,10 @@
                     <a href="{{ route('website.wishlist') }}" class="gaget-action-btn" aria-label="Wishlist">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
                         <span class="gaget-action-label">Wishlist</span>
-                        <span class="gaget-cart-badge"
+                        <span class="gaget-cart-badge gaget-wish-badge"
                               :class="{ 'is-empty': wishlistCount < 1 }"
                               x-show="wishlistCount > 0"
-                              x-text="wishlistCount"
+                              x-text="wishlistCount > 99 ? '99+' : wishlistCount"
                               x-cloak></span>
                     </a>
                     <div class="gaget-hover-panel" x-show="open" x-cloak x-transition.opacity.duration.150ms>
@@ -415,7 +415,7 @@
                         <span class="gaget-cart-badge"
                               :class="{ 'is-empty': cartCount < 1 }"
                               x-show="cartCount > 0"
-                              x-text="cartCount"
+                              x-text="cartCount > 99 ? '99+' : cartCount"
                               x-cloak></span>
                     </button>
                     <div class="gaget-hover-panel gaget-hover-panel--cart" x-show="open" x-cloak x-transition.opacity.duration.150ms>

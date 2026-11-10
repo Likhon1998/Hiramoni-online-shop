@@ -105,9 +105,9 @@
         <div class="tn-combo-card__buy">
             <div class="tn-combo-card__prices">
                 <div class="tn-combo-card__price-row">
-                    <span class="tn-combo-card__price">{{ $ws->formatPrice($currentPrice, $settings) }}</span>
+                    <span class="tn-combo-card__price">{!! $ws->formatPriceHtml($currentPrice, $settings) !!}</span>
                     @if($compareAt && $compareAt > $currentPrice)
-                        <span class="tn-combo-card__old">{{ $ws->formatPrice($compareAt, $settings) }}</span>
+                        <span class="tn-combo-card__old">{!! $ws->formatPriceHtml($compareAt, $settings) !!}</span>
                     @endif
                 </div>
                 @if($saveAmount > 0)

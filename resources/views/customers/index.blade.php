@@ -7,6 +7,8 @@
             return [
                 'segments' => $segmentMap[$c->id] ?? [],
                 'spent_fmt' => format_taka_number((float) ($c->seg_spent ?? 0)),
+                'clv_fmt' => format_taka_number((float) ($c->seg_clv ?? $c->seg_spent ?? 0)),
+                'blocked' => (bool) $c->is_blocked,
                 'show' => route('customers.show', $c),
                 'id' => $c->id,
                 'name' => $c->name,
@@ -120,8 +122,10 @@
                                                 <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide"
                                                       :class="c.channel === 'online' ? 'bg-sky-50 text-sky-700' : 'bg-amber-50 text-amber-700'"
                                                       x-text="c.channel === 'online' ? 'Account' : 'Guest'"></span>
+                                                <span x-show="c.blocked" class="inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide bg-rose-50 text-rose-700">Blocked</span>
+                                                <span x-show="c.orders >= 2" class="inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide bg-indigo-50 text-indigo-700">Repeat</span>
                                             </div>
-                                            <p class="mt-0.5 text-[10px] text-slate-400">Joined <span x-text="c.joined"></span> · spent Tk <span x-text="c.spent_fmt"></span></p>
+                                            <p class="mt-0.5 text-[10px] text-slate-400">Joined <span x-text="c.joined"></span> · CLV Tk <span x-text="c.clv_fmt"></span></p>
                                             <div class="mt-0.5 flex flex-wrap gap-1" x-show="c.segments.length">
                                                 <template x-for="s in c.segments" :key="s">
                                                     <span class="inline-flex rounded-full px-1.5 py-0.5 text-[9px] font-bold" :class="segmentBadges[s]" x-text="segmentLabels[s]"></span>

@@ -18,11 +18,43 @@
             </div>
             <p class="mt-0.5 text-[12px] text-slate-500">{{ $customer->phone ?: 'No phone' }}{{ $customer->email ? ' · '.$customer->email : '' }} · customer since {{ $customer->created_at?->format('d M Y') }}</p>
             @if($customer->address)<p class="text-[12px] text-slate-500">{{ $customer->address }}</p>@endif
+            @if($stats['is_repeat'])
+                <p class="mt-1 inline-flex rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-indigo-700">Repeat customer</p>
+            @endif
         </div>
-        <a href="{{ route('customers.edit', $customer) }}" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-[12px] font-bold text-slate-700 hover:bg-slate-50">Edit</a>
+        <div class="flex flex-wrap items-center gap-2">
+            @if($customer->is_blocked)
+                <form method="POST" action="{{ route('customers.unblock', $customer) }}">
+                    @csrf
+                    <button class="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-[12px] font-bold text-emerald-800 hover:bg-emerald-100">Unblock</button>
+                </form>
+            @else
+                <form method="POST" action="{{ route('customers.block', $customer) }}" class="flex items-center gap-2">
+                    @csrf
+                    <input type="text" name="reason" maxlength="255" placeholder="Block reason (optional)" class="w-44 rounded-xl border-slate-200 text-[12px]">
+                    <button class="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-[12px] font-bold text-rose-800 hover:bg-rose-100">Block</button>
+                </form>
+            @endif
+            <a href="{{ route('customers.edit', $customer) }}" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-[12px] font-bold text-slate-700 hover:bg-slate-50">Edit</a>
+        </div>
     </div>
 
-    <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
+    @if(session('success'))
+        <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-[12px] font-semibold text-emerald-800">{{ session('success') }}</div>
+    @endif
+    @if(session('error'))
+        <div class="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-[12px] font-semibold text-rose-800">{{ session('error') }}</div>
+    @endif
+    @if($customer->is_blocked)
+        <div class="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-[12px] text-rose-800">
+            <span class="font-bold">Blocked</span>
+            {{ $customer->blocked_at?->format('d M Y') }}
+            @if($customer->blocked_reason) — {{ $customer->blocked_reason }}@endif
+            · cannot place new orders or sign in.
+        </div>
+    @endif
+
+    <div class="grid grid-cols-2 gap-3 md:grid-cols-5">
         <div class="rounded-2xl border border-slate-200 bg-white p-3.5 shadow-sm">
             <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Orders</p>
             <p class="mt-1 text-2xl font-extrabold text-slate-900">{{ $stats['orders'] }}</p>
@@ -32,9 +64,14 @@
             @endif
         </div>
         <div class="rounded-2xl border border-slate-200 bg-white p-3.5 shadow-sm">
-            <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Total spent</p>
-            <p class="mt-1 text-2xl font-extrabold text-emerald-700">{{ format_taka($stats['spent']) }}</p>
-            <p class="text-[11px] text-slate-500">Excluding delivery fees</p>
+            <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Total purchase</p>
+            <p class="mt-1 text-2xl font-extrabold text-slate-900">{{ format_taka($stats['spent']) }}</p>
+            <p class="text-[11px] text-slate-500">Products only (no delivery)</p>
+        </div>
+        <div class="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-3.5 shadow-sm">
+            <p class="text-[11px] font-semibold uppercase tracking-wide text-emerald-700">Customer lifetime value</p>
+            <p class="mt-1 text-2xl font-extrabold text-emerald-800">{{ format_taka($stats['clv']) }}</p>
+            <p class="text-[11px] text-emerald-700/80">All paid orders including delivery</p>
         </div>
         <div class="rounded-2xl border border-slate-200 bg-white p-3.5 shadow-sm">
             <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Average order</p>
@@ -49,7 +86,7 @@
 
     <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm lg:col-span-2">
-            <h2 class="border-b border-slate-100 px-4 py-3 text-[14px] font-bold text-slate-900">Orders</h2>
+            <h2 class="border-b border-slate-100 px-4 py-3 text-[14px] font-bold text-slate-900">Complete order history</h2>
             <table class="min-w-full">
                 <thead>
                     <tr class="border-b border-slate-100 bg-slate-50/80 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500">
@@ -85,6 +122,9 @@
                     @endforelse
                 </tbody>
             </table>
+            @if($orders->hasPages())
+                <div class="border-t border-slate-100 px-3 py-2">{{ $orders->links() }}</div>
+            @endif
         </div>
 
         <div class="space-y-4">
@@ -116,6 +156,65 @@
                     @endforelse
                 </div>
             @endcan
+
+            <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <h2 class="mb-2 text-[14px] font-bold text-slate-900">Delivery addresses</h2>
+                <ul class="space-y-2">
+                    @forelse($customer->addresses as $address)
+                        <li class="rounded-xl border border-slate-100 bg-slate-50/80 px-3 py-2">
+                            <div class="flex items-start justify-between gap-2">
+                                <div>
+                                    <p class="text-[12px] font-bold text-slate-800">{{ $address->label }} @if($address->is_default)<span class="ml-1 rounded bg-emerald-100 px-1.5 py-0.5 text-[9px] font-bold uppercase text-emerald-800">Default</span>@endif</p>
+                                    <p class="text-[12px] text-slate-600">{{ $address->address }}</p>
+                                    <p class="text-[11px] text-slate-400">{{ $address->name }} {{ $address->phone }}</p>
+                                </div>
+                                <div class="flex shrink-0 flex-col gap-1">
+                                    @unless($address->is_default)
+                                        <form method="POST" action="{{ route('customers.addresses.default', [$customer, $address]) }}">@csrf<button class="text-[10px] font-bold text-indigo-600">Default</button></form>
+                                    @endunless
+                                    <form method="POST" action="{{ route('customers.addresses.destroy', [$customer, $address]) }}" onsubmit="return confirm('Remove this address?')">@csrf @method('DELETE')<button class="text-[10px] font-bold text-rose-600">Remove</button></form>
+                                </div>
+                            </div>
+                        </li>
+                    @empty
+                        <li class="text-[12px] text-slate-400">No saved addresses yet.</li>
+                    @endforelse
+                </ul>
+                <form method="POST" action="{{ route('customers.addresses.store', $customer) }}" class="mt-3 space-y-2 border-t border-slate-100 pt-3">
+                    @csrf
+                    <p class="text-[11px] font-bold uppercase tracking-wide text-slate-500">Add address</p>
+                    <input name="label" placeholder="Home, Office…" class="w-full rounded-lg border-slate-200 text-[12px]">
+                    <textarea name="address" rows="2" required placeholder="Full delivery address" class="w-full rounded-lg border-slate-200 text-[12px]"></textarea>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input name="name" placeholder="Recipient name" class="rounded-lg border-slate-200 text-[12px]">
+                        <input name="phone" placeholder="Phone" class="rounded-lg border-slate-200 text-[12px]">
+                    </div>
+                    <label class="flex items-center gap-2 text-[11px] text-slate-600"><input type="checkbox" name="is_default" value="1" class="rounded border-slate-300"> Set as default</label>
+                    <button class="rounded-lg bg-slate-900 px-3 py-1.5 text-[11px] font-bold text-white">Save address</button>
+                </form>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <h2 class="mb-2 text-[14px] font-bold text-slate-900">Customer notes</h2>
+                <form method="POST" action="{{ route('customers.notes.store', $customer) }}" class="mb-3">
+                    @csrf
+                    <textarea name="body" rows="3" required maxlength="2000" placeholder="Internal note (not shown to the customer)" class="w-full rounded-lg border-slate-200 text-[12px]"></textarea>
+                    <button class="mt-2 rounded-lg bg-indigo-600 px-3 py-1.5 text-[11px] font-bold text-white">Add note</button>
+                </form>
+                <ul class="space-y-2">
+                    @forelse($customer->notes as $note)
+                        <li class="rounded-xl border border-slate-100 px-3 py-2">
+                            <p class="whitespace-pre-line text-[12px] text-slate-700">{{ $note->body }}</p>
+                            <div class="mt-1 flex items-center justify-between text-[10px] text-slate-400">
+                                <span>{{ $note->author?->name ?? 'Staff' }} · {{ $note->created_at->format('d M Y, h:i A') }}</span>
+                                <form method="POST" action="{{ route('customers.notes.destroy', [$customer, $note]) }}" onsubmit="return confirm('Delete this note?')">@csrf @method('DELETE')<button class="font-bold text-rose-600">Delete</button></form>
+                            </div>
+                        </li>
+                    @empty
+                        <li class="text-[12px] text-slate-400">No notes yet.</li>
+                    @endforelse
+                </ul>
+            </div>
 
             <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                 <h2 class="mb-2 text-[14px] font-bold text-slate-900">Segment rules</h2>

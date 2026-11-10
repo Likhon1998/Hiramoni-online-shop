@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CourierService;
 use App\Models\Order;
+use App\Services\CourierStatusSyncService;
 use App\Services\OnlineOrderTrackingService;
 use App\Services\OrderWorkflowException;
 use App\Services\OrderWorkflowService;
@@ -207,7 +208,8 @@ class OnlineOrderController extends Controller
             'customer:id,name,phone,address,email',
             'items:id,order_id,product_id,quantity,unit_price,subtotal',
             'items.product:id,name',
-            'courierService:id,name,phone',
+            'courierService:id,name,phone,driver',
+            'consignments',
             'verifier:id,name',
             'statusLogs' => fn ($q) => $q->with('changedBy:id,name')->latest('id')->limit(20),
         ]);
@@ -396,6 +398,20 @@ class OnlineOrderController extends Controller
             $due > 0.009
                 ? 'Collected ৳'.format_taka_number($due)." from {$service}. Order marked completed."
                 : "Order marked completed. No COD was outstanding from {$service}."
+        );
+    }
+
+    public function syncCourier(Order $order, CourierStatusSyncService $sync)
+    {
+        $this->authorizeOrder($order);
+
+        $updated = $sync->syncOrder($order);
+
+        return back()->with(
+            'success',
+            $updated > 0
+                ? "Courier status refreshed ({$updated} consignment".($updated === 1 ? '' : 's').').'
+                : 'No new courier status. Tracking stays as last known.'
         );
     }
 }

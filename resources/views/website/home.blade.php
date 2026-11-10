@@ -352,14 +352,83 @@
     </div>
 </section>
 
-{{-- 4. BEST SELLERS --}}
+{{-- 4. FLASH SALE --}}
+@php
+    $homeFlash = collect($flashSaleProducts ?? [])->filter(fn ($p) => $p->isOnSale())->values();
+    $flashEndsAt = $flashSaleEndsAt ?? $homeFlash->map(fn ($p) => $p->sale_ends_at)->filter()->sort()->first();
+    $flashEyebrow = $settings->deals_kicker;
+    $flashTitle = $settings->deals_title;
+    $flashAccent = $settings->deals_title_accent;
+    $flashSub = $settings->deals_subtitle;
+@endphp
+@if($homeFlash->isNotEmpty())
+<section class="gw-section gw-flash" aria-labelledby="gw-flash-heading"
+         @if($flashEndsAt)
+         x-data="{
+            left: 0, d: '00', h: '00', m: '00', s: '00',
+            init() {
+                const end = Date.parse(@js(optional($flashEndsAt)->toIso8601String()));
+                const pad = (n) => String(Math.max(0, n)).padStart(2, '0');
+                const tick = () => {
+                    this.left = Math.max(0, end - Date.now());
+                    this.d = pad(Math.floor(this.left / 864e5));
+                    this.h = pad(Math.floor(this.left / 36e5) % 24);
+                    this.m = pad(Math.floor(this.left / 6e4) % 60);
+                    this.s = pad(Math.floor(this.left / 1e3) % 60);
+                };
+                tick();
+                setInterval(tick, 1000);
+            }
+         }"
+         @endif>
+    <div class="tn-container">
+        <div class="gw-flash-stage">
+            <header class="gw-flash-banner">
+                <div class="gw-flash-banner-copy">
+                    <p class="gw-flash-kicker">
+                        <span class="gw-flash-pulse" aria-hidden="true"></span>
+                        {{ __('website.home.live_now') }} · {{ $flashEyebrow }}
+                    </p>
+                    <h2 id="gw-flash-heading" class="gw-flash-heading">
+                        {{ $flashTitle }} <em>{{ $flashAccent }}</em>
+                    </h2>
+                    <p class="gw-flash-lede">{{ $flashSub }}</p>
+                </div>
+                <div class="gw-flash-banner-aside">
+                    @if($flashEndsAt)
+                        <div class="gw-flash-timer" x-show="left > 0" x-cloak>
+                            <span class="gw-flash-ends">{{ __('website.home.ends_in') }}</span>
+                            <div class="gw-flash-digits">
+                                <span class="gw-flash-box"><strong x-text="d"></strong><small>{{ __('website.home.flash_days') }}</small></span>
+                                <span class="gw-flash-colon" aria-hidden="true">:</span>
+                                <span class="gw-flash-box"><strong x-text="h"></strong><small>{{ __('website.home.flash_hours') }}</small></span>
+                                <span class="gw-flash-colon" aria-hidden="true">:</span>
+                                <span class="gw-flash-box"><strong x-text="m"></strong><small>{{ __('website.home.flash_mins') }}</small></span>
+                                <span class="gw-flash-colon" aria-hidden="true">:</span>
+                                <span class="gw-flash-box"><strong x-text="s"></strong><small>{{ __('website.home.flash_secs') }}</small></span>
+                            </div>
+                        </div>
+                    @endif
+                    <a href="{{ route('website.shop', ['filter' => 'deals']) }}" class="gw-flash-shop">
+                        {{ __('website.home.view_all_deals') }}
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 12h14m-6-6 6 6-6 6"/></svg>
+                    </a>
+                </div>
+            </header>
+
+            <div class="gw-flash-grid">
+                @foreach($homeFlash->take(6) as $product)
+                    @include('website.partials.tn-product-card', ['product' => $product, 'flash' => true])
+                @endforeach
+            </div>
+        </div>
+    </div>
+</section>
+@endif
+
+{{-- 5. BEST SELLERS --}}
 @if($bestProducts->isNotEmpty())
 <section class="gw-section gw-bestsellers" aria-labelledby="gw-best-heading">
-    <span class="gw-best-deco gw-best-deco--tl" aria-hidden="true"></span>
-    <span class="gw-best-deco gw-best-deco--tr" aria-hidden="true"></span>
-    <span class="gw-best-deco gw-best-deco--bl" aria-hidden="true"></span>
-    <span class="gw-best-deco gw-best-deco--br" aria-hidden="true"></span>
-
     <div class="tn-container gw-best-inner">
         <header class="gw-best-head">
             <div class="gw-best-head-copy">
@@ -387,7 +456,7 @@
 </section>
 @endif
 
-{{-- 5. COMBO PACKS --}}
+{{-- 6. COMBO PACKS --}}
 @php $homeCombos = collect($comboProducts ?? [])->take(6); @endphp
 @if($homeCombos->isNotEmpty())
 <section class="gw-section gw-combos" aria-labelledby="gw-combo-heading">

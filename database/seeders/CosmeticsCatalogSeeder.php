@@ -13,6 +13,7 @@ use App\Services\ProductVariantService;
 use App\Services\WebsiteService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
@@ -48,6 +49,7 @@ class CosmeticsCatalogSeeder extends Seeder
 
         $this->purgeIrrelevantCatalog($shop->id, array_keys($brands));
 
+        $this->publishPackagedImages();
         $count = $this->seedProducts($shop->id, $categories, $brands);
 
         $this->command?->info("Cosmetics catalog ready: {$count} products across ".count($brands).' trusted brands.');
@@ -107,16 +109,7 @@ class CosmeticsCatalogSeeder extends Seeder
     /** @return array<string, Category> */
     private function ensureCategories(int $shopId): array
     {
-        $defs = [
-            ['name' => 'Skincare', 'icon' => 'droplet', 'description' => 'Serums, creams and daily glow essentials', 'photo' => 'photo-1556228720-195a672e8a03'],
-            ['name' => 'Makeup', 'icon' => 'lipstick', 'description' => 'Lips, face and eye makeup favourites', 'photo' => 'photo-1596462502278-27bfdc403348'],
-            ['name' => 'Hair Care', 'icon' => 'scissors', 'description' => 'Shampoo, conditioner and hair treatments', 'photo' => 'photo-1522338140262-f46f5913618a'],
-            ['name' => 'Body Care', 'icon' => 'droplet', 'description' => 'Lotions, washes and body moisturisers', 'photo' => 'photo-1570194065650-d99fb4b38b17'],
-            ['name' => 'Fragrance', 'icon' => 'spray', 'description' => 'Light scents and everyday fragrance', 'photo' => 'photo-1541643600914-78b084683601'],
-            ['name' => 'Beauty Tools', 'icon' => 'brush', 'description' => 'Brushes, sponges and beauty tools', 'photo' => 'photo-1512496015851-a90fb38ba796'],
-            ['name' => 'Nail Care', 'icon' => 'nail', 'description' => 'Polishes, care oils and nail essentials', 'photo' => 'photo-1604654894610-df63bc536371'],
-            ['name' => "Men's Grooming", 'icon' => 'grooming', 'description' => 'Face wash, beard care and men’s essentials', 'photo' => 'photo-1621607512214-68297480165e'],
-        ];
+        $defs = $this->categoryDefs();
 
         $map = [];
         foreach ($defs as $i => $def) {
@@ -141,10 +134,15 @@ class CosmeticsCatalogSeeder extends Seeder
     /** @param  list<string>  $keepBrandNames */
     private function purgeIrrelevantCatalog(int $shopId, array $keepBrandNames): void
     {
-        $expectedCount = collect($this->catalog())->sum(fn ($row) => max(1, count($row['shades'] ?? [null])));
-        $seedBarcodes = collect(range(1, $expectedCount))
-            ->map(fn ($i) => 'HM-BTY-'.str_pad((string) $i, 4, '0', STR_PAD_LEFT))
-            ->all();
+        $seedBarcodes = [];
+        $n = 0;
+        foreach ($this->catalog() as $item) {
+            $shades = $item['shades'] ?? [null];
+            foreach ($shades as $_shade) {
+                $n++;
+                $seedBarcodes[] = $item['barcode'] ?? 'HM-BTY-'.str_pad((string) $n, 4, '0', STR_PAD_LEFT);
+            }
+        }
 
         // Remove every product that is not part of the cosmetics barcode set.
         $ids = Product::where('shop_id', $shopId)
@@ -272,10 +270,88 @@ class CosmeticsCatalogSeeder extends Seeder
                         $colorAttr->id => ['value' => $shadeName, 'hex' => $shadeHex],
                     ]);
                 }
+
+                if (! empty($item['sale_percent']) && $shadeIndex === 0) {
+                    $pct = min(80, max(1, (float) $item['sale_percent']));
+                    $salePrice = max(1, (float) round($item['price'] * (1 - $pct / 100)));
+                    if ($salePrice < (float) $item['price']) {
+                        $product->applySale($salePrice, now()->subHour(), now()->addDays(10));
+                    }
+                }
             }
         }
 
         return $n;
+    }
+
+    /**
+     * Copy packaged Unsplash JPEGs into storage using the same filenames the catalog uses.
+     * Safe to run on every deploy so LiteSpeed's /storage copy has real product photos.
+     */
+    public function publishPackagedImages(): int
+    {
+        $written = 0;
+
+        foreach ($this->catalog() as $item) {
+            $shades = $item['shades'] ?? [null];
+            foreach ($shades as $shade) {
+                $shadeName = is_array($shade) ? (string) ($shade['name'] ?? '') : '';
+                $displayName = $shadeName !== '' ? $item['name'].' — '.$shadeName : $item['name'];
+                foreach ($item['photos'] as $k => $photoId) {
+                    if ($this->publishPackagedPhoto($photoId, 'products/beauty', Str::slug($displayName).'-'.($k + 1).'.jpg')) {
+                        $written++;
+                    }
+                }
+            }
+        }
+
+        foreach ($this->categoryDefs() as $def) {
+            if ($this->publishPackagedPhoto($def['photo'], 'categories', Str::slug($def['name']).'.jpg')) {
+                $written++;
+            }
+        }
+
+        return $written;
+    }
+
+    private function categoryDefs(): array
+    {
+        return [
+            ['name' => 'Skincare', 'icon' => 'droplet', 'description' => 'Serums, creams and daily glow essentials', 'photo' => 'photo-1556228720-195a672e8a03'],
+            ['name' => 'Makeup', 'icon' => 'lipstick', 'description' => 'Lips, face and eye makeup favourites', 'photo' => 'photo-1596462502278-27bfdc403348'],
+            ['name' => 'Hair Care', 'icon' => 'scissors', 'description' => 'Shampoo, conditioner and hair treatments', 'photo' => 'photo-1522338140262-f46f5913618a'],
+            ['name' => 'Body Care', 'icon' => 'droplet', 'description' => 'Lotions, washes and body moisturisers', 'photo' => 'photo-1612817288484-6f916006741a'],
+            ['name' => 'Fragrance', 'icon' => 'spray', 'description' => 'Light scents and everyday fragrance', 'photo' => 'photo-1541643600914-78b084683601'],
+            ['name' => 'Beauty Tools', 'icon' => 'brush', 'description' => 'Brushes, sponges and beauty tools', 'photo' => 'photo-1512496015851-a90fb38ba796'],
+            ['name' => 'Nail Care', 'icon' => 'nail', 'description' => 'Polishes, care oils and nail essentials', 'photo' => 'photo-1604654894610-df63bc536371'],
+            ['name' => "Men's Grooming", 'icon' => 'grooming', 'description' => 'Face wash, beard care and men’s essentials', 'photo' => 'photo-1621607512214-68297480165e'],
+        ];
+    }
+
+    private function publishPackagedPhoto(string $photoId, string $directory, string $filename): bool
+    {
+        $bytes = $this->packagedPhotoBytes($photoId);
+        if ($bytes === null) {
+            return false;
+        }
+
+        Storage::disk('public')->put(trim($directory, '/').'/'.$filename, $bytes);
+
+        return true;
+    }
+
+    private function packagedPhotoBytes(?string $photoId): ?string
+    {
+        if (! $photoId) {
+            return null;
+        }
+
+        $path = database_path('seeders/assets/unsplash/'.$photoId.'.jpg');
+        if (is_file($path) && filesize($path) > 1000) {
+            return File::get($path);
+        }
+
+        return null;
     }
 
     private function storePlaceholder(string $name, string $color): string
@@ -300,6 +376,14 @@ SVG);
     private function storeRemoteImage(string $url, string $directory, string $filename): ?string
     {
         $relative = trim($directory, '/').'/'.$filename;
+        $photoId = preg_match('#(photo-[a-zA-Z0-9_-]+)#', $url, $m) ? $m[1] : null;
+        $packaged = $this->packagedPhotoBytes($photoId);
+
+        if ($packaged !== null) {
+            Storage::disk('public')->put($relative, $packaged);
+
+            return $relative;
+        }
 
         try {
             if (Storage::disk('public')->exists($relative) && Storage::disk('public')->size($relative) > 1000) {
@@ -330,14 +414,14 @@ SVG);
             [
                 'brand' => "L'Oréal Paris", 'category' => 'Skincare', 'name' => 'Revitalift Hyaluronic Serum',
                 'cost' => 920, 'price' => 1850, 'original' => 2200, 'best' => true, 'featured' => true,
-                'accent' => '#1a1a2e', 'photos' => ['photo-1620916562805-4d887089db82', 'photo-1556228578-0d85b1a4d571'],
+                'accent' => '#1a1a2e', 'photos' => ['photo-1571781926291-c477ebfd024b', 'photo-1556228578-0d85b1a4d571'],
                 'summary' => '1.5% hyaluronic acid serum for plump, hydrated skin.',
                 'description' => "L'Oréal Paris Revitalift serum with pure hyaluronic acid.\n\n• Visibly plumps fine lines\n• Lightweight, fast-absorbing texture\n• Suitable for daily AM/PM use",
             ],
             [
                 'brand' => "L'Oréal Paris", 'category' => 'Makeup', 'name' => 'True Match Foundation',
                 'cost' => 680, 'price' => 1450, 'original' => 1690, 'featured' => true,
-                'accent' => '#c49a6c', 'photos' => ['photo-1631214524020-7e18db9a8fbd', 'photo-1522335789203-aabd1fc54bc9'],
+                'accent' => '#c49a6c', 'photos' => ['photo-1487412912498-0447578fcca8', 'photo-1522335789203-aabd1fc54bc9'],
                 'summary' => 'Natural coverage foundation that blends like your skin.',
                 'description' => "True Match foundation with blendable medium coverage.\n\n• Matches skin undertone\n• Breathable finish\n• Buildable for day-to-night looks",
                 'shades' => [
@@ -350,7 +434,7 @@ SVG);
             [
                 'brand' => "L'Oréal Paris", 'category' => 'Hair Care', 'name' => 'Elvive Total Repair Shampoo',
                 'cost' => 320, 'price' => 690, 'original' => 850, 'new' => true,
-                'accent' => '#6a1b9a', 'photos' => ['photo-1527799820374-dcf8d9d57a0a', 'photo-1519735777090-ec97162dc266'],
+                'accent' => '#6a1b9a', 'photos' => ['photo-1522338242992-e1a54906a8da', 'photo-1519735777090-ec97162dc266'],
                 'summary' => 'Repairing shampoo for weak, tired hair.',
                 'description' => "Elvive Total Repair cleanses while helping restore strength.\n\n• Reduces breakage feel\n• Soft, shiny finish\n• For daily wash routines",
             ],
@@ -358,7 +442,7 @@ SVG);
             // Maybelline
             [
                 'brand' => 'Maybelline New York', 'category' => 'Makeup', 'name' => 'Fit Me Matte + Poreless Foundation',
-                'cost' => 520, 'price' => 1200, 'original' => 1390, 'best' => true, 'featured' => true,
+                'cost' => 520, 'price' => 1200, 'original' => 1390, 'best' => true, 'featured' => true, 'sale_percent' => 20,
                 'accent' => '#0096d6', 'photos' => ['photo-1596462502278-27bfdc403348', 'photo-1512496015851-a90fb38ba796'],
                 'summary' => 'Oil-control foundation for a natural matte look.',
                 'description' => "Maybelline Fit Me foundation for normal to oily skin.\n\n• Soft matte finish\n• Helps blur pores\n• Lightweight everyday wear",
@@ -371,8 +455,8 @@ SVG);
             ],
             [
                 'brand' => 'Maybelline New York', 'category' => 'Makeup', 'name' => 'SuperStay Matte Ink Lipstick',
-                'cost' => 280, 'price' => 890, 'original' => 990, 'best' => true,
-                'accent' => '#c2185b', 'photos' => ['photo-1586495777744-4413f21067fa', 'photo-1631214524020-7e18db9a8fbd'],
+                'cost' => 280, 'price' => 890, 'original' => 990, 'best' => true, 'sale_percent' => 15,
+                'accent' => '#c2185b', 'photos' => ['photo-1571875257727-256c39da42af', 'photo-1487412912498-0447578fcca8'],
                 'summary' => 'Long-wear liquid lipstick with intense matte colour.',
                 'description' => "SuperStay Matte Ink stays put through the day.\n\n• Up to 16-hour wear feel\n• Arrow applicator for precise lips\n• Highly pigmented shades",
                 'shades' => [
@@ -386,7 +470,7 @@ SVG);
             [
                 'brand' => 'Maybelline New York', 'category' => 'Makeup', 'name' => 'Lash Sensational Mascara',
                 'cost' => 260, 'price' => 780, 'original' => 920, 'new' => true,
-                'accent' => '#111827', 'photos' => ['photo-1631214524020-7e18db9a8fbd', 'photo-1512496015851-a90fb38ba796'],
+                'accent' => '#111827', 'photos' => ['photo-1487412912498-0447578fcca8', 'photo-1512496015851-a90fb38ba796'],
                 'summary' => 'Fan-effect mascara for fuller-looking lashes.',
                 'description' => "Lash Sensational coats from root to tip.\n\n• Soft brush fan effect\n• Buildable volume\n• Everyday black finish",
             ],
@@ -394,7 +478,7 @@ SVG);
             // Pond's
             [
                 'brand' => "Pond's", 'category' => 'Skincare', 'name' => 'Bright Beauty Spot-less Cream',
-                'cost' => 280, 'price' => 680, 'original' => 790, 'best' => true, 'featured' => true,
+                'cost' => 280, 'price' => 680, 'original' => 790, 'best' => true, 'featured' => true, 'sale_percent' => 25,
                 'accent' => '#f4c430', 'photos' => ['photo-1556228720-195a672e8a03', 'photo-1570172619644-dfd03ed5d881'],
                 'summary' => 'Daily brightening cream for a spot-less looking glow.',
                 'description' => "Pond's Bright Beauty cream for everyday radiance.\n\n• Helps even skin tone look\n• Lightweight moisturising feel\n• Day cream for all skin types",
@@ -402,14 +486,14 @@ SVG);
             [
                 'brand' => "Pond's", 'category' => 'Skincare', 'name' => 'Cold Cream Moisture Whip',
                 'cost' => 220, 'price' => 520, 'original' => 620,
-                'accent' => '#fff8e7', 'photos' => ['photo-1570194065650-d99fb4b38b17', 'photo-1556228578-0d85b1a4d571'],
+                'accent' => '#fff8e7', 'photos' => ['photo-1612817288484-6f916006741a', 'photo-1556228578-0d85b1a4d571'],
                 'summary' => 'Classic cold cream for soft, moisturised skin.',
                 'description' => "Pond's Cold Cream deeply moisturises dry skin.\n\n• Rich cream texture\n• Softens dry patches\n• Trusted daily care",
             ],
             [
                 'brand' => "Pond's", 'category' => 'Skincare', 'name' => 'Age Miracle Day Cream',
                 'cost' => 540, 'price' => 1250, 'original' => 1490, 'featured' => true,
-                'accent' => '#b71c1c', 'photos' => ['photo-1620916562805-4d887089db82', 'photo-1556228720-195a672e8a03'],
+                'accent' => '#b71c1c', 'photos' => ['photo-1571781926291-c477ebfd024b', 'photo-1556228720-195a672e8a03'],
                 'summary' => 'Anti-ageing day cream for firmer-looking skin.',
                 'description' => "Age Miracle day cream with SPF feel protection routine.\n\n• Reduces appearance of fine lines\n• Softens skin texture\n• Morning moisturiser",
             ],
@@ -417,22 +501,22 @@ SVG);
             // Dove
             [
                 'brand' => 'Dove', 'category' => 'Body Care', 'name' => 'Nourishing Body Lotion',
-                'cost' => 240, 'price' => 520, 'original' => 650, 'best' => true, 'featured' => true,
-                'accent' => '#ffffff', 'photos' => ['photo-1570194065650-d99fb4b38b17', 'photo-1556228453-efd6c1ff04f6'],
+                'cost' => 240, 'price' => 520, 'original' => 650, 'best' => true, 'featured' => true, 'sale_percent' => 20,
+                'accent' => '#ffffff', 'photos' => ['photo-1612817288484-6f916006741a', 'photo-1556228453-efd6c1ff04f6'],
                 'summary' => '24h moisture body lotion with gentle cleansers care.',
                 'description' => "Dove body lotion with ¼ moisturising cream.\n\n• Soft, non-greasy feel\n• Suitable for everyday use\n• Leaves skin smooth",
             ],
             [
                 'brand' => 'Dove', 'category' => 'Hair Care', 'name' => 'Hair Fall Rescue Shampoo',
                 'cost' => 260, 'price' => 590, 'original' => 720, 'new' => true,
-                'accent' => '#0d47a1', 'photos' => ['photo-1527799820374-dcf8d9d57a0a', 'photo-1522338140262-f46f5913618a'],
+                'accent' => '#0d47a1', 'photos' => ['photo-1522338242992-e1a54906a8da', 'photo-1522338140262-f46f5913618a'],
                 'summary' => 'Shampoo to help reduce hair fall from breakage.',
                 'description' => "Dove Hair Fall Rescue strengthens from wash one.\n\n• Cleanses gently\n• Helps reduce breakage\n• Soft, manageable hair",
             ],
             [
                 'brand' => 'Dove', 'category' => 'Body Care', 'name' => 'Beauty Moisture Cream Bar',
                 'cost' => 90, 'price' => 180, 'original' => 220,
-                'accent' => '#e3f2fd', 'photos' => ['photo-1608571423902-eed4a9abdd0d', 'photo-1570194065650-d99fb4b38b17'],
+                'accent' => '#e3f2fd', 'photos' => ['photo-1608248543803-ba4f8c70ae0b', 'photo-1612817288484-6f916006741a'],
                 'summary' => 'Moisturising beauty bar for soft, clean skin.',
                 'description' => "Dove Beauty Bar is milder than ordinary soap.\n\n• ¼ moisturising cream\n• Gentle on skin\n• Fresh clean feel",
             ],
@@ -440,8 +524,8 @@ SVG);
             // NYX
             [
                 'brand' => 'NYX Professional Makeup', 'category' => 'Makeup', 'name' => 'Soft Matte Lip Cream',
-                'cost' => 320, 'price' => 890, 'original' => 1050, 'best' => true, 'featured' => true,
-                'accent' => '#000000', 'photos' => ['photo-1586495777744-4413f21067fa', 'photo-1631214524020-7e18db9a8fbd'],
+                'cost' => 320, 'price' => 890, 'original' => 1050, 'best' => true, 'featured' => true, 'sale_percent' => 18,
+                'accent' => '#000000', 'photos' => ['photo-1571875257727-256c39da42af', 'photo-1487412912498-0447578fcca8'],
                 'summary' => 'Creamy matte lip colour with a soft-blur finish.',
                 'description' => "NYX Soft Matte Lip Cream is a cult favourite.\n\n• Lightweight creamy formula\n• Soft matte payoff\n• Buildable colour",
                 'shades' => [
@@ -470,7 +554,7 @@ SVG);
             // Olay
             [
                 'brand' => 'Olay', 'category' => 'Skincare', 'name' => 'Regenerist Micro-Sculpting Cream',
-                'cost' => 780, 'price' => 1690, 'original' => 1990, 'best' => true, 'featured' => true,
+                'cost' => 780, 'price' => 1690, 'original' => 1990, 'best' => true, 'featured' => true, 'sale_percent' => 22,
                 'accent' => '#c62828', 'photos' => ['photo-1570172619644-dfd03ed5d881', 'photo-1556228720-195a672e8a03'],
                 'summary' => 'Firming moisturiser for smoother-looking skin.',
                 'description' => "Olay Regenerist cream with amino-peptides & hyaluronic acid.\n\n• Hydrates deeply\n• Improves firmness look\n• Rich yet absorbent texture",
@@ -478,14 +562,14 @@ SVG);
             [
                 'brand' => 'Olay', 'category' => 'Skincare', 'name' => 'Total Effects 7-in-1 Day Cream',
                 'cost' => 620, 'price' => 1450, 'original' => 1690,
-                'accent' => '#ad1457', 'photos' => ['photo-1620916562805-4d887089db82', 'photo-1556228578-0d85b1a4d571'],
+                'accent' => '#ad1457', 'photos' => ['photo-1571781926291-c477ebfd024b', 'photo-1556228578-0d85b1a4d571'],
                 'summary' => 'Multi-benefit day cream against 7 signs of ageing.',
                 'description' => "Total Effects day cream for complete daily care.\n\n• Moisturises & brightens look\n• Smooths rough texture\n• Morning skincare staple",
             ],
             [
                 'brand' => 'Olay', 'category' => 'Skincare', 'name' => 'Whip Active Moisturiser',
                 'cost' => 480, 'price' => 1190, 'original' => 1390, 'new' => true,
-                'accent' => '#f8bbd0', 'photos' => ['photo-1556228453-efd6c1ff04f6', 'photo-1570194065650-d99fb4b38b17'],
+                'accent' => '#f8bbd0', 'photos' => ['photo-1556228453-efd6c1ff04f6', 'photo-1612817288484-6f916006741a'],
                 'summary' => 'Air-light whipped moisturiser for a fresh finish.',
                 'description' => "Olay Whip feels light but hydrates all day.\n\n• Whipped texture\n• Non-greasy feel\n• Ideal under makeup",
             ],
@@ -494,21 +578,21 @@ SVG);
             [
                 'brand' => 'Nivea', 'category' => 'Body Care', 'name' => 'Soft Moisturising Cream',
                 'cost' => 160, 'price' => 380, 'original' => 450, 'best' => true, 'featured' => true,
-                'accent' => '#1565c0', 'photos' => ['photo-1556228453-efd6c1ff04f6', 'photo-1570194065650-d99fb4b38b17'],
+                'accent' => '#1565c0', 'photos' => ['photo-1556228453-efd6c1ff04f6', 'photo-1612817288484-6f916006741a'],
                 'summary' => 'Light moisturising cream for face, body and hands.',
                 'description' => "Nivea Soft with Vitamin E and jojoba oil.\n\n• Fast-absorbing\n• For face & body\n• Fresh soft scent",
             ],
             [
                 'brand' => 'Nivea', 'category' => 'Body Care', 'name' => 'Rich Nourishing Body Milk',
                 'cost' => 220, 'price' => 520, 'original' => 640,
-                'accent' => '#0d47a1', 'photos' => ['photo-1570194065650-d99fb4b38b17', 'photo-1608571423902-eed4a9abdd0d'],
+                'accent' => '#0d47a1', 'photos' => ['photo-1612817288484-6f916006741a', 'photo-1608248543803-ba4f8c70ae0b'],
                 'summary' => 'Rich body milk for very dry skin.',
                 'description' => "Nivea Body Milk deeply nourishes dry skin.\n\n• 48h moisture feel\n• Almond oil care\n• Smooth after-bath ritual",
             ],
             [
                 'brand' => 'Nivea', 'category' => 'Skincare', 'name' => 'Care Lip Balm Duo',
                 'cost' => 90, 'price' => 220, 'original' => 280, 'new' => true,
-                'accent' => '#1976d2', 'photos' => ['photo-1631214524020-7e18db9a8fbd', 'photo-1586495777744-4413f21067fa'],
+                'accent' => '#1976d2', 'photos' => ['photo-1487412912498-0447578fcca8', 'photo-1571875257727-256c39da42af'],
                 'summary' => 'Classic Nivea lip care for soft, protected lips.',
                 'description' => "Nivea Lip Balm keeps lips smooth all day.\n\n• Shea butter care\n• Pocket-friendly tin/stick\n• Everyday essential",
             ],
@@ -533,14 +617,14 @@ SVG);
             [
                 'brand' => 'Nivea', 'category' => "Men's Grooming", 'name' => 'Men Deep Clean Face Wash',
                 'cost' => 160, 'price' => 390, 'original' => 480, 'best' => true, 'featured' => true, 'new' => true,
-                'accent' => '#0d47a1', 'photos' => ['photo-1621607512214-68297480165e', 'photo-1620916297397-a4a3352a2790'],
+                'accent' => '#0d47a1', 'photos' => ['photo-1621607512214-68297480165e', 'photo-1515377905703-c4788e51af15'],
                 'summary' => 'Deep-cleansing face wash for men’s everyday skincare.',
                 'description' => "Nivea Men face wash removes dirt and excess oil.\n\n• Fresh clean feel\n• For normal to oily skin\n• Morning & night use",
             ],
             [
                 'brand' => 'Dove', 'category' => "Men's Grooming", 'name' => 'Men+Care Hydrate Face Cream',
                 'cost' => 280, 'price' => 690, 'original' => 820, 'featured' => true,
-                'accent' => '#1565c0', 'photos' => ['photo-1620916297397-a4a3352a2790', 'photo-1621607512214-68297480165e'],
+                'accent' => '#1565c0', 'photos' => ['photo-1515377905703-c4788e51af15', 'photo-1621607512214-68297480165e'],
                 'summary' => 'Lightweight hydrating cream for men’s skin.',
                 'description' => "Dove Men+Care moisturises without a heavy feel.\n\n• Non-greasy finish\n• Helps reduce dryness\n• Daily post-wash cream",
             ],
@@ -550,7 +634,7 @@ SVG);
                 'barcode' => 'HM-CMB-0001', 'combo' => true, 'featured' => true, 'best' => true,
                 'brand' => "L'Oréal Paris", 'category' => 'Skincare', 'name' => 'Glow Ritual Combo',
                 'cost' => 1480, 'price' => 2490, 'original' => 3050,
-                'accent' => '#1a1a2e', 'photos' => ['photo-1620916562805-4d887089db82', 'photo-1556228578-0d85b1a4d571'],
+                'accent' => '#1a1a2e', 'photos' => ['photo-1571781926291-c477ebfd024b', 'photo-1556228578-0d85b1a4d571'],
                 'summary' => 'Serum + day cream kit for a hydrated morning glow.',
                 'description' => "A complete AM skincare ritual from L'Oréal Paris.\n\n• Hyaluronic serum for plump skin\n• Lightweight day cream to lock in moisture\n• Save versus buying each item alone",
                 'combo_items' => [
@@ -563,7 +647,7 @@ SVG);
                 'barcode' => 'HM-CMB-0002', 'combo' => true, 'featured' => true,
                 'brand' => 'Maybelline New York', 'category' => 'Makeup', 'name' => 'Everyday Makeup Combo',
                 'cost' => 1060, 'price' => 2290, 'original' => 2870,
-                'accent' => '#c2185b', 'photos' => ['photo-1596462502278-27bfdc403348', 'photo-1586495777744-4413f21067fa'],
+                'accent' => '#c2185b', 'photos' => ['photo-1596462502278-27bfdc403348', 'photo-1571875257727-256c39da42af'],
                 'summary' => 'Foundation, mascara and matte lipstick — a full everyday face.',
                 'description' => "Maybelline essentials for a polished everyday look.\n\n• Soft-matte foundation\n• Fan-effect mascara\n• Long-wear matte lipstick",
                 'combo_items' => [
@@ -589,7 +673,7 @@ SVG);
                 'barcode' => 'HM-CMB-0004', 'combo' => true, 'featured' => true,
                 'brand' => 'Dove', 'category' => 'Body Care', 'name' => 'Soft Skin Body Combo',
                 'cost' => 420, 'price' => 890, 'original' => 1180,
-                'accent' => '#1565c0', 'photos' => ['photo-1570194065650-d99fb4b38b17', 'photo-1608571423902-eed4a9abdd0d'],
+                'accent' => '#1565c0', 'photos' => ['photo-1612817288484-6f916006741a', 'photo-1608248543803-ba4f8c70ae0b'],
                 'summary' => 'Body wash and lotion pairing for all-day softness.',
                 'description' => "Dove body care from shower to moisturise.\n\n• Gentle cleansing wash\n• Nourishing body lotion\n• Soft-skin ritual in one pack",
                 'combo_items' => [
@@ -602,7 +686,7 @@ SVG);
                 'barcode' => 'HM-CMB-0005', 'combo' => true, 'featured' => true,
                 'brand' => 'Olay', 'category' => 'Skincare', 'name' => 'Regenerist Night Combo',
                 'cost' => 1680, 'price' => 2890, 'original' => 3480,
-                'accent' => '#b71c1c', 'photos' => ['photo-1620916562805-4d887089db82', 'photo-1570172619644-dfd03ed5d881'],
+                'accent' => '#b71c1c', 'photos' => ['photo-1571781926291-c477ebfd024b', 'photo-1570172619644-dfd03ed5d881'],
                 'summary' => 'Micro-sculpting cream plus hydrating cleanser for overnight repair.',
                 'description' => "Olay Regenerist evening ritual in one set.\n\n• Firming night cream\n• Gentle hydrating cleanser\n• Ready-to-gift skincare duo",
                 'combo_items' => [
@@ -615,7 +699,7 @@ SVG);
                 'barcode' => 'HM-CMB-0006', 'combo' => true, 'featured' => true, 'new' => true,
                 'brand' => 'NYX Professional Makeup', 'category' => 'Makeup', 'name' => 'Night Out Makeup Combo',
                 'cost' => 720, 'price' => 1590, 'original' => 1980,
-                'accent' => '#111827', 'photos' => ['photo-1512496015851-a90fb38ba796', 'photo-1631214524020-7e18db9a8fbd'],
+                'accent' => '#111827', 'photos' => ['photo-1512496015851-a90fb38ba796', 'photo-1487412912498-0447578fcca8'],
                 'summary' => 'Lip, liner and setting spray kit for nights out.',
                 'description' => "NYX glam essentials packed together.\n\n• Bold lip colour\n• Precise liner\n• Makeup setting spray to lock the look",
                 'combo_items' => [

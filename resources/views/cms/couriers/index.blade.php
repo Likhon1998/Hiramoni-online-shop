@@ -1,74 +1,80 @@
-<x-cms-layout title="Courier services" subtitle="Add Pathao, Steadfast, or any delivery partner. Online orders pick one when shipping — then you can see how much cash each service owes you." actionUrl="{{ route('cms.delivery.edit') }}" actionLabel="← Delivery settings">
-    @if(session('success'))
-        <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800">{{ session('success') }}</div>
-    @endif
-
-    <div class="grid gap-6 lg:grid-cols-2">
-        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h3 class="mb-3 text-sm font-bold text-slate-900">Add courier service</h3>
-            <form method="POST" action="{{ route('cms.couriers.store') }}" class="space-y-3">
-                @csrf
-                <div>
-                    <label class="text-[11px] font-bold uppercase text-slate-500">Name *</label>
-                    <input name="name" required value="{{ old('name') }}" class="mt-1 w-full rounded-xl border-slate-200 text-sm" placeholder="e.g. Pathao, Steadfast">
-                    <x-input-error class="mt-1" :messages="$errors->get('name')" />
-                </div>
-                <div>
-                    <label class="text-[11px] font-bold uppercase text-slate-500">Phone / contact</label>
-                    <input name="phone" value="{{ old('phone') }}" class="mt-1 w-full rounded-xl border-slate-200 text-sm" placeholder="Optional">
-                </div>
-                <div>
-                    <label class="text-[11px] font-bold uppercase text-slate-500">Notes</label>
-                    <input name="notes" value="{{ old('notes') }}" class="mt-1 w-full rounded-xl border-slate-200 text-sm" placeholder="Optional">
-                </div>
-                <div>
-                    <label class="text-[11px] font-bold uppercase text-slate-500">Sort</label>
-                    <input type="number" name="sort_order" value="{{ old('sort_order', 0) }}" min="0" class="mt-1 w-full rounded-xl border-slate-200 text-sm">
-                </div>
-                <button class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white">Add service</button>
-            </form>
+@php
+    $tab = (string) request('tab', $activeTab ?? ($services->first()?->id ?? 'new'));
+    if ($errors->any() && ! $services->contains(fn ($s) => (string) $s->id === $tab)) {
+        $tab = 'new';
+    }
+    $connectedCount = $services->filter->hasApiCredentials()->count();
+    $activeCount = $services->where('is_active', true)->count();
+@endphp
+<x-app-layout>
+    <div class="w-full pb-6">
+        <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+                <h1 class="text-xl font-black tracking-tight text-slate-950 sm:text-2xl">Courier services</h1>
+                <p class="mt-0.5 text-sm text-slate-500">Connect an API or keep booking local. Shipping still creates tracking.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="rounded-full bg-white px-3 py-1 text-[11px] font-bold text-slate-600 ring-1 ring-slate-200">{{ $services->count() }} couriers</span>
+                <span class="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-bold text-emerald-700 ring-1 ring-emerald-100">{{ $activeCount }} active</span>
+                <span class="rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-bold text-indigo-700 ring-1 ring-indigo-100">{{ $connectedCount }} API</span>
+                <a href="{{ route('cms.delivery.edit') }}" class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">Delivery settings</a>
+            </div>
         </div>
 
-        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <table class="min-w-full text-sm">
-                <thead class="bg-slate-50 text-[11px] uppercase text-slate-500">
-                    <tr>
-                        <th class="px-4 py-2.5 text-left">Service</th>
-                        <th class="px-4 py-2.5 text-right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                    @forelse($services as $service)
-                        <tr class="{{ $service->is_active ? '' : 'bg-slate-50 opacity-70' }}">
-                            <td class="px-4 py-3">
-                                <form method="POST" action="{{ route('cms.couriers.update', $service) }}" class="space-y-2">
-                                    @csrf
-                                    @method('PUT')
-                                    <input name="name" value="{{ $service->name }}" class="w-full rounded-lg border-slate-200 text-sm font-semibold">
-                                    <div class="grid grid-cols-2 gap-2">
-                                        <input name="phone" value="{{ $service->phone }}" placeholder="Phone" class="rounded-lg border-slate-200 text-xs">
-                                        <input type="number" name="sort_order" value="{{ $service->sort_order }}" class="rounded-lg border-slate-200 text-xs">
-                                    </div>
-                                    <input name="notes" value="{{ $service->notes }}" placeholder="Notes" class="w-full rounded-lg border-slate-200 text-xs">
-                                    <label class="flex items-center gap-1.5 text-xs text-slate-600">
-                                        <input type="checkbox" name="is_active" value="1" class="rounded" @checked($service->is_active)> Active
-                                    </label>
-                                    <button class="text-xs font-bold text-indigo-600">Save</button>
-                                </form>
-                            </td>
-                            <td class="px-4 py-3 text-right align-top">
-                                <form method="POST" action="{{ route('cms.couriers.destroy', $service) }}" data-confirm="Remove this courier service?" data-confirm-title="Remove?" data-confirm-ok="Remove" data-confirm-tone="danger">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="text-xs font-bold text-rose-600">Delete</button>
-                                </form>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr><td colspan="2" class="px-4 py-10 text-center text-slate-400">No courier services yet.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
+        @if (session('success'))
+            <div data-admin-flash-banner class="mb-4 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800">{{ session('success') }}</div>
+        @endif
+        @if (session('error'))
+            <div data-admin-flash-banner class="mb-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">{{ session('error') }}</div>
+        @endif
+        @if ($errors->any())
+            <div class="mb-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-800">
+                <ul class="list-disc space-y-1 pl-4">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
+            </div>
+        @endif
+
+        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+             x-data="{ tab: @js($tab) }">
+            <div class="flex gap-1 overflow-x-auto border-b border-slate-100 bg-slate-50 px-3 pt-2">
+                @foreach($services as $service)
+                    <button type="button" @click="tab = '{{ $service->id }}'"
+                            :class="tab === '{{ $service->id }}' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-800'"
+                            class="mb-[-1px] flex items-center gap-1.5 whitespace-nowrap rounded-t-xl px-4 py-2.5 text-sm font-bold">
+                        {{ $service->name }}
+                        @if(! $service->is_active)
+                            <span class="rounded-full bg-slate-200 px-1.5 py-0.5 text-[9px] font-bold uppercase text-slate-500">Off</span>
+                        @elseif($service->hasApiCredentials())
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                        @endif
+                    </button>
+                @endforeach
+                <button type="button" @click="tab = 'new'"
+                        :class="tab === 'new' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-800'"
+                        class="mb-[-1px] whitespace-nowrap rounded-t-xl px-4 py-2.5 text-sm font-bold">+ Add</button>
+            </div>
+
+            @foreach($services as $service)
+                <div x-show="tab === '{{ $service->id }}'" x-cloak>
+                    <form method="POST" action="{{ route('cms.couriers.update', $service) }}">
+                        @csrf
+                        @method('PUT')
+                        @include('cms.couriers._panel', ['service' => $service, 'drivers' => $drivers])
+                    </form>
+                    <form id="test-{{ $service->id }}" method="POST" action="{{ route('cms.couriers.test', $service) }}" class="hidden">@csrf</form>
+                    <form method="POST" action="{{ route('cms.couriers.destroy', $service) }}" class="px-5 pb-5 text-center" data-confirm="Remove {{ $service->name }}?" data-confirm-title="Remove courier?" data-confirm-ok="Remove" data-confirm-tone="danger">
+                        @csrf
+                        @method('DELETE')
+                        <button class="text-xs font-semibold text-rose-400 hover:text-rose-600">Remove this courier</button>
+                    </form>
+                </div>
+            @endforeach
+
+            <div x-show="tab === 'new'" x-cloak>
+                <form method="POST" action="{{ route('cms.couriers.store') }}">
+                    @csrf
+                    @include('cms.couriers._panel', ['service' => null, 'drivers' => $drivers])
+                </form>
+            </div>
         </div>
     </div>
-</x-cms-layout>
+</x-app-layout>

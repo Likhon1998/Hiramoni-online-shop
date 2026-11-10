@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -295,6 +295,7 @@
                 },
                 get wishlistCount() { return this.wishlist.length; },
                 init() {
+                    this.bindCheckoutViewport();
                     this.syncCart({ silent: true });
                     if (!this.isLoggedIn) this.restoreGuestContact();
                     try {
@@ -311,6 +312,40 @@
                     } catch (e) {}
                 },
                 // Persist ids + qty only — display price/stock always come from /cart/sync.
+                bindCheckoutViewport() {
+                    this._onViewport = () => {
+                        const root = document.documentElement;
+                        const vv = window.visualViewport;
+                        if (vv) {
+                            root.style.setProperty('--vv-height', Math.round(vv.height) + 'px');
+                            root.style.setProperty('--vv-offset-top', Math.round(vv.offsetTop) + 'px');
+                            const covered = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+                            root.classList.toggle('is-keyboard-open', covered > 80);
+                        } else {
+                            root.style.setProperty('--vv-height', window.innerHeight + 'px');
+                            root.style.setProperty('--vv-offset-top', '0px');
+                            root.classList.remove('is-keyboard-open');
+                        }
+                    };
+                    this._onViewport();
+                    window.visualViewport?.addEventListener('resize', this._onViewport);
+                    window.visualViewport?.addEventListener('scroll', this._onViewport);
+                    window.addEventListener('resize', this._onViewport);
+                },
+                destroy() {
+                    window.visualViewport?.removeEventListener('resize', this._onViewport);
+                    window.visualViewport?.removeEventListener('scroll', this._onViewport);
+                    window.removeEventListener('resize', this._onViewport);
+                },
+                scrollCheckoutField(event) {
+                    const el = event.target;
+                    if (!el || !el.matches || !el.matches('input, textarea, select')) return;
+                    window.setTimeout(() => {
+                        try {
+                            el.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' });
+                        } catch (e) {}
+                    }, 350);
+                },
                 save() {
                     const slim = this.cart.map((item) => ({
                         id: Number(item.id),
@@ -1027,10 +1062,10 @@
     $authStoreName = $settings->store_name ?? config('app.name', 'Hira Moni');
     $authLogo = !empty($settings->logo_path) ? public_storage_url($settings->logo_path) : asset('images/hiramoni-logo-round.png');
 @endphp
-<div x-show="checkoutOpen" x-cloak class="fixed inset-0 z-[130] flex items-end sm:items-center justify-center p-0 sm:p-4">
+<div x-show="checkoutOpen" x-cloak class="gw-sheet-overlay" @focusin="scrollCheckoutField($event)">
     <div class="bb-modal-backdrop absolute inset-0 bg-black/50" @click="checkoutStep !== 'success' && (checkoutOpen=false)"></div>
     <div class="bb-modal gw-auth-modal relative bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full"
-         :class="checkoutStep === 'order' ? 'gw-checkout-modal' : (checkoutStep === 'success' ? 'max-w-md overflow-hidden' : 'max-w-md max-h-[92vh] overflow-y-auto')">
+         :class="checkoutStep === 'order' ? 'gw-checkout-modal' : (checkoutStep === 'success' ? 'max-w-md overflow-hidden' : 'max-w-md max-h-[92vh] overflow-y-auto gw-auth-sheet')">
         <button type="button" x-show="checkoutStep !== 'success'" @click="checkoutOpen=false" class="gw-auth-close" aria-label="Close">&times;</button>
 
         {{-- Auth step (standalone account OR checkout) --}}

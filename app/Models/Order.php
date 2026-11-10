@@ -151,9 +151,27 @@ class Order extends Model
         return max(0, round($this->shopCollectableAmount() - $this->shopAdvancePaid(), 2));
     }
 
+    /** Cash the courier should collect from the customer (COD minus any confirmation already paid). */
+    public function amountCourierCollectsFromCustomer(): float
+    {
+        $advance = max(0, round((float) ($this->confirmation_charge ?? 0), 2));
+        $method = strtolower(trim((string) ($this->payment_method ?? '')));
+
+        if (! $this->isCashOnDelivery() && $method !== 'confirmation_charge') {
+            return 0.0;
+        }
+
+        return max(0, round($this->netPayable() - $advance, 2));
+    }
+
     public function courierService()
     {
         return $this->belongsTo(CourierService::class);
+    }
+
+    public function consignments()
+    {
+        return $this->hasMany(CourierConsignment::class)->latest('id');
     }
 
     public function lead()

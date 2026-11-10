@@ -48,6 +48,7 @@ class CustomerSegmentService
         return $query->addSelect([
             'seg_orders' => $valid()->selectRaw('COUNT(*)'),
             'seg_spent' => $valid()->selectRaw('COALESCE(SUM(orders.total_amount - COALESCE(orders.delivery_charge, 0)), 0)'),
+            'seg_clv' => $valid()->selectRaw('COALESCE(SUM(orders.total_amount), 0)'),
             'seg_first_order_at' => $valid()->selectRaw('MIN(orders.created_at)'),
             'seg_last_order_at' => $valid()->selectRaw('MAX(orders.created_at)'),
             'seg_returns' => Order::query()
@@ -97,17 +98,20 @@ class CustomerSegmentService
     {
         if (! array_key_exists('seg_orders', $customer->getAttributes())) {
             $loaded = $this->withStats(Customer::query()->whereKey($customer->id))->first();
-            foreach (['seg_orders', 'seg_spent', 'seg_first_order_at', 'seg_last_order_at', 'seg_returns'] as $key) {
+            foreach (['seg_orders', 'seg_spent', 'seg_clv', 'seg_first_order_at', 'seg_last_order_at', 'seg_returns'] as $key) {
                 $customer->setAttribute($key, $loaded?->getAttribute($key));
             }
         }
 
         $orders = (int) $customer->getAttribute('seg_orders');
         $spent = round((float) $customer->getAttribute('seg_spent'), 2);
+        $clv = round((float) ($customer->getAttribute('seg_clv') ?? $spent), 2);
 
         return [
             'orders' => $orders,
             'spent' => $spent,
+            'clv' => $clv,
+            'is_repeat' => $orders >= 2,
             'first_order_at' => $this->date($customer->getAttribute('seg_first_order_at')),
             'last_order_at' => $this->date($customer->getAttribute('seg_last_order_at')),
             'average' => $orders > 0 ? round($spent / $orders, 2) : 0.0,

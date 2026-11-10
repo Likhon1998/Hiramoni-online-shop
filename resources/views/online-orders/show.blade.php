@@ -410,7 +410,7 @@
                         </div>
                         <div>
                             <label class="text-[10px] font-bold uppercase tracking-wide text-slate-400">Tracking number</label>
-                            <input type="text" name="tracking_number" value="{{ old('tracking_number', $order->shipping_tracking_no) }}" placeholder="Courier tracking ID"
+                            <input type="text" name="tracking_number" value="{{ old('tracking_number', $order->shipping_tracking_no) }}" placeholder="Leave blank to auto-create with the courier API"
                                    class="mt-1 w-full rounded-xl border-slate-200 text-[13px] focus:border-indigo-400 focus:ring-indigo-400">
                         </div>
                     </div>
@@ -427,13 +427,32 @@
                 </form>
             </div>
 
-            @if($order->courierService || $order->shipping_courier)
-                <div class="rounded-2xl border border-indigo-200 bg-indigo-50 p-4">
-                    <p class="text-[11px] font-bold uppercase tracking-wide text-indigo-500">Live shipment</p>
-                    <p class="mt-1 text-[14px] font-bold text-indigo-950">{{ $order->courierService?->name ?: $order->shipping_courier }}</p>
-                    @if($order->shipping_tracking_no)
-                        <p class="mt-1 font-mono text-[12px] text-indigo-700">{{ $order->shipping_tracking_no }}</p>
-                    @endif
+            @if($order->courierService || $order->shipping_courier || $order->consignments->isNotEmpty())
+                <div class="rounded-2xl border border-indigo-200 bg-indigo-50 p-4 space-y-3">
+                    <div>
+                        <p class="text-[11px] font-bold uppercase tracking-wide text-indigo-500">Live shipment</p>
+                        <p class="mt-1 text-[14px] font-bold text-indigo-950">{{ $order->courierService?->name ?: $order->shipping_courier }}</p>
+                        @if($order->shipping_tracking_no)
+                            <p class="mt-1 font-mono text-[12px] text-indigo-700">{{ $order->shipping_tracking_no }}</p>
+                        @endif
+                    </div>
+                    @foreach($order->consignments as $consignment)
+                        <div class="rounded-xl border border-indigo-100 bg-white/70 px-3 py-2">
+                            <p class="text-[11px] font-bold text-indigo-900">{{ ucfirst($consignment->type) }} · {{ \App\Models\CourierConsignment::statusLabel($consignment->status) }}</p>
+                            <p class="font-mono text-[11px] text-indigo-700">{{ $consignment->tracking_number }}</p>
+                            @if($consignment->courier_status)
+                                <p class="text-[10px] text-slate-500">Courier: {{ $consignment->courier_status }}</p>
+                            @endif
+                            @if($consignment->last_error)
+                                <p class="text-[10px] text-amber-700">{{ $consignment->last_error }}</p>
+                            @endif
+                            <p class="text-[10px] text-slate-400">{{ $consignment->is_remote ? 'API booking' : 'Local booking' }}@if($consignment->last_synced_at) · synced {{ $consignment->last_synced_at->diffForHumans() }}@endif</p>
+                        </div>
+                    @endforeach
+                    <form method="POST" action="{{ route('online-orders.sync-courier', $order) }}">
+                        @csrf
+                        <button class="w-full rounded-xl border border-indigo-200 bg-white px-4 py-2 text-[12px] font-bold text-indigo-700 hover:bg-indigo-50">Refresh courier status</button>
+                    </form>
                 </div>
             @endif
         </div>

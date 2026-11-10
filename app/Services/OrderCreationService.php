@@ -44,6 +44,10 @@ class OrderCreationService
 
         $order = DB::transaction(function () use ($shopId, $contact, $user, $options, $lines, $quote, $staffId) {
             $customer = $this->resolveCustomer($shopId, $contact, $user);
+            if ($customer->is_blocked) {
+                throw new OrderCreationException('This customer is blocked and cannot place orders. Please contact the store.');
+            }
+            $customer->rememberDeliveryAddress($contact);
             $placedBy = $staffId ?? $user?->id ?? User::where('shop_id', $shopId)->value('id');
 
             $invoiceNo = Order::nextWebInvoiceNo($shopId);

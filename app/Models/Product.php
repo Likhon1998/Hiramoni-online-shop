@@ -389,21 +389,30 @@ class Product extends Model
     /** List / compare-at price shown struck through during an active sale. */
     public function compareAtPrice(): ?float
     {
-        return $this->isOnSale() ? (float) $this->selling_price : null;
+        $current = $this->currentPrice();
+        $compare = 0.0;
+
+        if ($this->isTimedSaleActive() || $this->hasPermanentDiscount()) {
+            $compare = max($compare, (float) $this->selling_price);
+        }
+
+        $original = (float) ($this->original_price ?? 0);
+        if ($original > $current) {
+            $compare = max($compare, $original);
+        }
+
+        return $compare > $current ? $compare : null;
     }
 
     public function discountPercent(): int
     {
-        if (! $this->isOnSale()) {
+        $base = $this->compareAtPrice();
+        $current = $this->currentPrice();
+        if ($base === null || $base <= 0 || $current >= $base) {
             return 0;
         }
 
-        $base = (float) $this->selling_price;
-        if ($base <= 0) {
-            return 0;
-        }
-
-        return (int) round((1 - ($this->currentPrice() / $base)) * 100);
+        return (int) round((1 - ($current / $base)) * 100);
     }
 
     public function clearPermanentDiscount(): void

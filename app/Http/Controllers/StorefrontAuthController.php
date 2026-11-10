@@ -298,6 +298,13 @@ class StorefrontAuthController extends Controller
             ]);
         }
 
+        if ($user->customerProfile?->is_blocked) {
+            Auth::guard('web')->logout();
+            throw ValidationException::withMessages([
+                'email' => 'This account is blocked. Please contact the store.',
+            ]);
+        }
+
         if (! $user->isStorefrontCustomer()) {
             Auth::guard('web')->logout();
             throw ValidationException::withMessages([

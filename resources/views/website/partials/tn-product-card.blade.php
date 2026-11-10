@@ -7,7 +7,10 @@
     $displayName = $product->storefrontDisplayName();
     $brandLabel = trim((string) ($product->brand_name ?? $product->brand?->name ?? ''));
     $catLabel = $brandLabel !== '' ? $brandLabel : ($product->category?->name ?? 'Beauty');
-    $flash = !empty($flash);
+    $flash = ! empty($flash);
+    $saveAmount = ($compareAt && (float) $compareAt > (float) $currentPrice)
+        ? round((float) $compareAt - (float) $currentPrice, 2)
+        : 0;
     $isNew = $product->showsAsNew();
     $isCombo = (bool) $product->is_combo;
     $comboItems = $isCombo ? $product->comboItemList() : [];
@@ -22,8 +25,8 @@
         $reviews = 24;
     }
     $reviewLabel = $reviews >= 1000
-        ? number_format($reviews / 1000, 1).'k+'
-        : number_format($reviews).'+';
+        ? number_format($reviews / 1000, 1).'k'
+        : number_format($reviews);
 
     $listItem = [
         'id' => $product->id,
@@ -101,17 +104,20 @@
             </div>
         @endif
 
-        <div class="tn-product-stars" aria-label="Rating {{ number_format($rating, 1) }}">
-            <span class="tn-product-star">★</span>
+        <div class="tn-product-stars" aria-label="Rated {{ number_format($rating, 1) }} from {{ $reviewLabel }} reviews">
+            <span class="tn-product-star" aria-hidden="true">★</span>
             <span class="tn-product-rating">{{ number_format($rating, 1) }}</span>
             <span class="tn-product-reviews">({{ $reviewLabel }})</span>
         </div>
 
         <div class="tn-product-foot">
-            <div class="tn-product-price-row">
-                <span class="tn-product-price">{{ $ws->formatPrice($currentPrice, $settings) }}</span>
+            <div class="tn-product-price-row {{ $compareAt && (float) $compareAt > (float) $currentPrice ? 'is-sale' : '' }}">
+                <span class="tn-product-price">{!! $ws->formatPriceHtml($currentPrice, $settings) !!}</span>
                 @if($compareAt && (float) $compareAt > (float) $currentPrice)
-                    <span class="tn-product-old">{{ $ws->formatPrice($compareAt, $settings) }}</span>
+                    <span class="tn-product-old">{!! $ws->formatPriceHtml($compareAt, $settings) !!}</span>
+                @endif
+                @if($flash && $saveAmount > 0)
+                    <span class="tn-product-save">{{ __('website.home.flash_save') }} {!! $ws->formatPriceHtml($saveAmount, $settings) !!}</span>
                 @endif
             </div>
             <button type="button"
