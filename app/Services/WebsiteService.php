@@ -261,11 +261,26 @@ class WebsiteService
             $this->catalogQuery($shopId)
                 ->with(['category', 'brand'])
                 ->onSale()
-                ->orderByRaw('CASE WHEN sale_price IS NOT NULL AND sale_price < selling_price THEN (selling_price - sale_price) / NULLIF(selling_price, 0) ELSE COALESCE(pos_discount_value, 0) / 100 END DESC')
+                ->orderByRaw('CASE WHEN sale_price IS NOT NULL AND sale_price < selling_price THEN (selling_price - sale_price) / NULLIF(selling_price, 0) WHEN original_price IS NOT NULL AND original_price > selling_price THEN (original_price - selling_price) / NULLIF(original_price, 0) ELSE COALESCE(pos_discount_value, 0) / 100 END DESC')
                 ->take(48)
                 ->get(),
             16
         );
+        if ($flashSaleProducts->isEmpty()) {
+            $flashSaleProducts = $this->dedupeVariantCollection(
+                Product::query()
+                    ->with(['category', 'brand', 'galleryImages'])
+                    ->where('shop_id', $shopId)
+                    ->where(function ($q) {
+                        $q->where('is_published', true)->orWhereNull('is_published');
+                    })
+                    ->onSale()
+                    ->latest('id')
+                    ->take(48)
+                    ->get(),
+                16
+            );
+        }
 
         $flashSaleEndsAt = $flashSaleProducts
             ->map(fn (Product $p) => $p->sale_ends_at)

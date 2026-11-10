@@ -362,10 +362,18 @@ class Product extends Model
         return $this->permanentDiscountPrice() !== null;
     }
 
-    /** Discounted / sale pricing active (timed campaign or permanent product discount). */
+    /** Discounted / sale pricing active (timed campaign, permanent discount, or compare-at markdown). */
     public function isOnSale(?CarbonInterface $at = null): bool
     {
-        return $this->isTimedSaleActive($at) || $this->hasPermanentDiscount();
+        return $this->isTimedSaleActive($at) || $this->hasPermanentDiscount() || $this->hasCompareAtMarkdown();
+    }
+
+    public function hasCompareAtMarkdown(): bool
+    {
+        $selling = (float) $this->selling_price;
+        $original = (float) ($this->original_price ?? 0);
+
+        return $selling > 0 && $original > $selling;
     }
 
     /** Price charged now (best of timed sale / permanent discount / list). */
@@ -453,6 +461,10 @@ class Product extends Model
                     ->whereNotNull('pos_discount_value')
                     ->where('pos_discount_value', '>', 0)
                     ->whereIn('pos_discount_type', ['percent', 'fixed', 'tk']);
+            })->orWhere(function ($markdown) {
+                $markdown->whereNotNull('original_price')
+                    ->where('original_price', '>', 0)
+                    ->whereColumn('original_price', '>', 'selling_price');
             });
         });
     }

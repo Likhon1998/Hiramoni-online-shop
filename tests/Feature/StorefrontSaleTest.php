@@ -65,9 +65,36 @@ class StorefrontSaleTest extends TestCase
             'original_price' => 1050,
         ]);
 
-        $this->assertFalse($product->isOnSale());
+        $this->assertTrue($product->isOnSale());
         $this->assertEquals(890.0, $product->currentPrice());
         $this->assertEquals(1050.0, $product->compareAtPrice());
         $this->assertSame(15, $product->discountPercent());
+    }
+
+    public function test_homepage_deals_include_compare_at_markdown_without_timed_sale(): void
+    {
+        $admin = $this->shopAdmin();
+        SiteSetting::create([
+            'default_shop_id' => $admin->shop_id,
+            'store_name' => 'Hira Moni',
+            'currency_code' => 'BDT',
+            'currency_symbol' => '৳',
+        ]);
+
+        Product::create([
+            'shop_id' => $admin->shop_id,
+            'name' => 'Marked Down Cream',
+            'barcode' => 'MD-1',
+            'cost_price' => 200,
+            'selling_price' => 890,
+            'original_price' => 1050,
+            'stock_quantity' => 10,
+            'is_published' => true,
+        ]);
+
+        $this->get('/')->assertOk()
+            ->assertSee('gw-flash', false)
+            ->assertSee('Marked Down Cream')
+            ->assertSee('-15%');
     }
 }

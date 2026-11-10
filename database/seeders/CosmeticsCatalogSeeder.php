@@ -284,6 +284,47 @@ class CosmeticsCatalogSeeder extends Seeder
         return $n;
     }
 
+    /** Re-apply timed catalog sales on an existing shop without reseeding products. */
+    public function applyCatalogSales(int $shopId, int $days = 14): int
+    {
+        $applied = 0;
+        $starts = now()->subHour();
+        $ends = now()->addDays(max(1, $days));
+
+        foreach ($this->catalog() as $item) {
+            $pct = (float) ($item['sale_percent'] ?? 0);
+            if ($pct <= 0) {
+                continue;
+            }
+
+            $salePrice = max(1, (float) round($item['price'] * (1 - min(80, $pct) / 100)));
+            if ($salePrice >= (float) $item['price']) {
+                continue;
+            }
+
+            $query = Product::query()->where('shop_id', $shopId);
+            if (! empty($item['barcode'])) {
+                $query->where('barcode', $item['barcode']);
+            } else {
+                $query->where(function ($q) use ($item) {
+                    $q->where('name', $item['name'])
+                        ->orWhere('name', 'like', $item['name'].' — %')
+                        ->orWhere('variant_group', Str::slug($item['name']));
+                });
+            }
+
+            $product = $query->orderBy('id')->first();
+            if (! $product) {
+                continue;
+            }
+
+            $product->applySale($salePrice, $starts, $ends);
+            $applied++;
+        }
+
+        return $applied;
+    }
+
     /**
      * Copy packaged Unsplash JPEGs into storage using the same filenames the catalog uses.
      * Safe to run on every deploy so LiteSpeed's /storage copy has real product photos.

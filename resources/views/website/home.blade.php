@@ -354,7 +354,9 @@
 
 {{-- 4. FLASH SALE --}}
 @php
-    $homeFlash = collect($flashSaleProducts ?? [])->filter(fn ($p) => $p->isOnSale())->values();
+    $homeFlash = collect($flashSaleProducts ?? [])
+        ->filter(fn ($p) => $p->isOnSale() || $p->discountPercent() > 0)
+        ->values();
     $flashEndsAt = $flashSaleEndsAt ?? $homeFlash->map(fn ($p) => $p->sale_ends_at)->filter()->sort()->first();
     $flashEyebrow = $settings->deals_kicker;
     $flashTitle = $settings->deals_title;

@@ -152,6 +152,9 @@ fi
 echo "==> Publish packaged demo product photos"
 php artisan storefront:publish-demo-media || true
 
+echo "==> Ensure homepage deals are live"
+php artisan storefront:ensure-deals || true
+
 link_web_root
 
 echo "==> Optimize"
